@@ -1,9 +1,5 @@
 
-<?php if ($this->session->flashdata('success')) { ?>
-    <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-<?php } elseif ($this->session->flashdata('error')) { ?>
-    <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-<?php } ?>
+
 
 <?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 
@@ -67,7 +63,7 @@
                 </div>
             </div>
         </div>
-        <hr>
+
 
         <div class="text-right mb15">
             <button type="submit" name="send" value="send" class="btn btn-primary">Lưu lại</button>

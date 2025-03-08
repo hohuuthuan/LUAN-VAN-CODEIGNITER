@@ -1,3 +1,5 @@
+
+
 <section>
     <div class="container">
         <div class="row">
@@ -12,7 +14,7 @@
                         <form action="<?php echo base_url('add-to-cart') ?>" method="POST">
                             <div class="col-sm-4">
                                 <div class="product-image-wrapper">
-                                    <input type="hidden" value="<?php echo $allPro->id ?>" name="product_id">
+                                    <input type="hidden" value="<?php echo $allPro->product_id ?>" name="product_id">
                                     <input type="hidden" value="1" name="quantity">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
@@ -38,7 +40,7 @@
                                             </h2>
 
                                             <p><?php echo $allPro->title ?></p>
-                                            <a href="<?php echo base_url('san-pham/' . $allPro->id . '/' . $allPro->slug) ?>"
+                                            <a href="<?php echo base_url('san-pham/' . $allPro->product_id . '/' . $allPro->slug) ?>"
                                                class="btn btn-default add-to-cart"><i class="fa fa-eye"></i>Details</a>
                                             <button type="submit" class="btn btn-default cart">
                                                 <i class="fa fa-shopping-cart"></i>

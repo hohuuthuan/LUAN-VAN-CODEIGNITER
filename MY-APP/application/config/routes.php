@@ -163,11 +163,11 @@ $route['order_customer/deleteOrder/(:any)']['GET'] = 'indexController/deleteOrde
 $route['send-mail'] = 'indexController/send_mail';
 
 // Comment
-$route['comment/send']['POST'] = 'indexController/comment_send';
-$route['comment']['GET'] = 'indexController/list_comment';
-$route['comment/edit/(:any)']['GET'] = 'indexController/editComment/$1';
-$route['comment/update/(:any)']['POST'] = 'indexController/updateComment/$1';
-$route['comment/delete/(:any)']['GET'] = 'indexController/deleteComment/$1';
+$route['comment/send']['POST'] = 'dashboardController/comment_send';
+$route['comment']['GET'] = 'dashboardController/list_comment';
+$route['comment/edit/(:any)']['GET'] = 'dashboardController/editComment/$1';
+$route['comment/update/(:any)']['POST'] = 'dashboardController/updateComment/$1';
+$route['comment/delete/(:any)']['GET'] = 'dashboardController/deleteComment/$1';
 
 // Cart
 $route['cart/order-items']['GET'] = 'indexController/order_items';

@@ -44,5 +44,60 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			$this->load->view('revenue_view', $data);
 		}
 
+
+
+
+		
+	public function list_comment()
+	{
+		$this->config->config['pageTitle'] = 'List Comments';
+		$this->load->model('indexModel');
+		$data['comments'] = $this->indexModel->getAllComment();
+		// echo '</pre>';
+		// print_r($data['comments']);
+		// echo '</pre>';
+		$data["template"] = "comment/index";
+		$data["title"] = "Danh sách bình luận";
+		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+	public function deleteComment($cmt_id)
+	{
+		$this->load->model('indexModel');
+
+		$del_comment_details = $this->indexModel->deleteComment($cmt_id);
+		if ($del_comment_details) {
+			$this->session->set_flashdata('success', 'Xóa bình luận thành công');
+			redirect(base_url('comment'));
+		} else {
+			$this->session->set_flashdata('error', 'Xóa bình luận thất bại');
+			redirect(base_url('comment'));
+		}
+	}
+
+	public function editComment($cmt_id)
+	{
+		$this->config->config['pageTitle'] = 'Edit Customer';
+		$this->load->model('indexModel');
+		$data['comments'] = $this->indexModel->selectCommentById($cmt_id);
+		$data["template"] = "comment/editComment";
+		$data["title"] = "Chỉnh sửa bình luận";
+		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+
+	public function updateComment($cmt_id)
+	{
+		$data = [
+			'comment' => $this->input->post('comment'),
+			'status' => $this->input->post('status'),
+		];
+		$this->load->model('indexModel');
+		$this->indexModel->updateComment($cmt_id, $data);
+		$this->session->set_flashdata('success', 'Đã chỉnh sửa bình luận thành công');
+		redirect(base_url('comment'));
+
+	}
+
 			
 }

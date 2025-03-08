@@ -3,7 +3,6 @@ CREATE TABLE `Role` (
     `Role_name` VARCHAR(255) NOT NULL,
     `Description` VARCHAR(255) NOT NULL
 );
-
 CREATE TABLE `Users` (
     `UserID` INT AUTO_INCREMENT PRIMARY KEY,
     `Email` VARCHAR(255) NOT NULL UNIQUE,
@@ -19,7 +18,6 @@ CREATE TABLE `Users` (
     `Deleted_at` DATETIME NULL,
     FOREIGN KEY (`Role_ID`) REFERENCES `Role` (`Role_ID`)
 );
-
 CREATE TABLE `Category` (
     `CategoryID` BIGINT AUTO_INCREMENT PRIMARY KEY,
     `Name` VARCHAR(255) NOT NULL,
@@ -28,7 +26,6 @@ CREATE TABLE `Category` (
     `Slug` VARCHAR(255) NOT NULL UNIQUE,
     `Publish` INT NOT NULL DEFAULT 1
 );
-
 CREATE TABLE `Brand` (
     `BrandID` BIGINT AUTO_INCREMENT PRIMARY KEY,
     `Name` VARCHAR(255) NOT NULL,
@@ -37,7 +34,6 @@ CREATE TABLE `Brand` (
     `Slug` VARCHAR(255) NOT NULL UNIQUE,
     `Publish` INT NOT NULL DEFAULT 1
 );
-
 CREATE TABLE `Product` (
     `ProductID` BIGINT AUTO_INCREMENT PRIMARY KEY,
     `Name` VARCHAR(200) NOT NULL,
@@ -56,7 +52,6 @@ CREATE TABLE `Product` (
     FOREIGN KEY (`CategoryID`) REFERENCES `Category` (`CategoryID`),
     FOREIGN KEY (`BrandID`) REFERENCES `Brand` (`BrandID`)
 );
-
 CREATE TABLE `Suppliers` (
     `SupplierID` INT AUTO_INCREMENT PRIMARY KEY,
     `Name` VARCHAR(255) NOT NULL,
@@ -65,7 +60,6 @@ CREATE TABLE `Suppliers` (
     `Address` VARCHAR(255) NOT NULL,
     `Email` VARCHAR(255) NOT NULL UNIQUE
 );
-
 CREATE TABLE `Batches` (
     `Batch_ID` INT AUTO_INCREMENT PRIMARY KEY,
     `ProductID` BIGINT NOT NULL,
@@ -77,7 +71,6 @@ CREATE TABLE `Batches` (
     FOREIGN KEY (`ProductID`) REFERENCES `Product` (`ProductID`),
     FOREIGN KEY (`SupplierID`) REFERENCES `Suppliers` (`SupplierID`)
 );
-
 CREATE TABLE `Purchases` (
     `Purchase_ID` INT AUTO_INCREMENT PRIMARY KEY,
     `Batch_ID` INT NOT NULL,
@@ -88,7 +81,6 @@ CREATE TABLE `Purchases` (
     FOREIGN KEY (`Batch_ID`) REFERENCES `Batches` (`Batch_ID`),
     FOREIGN KEY (`SupplierID`) REFERENCES `Suppliers` (`SupplierID`)
 );
-
 CREATE TABLE `Order` (
     `OrderID` INT AUTO_INCREMENT PRIMARY KEY,
     `Order_Code` VARCHAR(20) NOT NULL UNIQUE,
@@ -99,7 +91,6 @@ CREATE TABLE `Order` (
     `Date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (`UserID`) REFERENCES `Users` (`UserID`)
 );
-
 CREATE TABLE `Order_detail` (
     `Order_Detail_ID` INT AUTO_INCREMENT PRIMARY KEY,
     `Order_Code` VARCHAR(20) NOT NULL,

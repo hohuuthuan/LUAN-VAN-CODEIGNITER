@@ -8,7 +8,7 @@
 
 <?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 
-<form action="<?php echo base_url('category/update/'.$brand->id) ?>" method="post" class="box" enctype="multipart/form-data">
+<form action="<?php echo base_url('category/update/'.$category->id) ?>" method="post" class="box" enctype="multipart/form-data">
     <div class="wrapper wrapper-content animated fadeInRight">
         <div class="row">
             <div class="col-lg-5">
@@ -28,7 +28,7 @@
                                 <div class="form-row">
                                     <label for="" class="control-label text-right">Tên danh mục<span
                                             class="text-danger" required>(*)</span></label>
-                                    <input name="title" value="<?php echo $brand->title ?>" type="text"
+                                    <input name="title" value="<?php echo $category->title ?>" type="text"
                                         class="form-control" id="slug" onkeyup="ChangeToSlug();"
                                         placeholder="Nhập tên danh mục">
                                 </div>
@@ -38,7 +38,7 @@
                                 <div class="form-row">
                                     <label for="" class="control-label text-right">Slug<span
                                             class="text-danger">(*)</span></label>
-                                    <input name="slug" value="<?php echo $brand->slug ?>" type="text"
+                                    <input name="slug" value="<?php echo $category->slug ?>" type="text"
                                         class="form-control" id="convert_slug" placeholder="Nhập slug">
                                 </div>
                             </div>
@@ -50,7 +50,7 @@
                                     <div class="form-group">
                                         <label for="description">Mô tả</label>
                                         <textarea name="description" type="text" class="form-control" rows="7"
-                                            placeholder="Nhập mô tả"><?php echo $brand->description ?></textarea>
+                                            placeholder="Nhập mô tả"><?php echo $category->description ?></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -59,7 +59,7 @@
                                     <div class="form-group">
                                         <label for="image">Hình ảnh</label>
                                         <input name="image" type="file" class="form-control-file">
-                                        <img src="<?php echo base_url('uploads/brand/' . $brand->image) ?>" alt=""
+                                        <img src="<?php echo base_url('uploads/category/' . $category->image) ?>" alt=""
                                             width="150" height="150">
                                         <small class="text-danger"><?php if (isset($error))
                                             echo $error ?></small>
@@ -73,9 +73,9 @@
                                     <div class="form-row">
                                         <label for="status">Trạng thái</label>
                                         <select name="status" class="form-control">
-                                            <option value="1" <?php echo ($brand->status == 1) ? 'selected' : '' ?>>Active
+                                            <option value="1" <?php echo ($category->status == 1) ? 'selected' : '' ?>>Active
                                         </option>
-                                        <option value="0" <?php echo ($brand->status == 0) ? 'selected' : '' ?>>Inactive
+                                        <option value="0" <?php echo ($category->status == 0) ? 'selected' : '' ?>>Inactive
                                         </option>
                                     </select>
                                 </div>

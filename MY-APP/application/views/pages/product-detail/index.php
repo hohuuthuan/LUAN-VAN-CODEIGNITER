@@ -22,11 +22,7 @@
 
 						<form action="<?php echo base_url('add-to-cart') ?>" method="POST">
 							<div class="col-sm-7">
-								<?php if ($this->session->flashdata('success')) { ?>
-									<div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-								<?php } elseif ($this->session->flashdata('error')) { ?>
-									<div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-								<?php } ?>
+		
 								<div class="product-information"><!--/product-information-->
 									<h2><?php echo $pro_det->title ?></h2>
 									<input type="hidden" value="<?php echo $pro_det->id ?>" name="product_id">
@@ -79,7 +75,8 @@
 										?>
 									</p>
 
-									<p style="text-align: justify; text-justify: inter-word"><b>Mô tả:</b> <?php echo $pro_det->description ?></p>
+									<p style="text-align: justify; text-justify: inter-word"><b>Mô tả:</b>
+										<?php echo $pro_det->description ?></p>
 
 									<p><b>Brand:</b> <?php echo $pro_det->tenthuonghieu ?> </p>
 									<p><b>Category:</b> <?php echo $pro_det->tendanhmuc ?></p>
@@ -114,7 +111,6 @@
 
 									</ul>
 
-
 								<?php } ?>
 								<form>
 									<span>
@@ -124,7 +120,7 @@
 											placeholder="Họ và Tên của bạn..." />
 										<input class="email_comment" type="email" required placeholder="Email..." />
 									</span>
-									<textarea class="comment"  placeholder="Viết đánh giá..." required>
+									<textarea class="comment" placeholder="Viết đánh giá..." required>
 
 									</textarea>
 									<!-- <b>Rating: </b> <img src="images/product-details/rating.png" alt="" /> -->
@@ -137,8 +133,6 @@
 
 					</div>
 				</div><!--/category-tab-->
-
-
 
 			</div>
 		</div>

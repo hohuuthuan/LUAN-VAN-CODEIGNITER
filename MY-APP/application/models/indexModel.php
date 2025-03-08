@@ -31,13 +31,27 @@ class indexModel extends CI_Model
 
     public function activeCustomerAndUpdateNewToken($email, $data_customer)
     {
-        return $this->db->update('users', $data_customer, ['email' => $email]);
+        $this->db->trans_start();
+        $this->db->update('users', $data_customer, ['email' => $email]);
+        if ($this->db->affected_rows() == 0) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        $this->db->trans_complete();
+        return $this->db->trans_status();
     }
 
     // comment
-    public function commentSend($data)
+   public function commentSend($data)
     {
-        return $this->db->insert('comment', $data);
+        $this->db->trans_start();
+        $this->db->insert('comment', $data);
+        if ($this->db->affected_rows() == 0) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        $this->db->trans_complete();
+        return true;
     }
     public function getListConmment()
     {
@@ -85,13 +99,6 @@ class indexModel extends CI_Model
         return $this->db->count_all_results();
 
     }
-
-    // public function getIndexPagination($limit, $start)
-    // {
-    //     $this->db->limit($limit, $start);
-    //     $query = $this->db->get_where('products', ['status' => 1]);
-    //     return $query->result();
-    // }
 
 
     public function getIndexPagination($limit, $start)
@@ -283,16 +290,23 @@ class indexModel extends CI_Model
     public function getProductDetails($id)
     {
         $query = $this->db->select('categories.title as tendanhmuc, 
-                                    products.*, brands.title as tenthuonghieu, 
-                                    warehouses.quantity')
+                                     products.*, brands.title as tenthuonghieu, 
+                                     warehouses.quantity')
             ->from('categories')
             ->join('products', 'products.category_id = categories.id')
             ->join('brands', 'brands.id = products.brand_id')
             ->join('warehouses', 'warehouses.product_id = products.id', 'left')
             ->where('products.id', $id)
             ->get();
-        return $query->result();
+    
+        $result = $query->result();
+        if (empty($result)) {
+            // You can log or handle this case
+            log_message('debug', 'No product details found for ID: ' . $id);
+        }
+        return $result;
     }
+    
 
 
     public function getBrandTitle($id)
@@ -307,14 +321,21 @@ class indexModel extends CI_Model
     }
     public function getProductTitle($id)
     {
-        $this->db->select('products.*');
+        $this->db->select('products.title');
         $this->db->from('products');
         $this->db->limit(1);
         $this->db->where('products.id', $id);
         $query = $this->db->get();
         $result = $query->row();
-        return $title = $result->title;
+    
+        if ($result) {
+            return $result->title;
+        } else {
+            // Handle the case where the product is not found
+            return null; // Or you can return a default value or error message
+        }
     }
+    
 
     // Tìm kiếm với từ khóa
     public function getProductByKeyword($keyword)
@@ -339,11 +360,17 @@ class indexModel extends CI_Model
     }
 
 
-
     public function updateCustomer($user_id, $data)
     {
+        $this->db->trans_start();
         $this->db->where('id', $user_id);
-        return $this->db->update('users', $data);
+        $this->db->update('users', $data);
+        if ($this->db->affected_rows() == 0) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        $this->db->trans_complete();
+        return true;
     }
 
 
@@ -360,7 +387,14 @@ class indexModel extends CI_Model
 
     public function deleteComment($cmt_id)
     {
-        return $this->db->delete('comment', ['id' => $cmt_id]);
+        $this->db->trans_start();
+        $this->db->delete('comment', ['id' => $cmt_id]);
+        if ($this->db->affected_rows() == 0) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        $this->db->trans_complete();
+        return true;
     }
     public function selectCommentById($cmt_id)
     {
@@ -369,8 +403,15 @@ class indexModel extends CI_Model
     }
     public function updateComment($cmt_id, $data)
     {
+        $this->db->trans_start();
         $this->db->where('id', $cmt_id);
-        return $this->db->update('comment', $data);
+        $this->db->update('comment', $data);
+        if ($this->db->affected_rows() == 0) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        $this->db->trans_complete();
+        return true;
     }
 
 }

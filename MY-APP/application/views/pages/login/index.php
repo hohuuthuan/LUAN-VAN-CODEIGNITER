@@ -1,10 +1,5 @@
 <section id="form"><!--form-->
 		<div class="container">
-			<?php if($this->session->flashdata('success')) { ?>
-				<div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-			<?php } elseif($this->session->flashdata('error')) { ?>
-				<div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-			<?php } ?>
 			<div class="row">
 				<div class="col-sm-4 col-sm-offset-1">
 					<div class="login-form"><!--login form-->

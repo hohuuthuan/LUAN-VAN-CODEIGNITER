@@ -23,7 +23,7 @@ QL Khách hàng                           DONE
 QL SLider                               DONE
 QL bình luận                            DONE
 Thống kê doanh thu                      DONE
-QL kho hàng                             
+QL kho hàng                             DONE
 
 
 # Phần AI

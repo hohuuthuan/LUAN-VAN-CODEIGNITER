@@ -2,11 +2,7 @@
 <div class="container">
     <div class="card">
         <h1 style="text-align: center; margin-bottom: 30px; color: #FE980F;">Danh sách đơn hàng</h1>
-        <?php if($this->session->flashdata('success')) { ?>
-            <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-        <?php } elseif($this->session->flashdata('error')) { ?>
-            <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-        <?php } ?>
+
         <div class="card-body">
             <?php
             $orders_by_code = [];

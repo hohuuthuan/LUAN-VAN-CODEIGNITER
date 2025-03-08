@@ -473,3 +473,20 @@ a{
 }
 
 
+.toast-success {
+    background-color: #28a745 !important; /* Màu nền */
+    color: #fff !important; /* Màu chữ */
+    font-family: Arial, sans-serif; /* Font chữ */
+}
+
+.toast-success .toast-title {
+    font-weight: bold; /* Tiêu đề in đậm */
+}
+
+.toast-success::before {
+    font-family: 'FontAwesome';
+    content: "\f00c"; 
+    color: #fff; /* Màu icon */
+    font-size: 20px;
+    margin-right: 10px;
+}

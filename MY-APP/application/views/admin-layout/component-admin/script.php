@@ -20,6 +20,34 @@
 
 
 
+<script>
+	$(document).ready(function () {
+		toastr.options = {
+			"closeButton": true,
+			"progressBar": true, 
+			"positionClass": "toast-top-right",
+			"timeOut": 5000,
+			"extendedTimeOut": 1000,
+			"showEasing": "swing", 
+			"hideEasing": "linear",
+			"showMethod": "fadeIn", 
+			"hideMethod": "fadeOut"
+		};
+
+		var successMessage = "<?php echo $this->session->flashdata('success'); ?>";
+		var errorMessage = "<?php echo $this->session->flashdata('error'); ?>";
+		
+		if (successMessage) {
+			toastr.success(successMessage, 'Thành công', { timeOut: 4000 });
+		}
+
+		if (errorMessage) {
+			toastr.error(errorMessage, 'Lỗi', { timeOut: 4000 });
+		}
+	});
+</script>
+
+
 
 
 

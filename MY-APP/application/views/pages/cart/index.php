@@ -1,23 +1,12 @@
 <section id="cart_items">
 	<div class="container">
-		<div class="breadcrumbs">
-			<ol class="breadcrumb">
-				<li><a href="#">Home</a></li>
-				<li class="active">Shopping Cart</li>
-			</ol>
-		</div>
+		<?php $this->load->view("pages/component/breadcrumb.php");?>
 		<div class="table-responsive cart_info">
 			<?php
 			if ($this->cart->contents()) {
 				?>
 				<table class="table table-condensed">
 					<thead>
-						<?php if ($this->session->flashdata('success')) { ?>
-							<div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-						<?php } elseif ($this->session->flashdata('error')) { ?>
-							<div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-						<?php } ?>
-
 						<tr class="cart_menu">
 							<td scope="col" class="description">Image</td>
 							<td scope="col" class="image">Item</td>

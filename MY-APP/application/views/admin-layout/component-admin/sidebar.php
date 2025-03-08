@@ -31,7 +31,7 @@
 							<div class="logo-element">IN+</div>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý thương hiệu</span>
 								<span class="fa arrow"></span
@@ -44,7 +44,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý danh mục</span>
 								<span class="fa arrow"></span
@@ -58,7 +58,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý sản phẩm</span>
 								<span class="fa arrow"></span
@@ -72,7 +72,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý đơn hàng</span>
 								<span class="fa arrow"></span
@@ -84,7 +84,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý banner</span>
 								<span class="fa arrow"></span
@@ -98,7 +98,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý người dùng</span>
 								<span class="fa arrow"></span
@@ -112,7 +112,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý kho hàng</span>
 								<span class="fa arrow"></span
@@ -126,7 +126,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Thống kê</span>
 								<span class="fa arrow"></span
@@ -143,7 +143,7 @@
 							</ul>
 						</li>
 						<li class="">
-							<a href="index.html"
+							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý bình luận</span>
 								<span class="fa arrow"></span
