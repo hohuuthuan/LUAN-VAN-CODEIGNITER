@@ -1,6 +1,19 @@
 <?php
 class indexModel extends CI_Model
 {
+    // VNPAY
+    public function insert_VNPAY($data_vnpay)
+    {
+        $this->db->trans_start();
+        $this->db->insert('vnpay', $data_vnpay);
+        if ($this->db->affected_rows() == 0) {
+            $this->db->trans_rollback();
+            return false;
+        }
+        $this->db->trans_complete();
+        return true;
+    }
+
     public function getBrandHome()
     {
         $query = $this->db->get_where('brands', ['status' => 1]);

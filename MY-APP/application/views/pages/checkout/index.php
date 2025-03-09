@@ -70,31 +70,25 @@
 
 							</tr>
 
-						<?php
+							<?php
 						}
 						?>
 					</tbody>
 				</table>
 				<div style="position: relative; width: 100%; height: 100px">
 
-			
-				<div style=" display: flex; position: absolute; right: 15px; top: -10px;">
-                        <h3>TỔNG THANH TOÁN:<h3 style="color: #FE980F; margin-left: 10px">
-                        <?php echo number_format($total,0, ',','.') ?> VNĐ</h3></h3>
-						
-                </div>
 
-				<!-- <div style=" display: flex; position: absolute; right: 15px; top: 55px;">	
-				<a style="margin-right: 30px" href="<?php echo base_url('delete-all-cart') ?>"
-							class="btn btn-danger">Xóa tất cả</a>
-				<a href="<?php echo base_url('checkout') ?>" class="btn btn-success">Đặt hàng</a>
-				</div> -->
-				
+					<div style=" display: flex; position: absolute; right: 15px; top: -10px;">
+						<h3>TỔNG THANH TOÁN:<h3 style="color: #FE980F; margin-left: 10px">
+								<?php echo number_format($total, 0, ',', '.') ?> VNĐ
+							</h3>
+						</h3>
+
+					</div>
 
 
-						
 				</div>
-			<?php
+				<?php
 			} else {
 				echo '<span class="text text-danger">Hãy thêm sản phẩm vào giỏ hàng</span>';
 			}
@@ -107,9 +101,9 @@
 				<div class="row">
 					<div class="col-sm-10 col-sm-offset-1">
 						<div class="login-form"><!--login form-->
-							
-							<form onsubmit="return confirm('Xác nhận đặt hàng')" method="POST"
-								action="confirm-checkout">
+
+							<form action="confirm-checkout-method" onsubmit="return confirm('Xác nhận đặt hàng')"
+								method="POST">
 								<label>Name</label>
 								<input type="text" name="name" placeholder="Name" />
 								<?php echo form_error('name'); ?>
@@ -122,8 +116,8 @@
 								<label>Email</label>
 								<input type="text" name="email" placeholder="Email" />
 								<?php echo form_error('email'); ?>
-								<label>Hình thức thanh toán</label>
-								<select name="form_of_payment" id="">
+								<label>Hình thức thanh toán</label> <br>
+								<select style="width: 100px" class="" name="checkout_method" id="">
 									<option value="COD">COD</option>
 									<option value="VNPAY">VNPAY</option>
 								</select>
@@ -135,4 +129,5 @@
 			</div>
 		</section><!--/form-->
 	</div>
-</section> <!--/#cart_items-->
+
+</section><!--/#cart_items-->

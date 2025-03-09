@@ -121,11 +121,6 @@ class indexController extends CI_Controller
 
 		$this->email->from($from_mail, 'Trang web abc.com');
 		$this->email->to($to_mail);
-		// Gửi 1 bản copy cho 1 hay nhiều người
-		// $this->email->cc('another@another-example.com');
-		// Gửi 1 bản copy cho 1 hay nhiều người mà không thấy được thông tin người gửi
-		// $this->email->bcc('them@their-example.com');
-
 
 		$this->email->subject($subject);
 		$this->email->message($message);
@@ -153,20 +148,13 @@ class indexController extends CI_Controller
 		$this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
 		$this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
 		$this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-
 		if ($this->form_validation->run() == TRUE) {
-
 			$name = $this->input->post('name');
 			$email = $this->input->post('email');
 			$phone = $this->input->post('phone');
 			$address = $this->input->post('address');
 			$form_of_payment = $this->input->post('form_of_payment');
-
 			$user_id = $this->getUserOnSession();
-			// lấy id bên shipping
-			// select ra ordercode có u
-			// cần lấy tên người dùng, mã đặt hàng, tên hàng đặt, số lượng hàng đặt, trạng thái đơn hàng, tổng tiền
-			// Thêm id-user đê biết ai đang đặt hàng mà insert vào bảng cart
 			$data = [
 				'user_id' => $user_id['id'],
 				'name' => $name,
@@ -229,10 +217,6 @@ class indexController extends CI_Controller
 	public function listOrder()
 	{
 		$this->config->config['pageTitle'] = 'List Order';
-		
-		// Gán thông tin tiêu đề và template vào $this->data
-		$this->data['template'] = 'pages/listOrder/index'; // Chỉ định view chính ở đây
-		$this->data['pageTitle'] = 'Danh sách đơn hàng';
 		$user_id = $this->getUserOnSession();
 		$this->load->model('orderModel');
 		$this->load->model('productModel');
@@ -245,27 +229,25 @@ class indexController extends CI_Controller
 		} else {
 			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
 		}
-		$this->data['order_items'] = $data['order_items']; // Gán danh sách đơn hàng vào $this->data
+		$this->data['order_items'] = $data['order_items'];
+		$this->data['template'] = 'pages/order/listOrder';
 		$this->load->view("pages/layout/index", $this->data);
 	}
-	
+
 
 
 	public function viewOrder($order_code)
 	{
-		$this->load->view('pages/component/header', $this->data);
+
 		$this->load->model('orderModel');
 		$this->load->model('productModel');
-
-		// Lấy chi tiết đơn hàng dựa trên order_code
 		$data['order_details'] = $this->orderModel->selectOrderDetails($order_code);
-
-		// Lặp qua từng mục chi tiết đơn hàng và lấy thông tin chi tiết sản phẩm
 		foreach ($data['order_details'] as $order_detail) {
 			$product_details = $this->productModel->selectProductById($order_detail->product_id);
 		}
-		$this->load->view("pages/viewOrder", $data);
-		$this->load->view("pages/component/footer");
+		$this->data['order_details'] = $data['order_details'];
+		$this->data['template'] = 'pages/order/viewOrder';
+		$this->load->view("pages/layout/index", $this->data);
 	}
 
 	public function deleteOrder($order_code)
@@ -453,8 +435,26 @@ class indexController extends CI_Controller
 	}
 	public function thank_you_for_order()
 	{
+		if (isset($_GET['vnp_Amount'])) {
+			$data_vnpay = [
+				'vnp_Amount' => $_GET['vnp_Amount'],
+				'vnp_BankCode' => $_GET['vnp_BankCode'],
+				'vnp_BankTranNo' => $_GET['vnp_BankTranNo'],
+				'vnp_CardType' => $_GET['vnp_CardType'],
+				'vnp_OrderInfo' => $_GET['vnp_OrderInfo'],
+				'vnp_PayDate' => $_GET['vnp_PayDate'],
+				'vnp_ResponseCode' => $_GET['vnp_ResponseCode'],
+				'vnp_TmnCode' => $_GET['vnp_TmnCode'],
+				'vnp_TransactionStatus' => $_GET['vnp_TransactionStatus'],
+				'vnp_TxnRef' => $_GET['vnp_TxnRef'],
+				'vnp_SecureHash' => $_GET['vnp_SecureHash']
+			];
+		}
+		$this->load->model('indexModel');
+		$this->indexModel->insert_VNPAY($data_vnpay);
+
 		$this->config->config['pageTitle'] = 'Cảm ơn bạn đã đặt hàng';
-		$this->data['template'] = "pages/thanks/index";
+		$this->data['template'] = "thanks/index";
 		$this->load->view("pages/layout/index", $this->data);
 
 
@@ -712,7 +712,7 @@ class indexController extends CI_Controller
 	public function loginCustomer()
 	{
 		$max_attempts = 5;
-		$lockout_time = 900; // 15 phút
+		$lockout_time = 300;
 
 		// Lấy thông tin số lần thử đăng nhập và thời gian lần thử cuối cùng
 		$login_attempts = $this->session->userdata('login_attempts') ?? 0;
@@ -1001,7 +1001,7 @@ class indexController extends CI_Controller
 			$data['email'] = $email;
 			$data['phone'] = $phone;
 
-			
+
 			$this->data['template'] = "pages/auth/verify-token-forget-password";
 			$this->load->view("pages/layout/index", $this->data);
 		} else {

@@ -160,7 +160,7 @@
 							</li>
 
 							<li>
-								<a href="login.html">
+								<a href="<?php echo base_url('logout_admin'); ?>">
 									<i class="fa fa-sign-out"></i> Log out
 								</a>
 							</li>

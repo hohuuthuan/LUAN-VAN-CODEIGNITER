@@ -67,9 +67,22 @@ $route['kich-hoat-tai-khoan']['GET'] = 'indexController/kich_hoat_tai_khoan';
 // Cart and checkout customer
 $route['delete-all-cart']['GET'] = 'indexController/delete_all_cart';
 $route['delete-item/(:any)']['GET'] = 'indexController/delete_item/$1';
+
+$route['thank-you-for-order']['GET'] = 'indexController/thank_you_for_order';
+
+// COD checkout
 $route['checkout']['GET'] = 'indexController/checkout';
 $route['confirm-checkout']['POST'] = 'indexController/confirm_checkout';
-$route['thank-you-for-order']['GET'] = 'indexController/thank_you_for_order';
+$route['confirm-checkout-method']['POST'] = 'checkoutController/confirm_checkout_method';
+
+
+
+// VNPay checkout
+// $route['vnpay-checkout']['GET'] = 'indexController/vnpay_checkout';
+// $route['confirm-vnpay-checkout']['POST'] = 'checkoutController/confirm_vnpay_checkout';
+
+
+
 
 // Tìm kiếm sản phẩm
 $route['search-product']['GET'] = 'indexController/search_product';

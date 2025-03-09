@@ -82,7 +82,7 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <label for="status" class="form-label">Trạng thái tài khoản</label>
-                                    <select class="form-control setupSelect2" id="status" name="status">
+                                    <select class="form-control setupSelect2" id="=" name="status">
                                         <option value="1" <?php echo ($customers->status == 1) ? 'selected' : ''; ?>>Kích
                                             hoạt</option>
                                         <option value="0" <?php echo ($customers->status == 0) ? 'selected' : ''; ?>>Khóa

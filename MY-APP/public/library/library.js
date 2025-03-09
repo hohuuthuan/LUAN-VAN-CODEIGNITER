@@ -17,11 +17,6 @@
         
     }
 
-    HT.sortui = () => {
-        $( "#sortable" ).sortable();
-		$( "#sortable" ).disableSelection();
-    }
-
     HT.changeStatus = () => {
         $(document).on('change', '.status', function(e){
             let _this = $(this)
