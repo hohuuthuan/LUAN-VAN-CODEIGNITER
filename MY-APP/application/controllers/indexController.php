@@ -95,9 +95,8 @@ class indexController extends CI_Controller
 		// print_r($this->data['allproduct_pagination']);
 		// echo '</pre>';
 
-
 		// Load view templates
-		$this->data['template'] = "pages/home/index";
+		$this->data['template'] = "pages/home/home";
 		$this->load->view("pages/layout/index", $this->data);
 
 	}
@@ -140,78 +139,6 @@ class indexController extends CI_Controller
 		} else {
 			$this->session->set_flashdata('error', 'Vui lòng đăng nhập để thực hiện đặt hàng');
 			redirect(base_url() . 'gio-hang');
-		}
-	}
-	public function confirm_checkout()
-	{
-		$this->form_validation->set_rules('name', 'Username', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-		$this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-		$this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-		$this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-		if ($this->form_validation->run() == TRUE) {
-			$name = $this->input->post('name');
-			$email = $this->input->post('email');
-			$phone = $this->input->post('phone');
-			$address = $this->input->post('address');
-			$form_of_payment = $this->input->post('form_of_payment');
-			$user_id = $this->getUserOnSession();
-			$data = [
-				'user_id' => $user_id['id'],
-				'name' => $name,
-				'email' => $email,
-				'phone' => $phone,
-				'address' => $address,
-				'form_of_payment' => $form_of_payment
-			];
-
-			$this->load->model('loginModel');
-			$result = $this->loginModel->newShipping($data);
-			if ($result) {
-				$letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3); // Lấy 3 chữ cái ngẫu nhiên
-				$numbers = sprintf("%06d", rand(0, 999999));
-				$order_code = $letters . $numbers;
-				// echo $order_code;
-				// Lưu vàp orders
-				$data_orders = [
-					'order_code' => $order_code,
-					'status' => 1,
-					'form_of_payment_id' => $result
-
-				];
-				$insert_orders = $this->loginModel->insert_orders($data_orders);
-
-				// Order details
-				foreach ($this->cart->contents() as $items) {
-					$date_created = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
-					$data_orders_details = array(
-						'order_code' => $order_code,
-						'product_id' => $items['id'],
-						'quantity' => $items['qty'],
-						'subtotal' => $items['subtotal'],
-						'date_order' => $date_created
-					);
-					$insert_orders_details = $this->loginModel->insert_orders_details($data_orders_details);
-				}
-
-
-				$this->session->set_flashdata('success', 'Đặt hàng thành công');
-				// Khi đã đặt hàng thành công thì giỏ hàng sẽ xóa đi các mặt hàng đã đặt
-				$this->cart->destroy();
-
-				// Gửi mail thông báo đã đặt hàng
-				$to_mail = $email;
-				$subject = 'Thông báo đặt hàng';
-				$message = 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.';
-
-				$this->send_mail($to_mail, $subject, $message);
-
-				redirect(base_url('thank-you-for-order'));
-			} else {
-				$this->session->set_flashdata('error', 'Đặt hàng thất bại');
-				redirect(base_url('checkout'));
-			}
-		} else {
-			redirect(base_url('checkout'));
 		}
 	}
 	public function listOrder()
@@ -323,7 +250,7 @@ class indexController extends CI_Controller
 		$this->data['title'] = $this->indexModel->getCategoryTitle($id);
 		$this->config->config['pageTitle'] = $this->data['title'];
 
-		$this->data['template'] = "pages/category/index";
+		$this->data['template'] = "pages/category/category";
 		$this->load->view("pages/layout/index", $this->data);
 	}
 	public function brand($id)
@@ -363,7 +290,7 @@ class indexController extends CI_Controller
 
 		$this->data['title'] = $this->indexModel->getBrandTitle($id);
 		$this->config->config['pageTitle'] = $this->data['title'];
-		$this->data['template'] = "pages/brand/index";
+		$this->data['template'] = "pages/brand/brand";
 		$this->load->view("pages/layout/index", $this->data);
 	}
 
@@ -414,7 +341,7 @@ class indexController extends CI_Controller
 		$this->data['title'] = $keyword;
 		$this->config->config['pageTitle'] = "Search product: " . $keyword;
 
-		$this->data['template'] = "pages/search/index";
+		$this->data['template'] = "pages/search/search";
 		$this->load->view("pages/layout/index", $this->data);
 
 	}
@@ -430,7 +357,7 @@ class indexController extends CI_Controller
 		// echo '<pre>';
 		// print_r($this->data['product_details']);
 		// echo '</pre>';
-		$this->data['template'] = "pages/product-detail/index";
+		$this->data['template'] = "pages/product-detail/product-detail";
 		$this->load->view("pages/layout/index", $this->data);
 	}
 	public function thank_you_for_order()
@@ -462,7 +389,7 @@ class indexController extends CI_Controller
 	public function cart()
 	{
 		$this->config->config['pageTitle'] = 'Giỏ hàng';
-		$this->data['template'] = "pages/cart/index";
+		$this->data['template'] = "pages/cart/cart";
 		$this->load->view("pages/layout/index", $this->data);
 	}
 
@@ -547,7 +474,7 @@ class indexController extends CI_Controller
 	public function login()
 	{
 		$this->config->config['pageTitle'] = 'Đăng nhập';
-		$this->data['template'] = "pages/login/index";
+		$this->data['template'] = "pages/login/login";
 		$this->load->view("pages/layout/index", $this->data);
 	}
 
@@ -942,7 +869,7 @@ class indexController extends CI_Controller
 	// Quên mật khẩu
 	public function forgot_password_layout()
 	{
-		$this->data['template'] = "pages/forgot-password/index";
+		$this->data['template'] = "pages/forgot-password/forgot-password";
 		$this->load->view("pages/layout/index", $this->data);
 	}
 
@@ -1209,9 +1136,6 @@ class indexController extends CI_Controller
 			redirect(base_url('/confirmPassword'));
 		}
 	}
-
-
-
 
 
 	public function change_password()
