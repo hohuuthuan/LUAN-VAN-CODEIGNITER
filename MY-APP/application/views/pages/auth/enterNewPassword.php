@@ -1,9 +1,4 @@
 <div style="width: 50%" class="container">
-            <?php if($this->session->flashdata('success')) { ?>
-				<div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-			<?php } elseif($this->session->flashdata('error')) { ?>
-				<div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-			<?php } ?>
     <h1 style="color: #FE980F">Nhập vào mật khẩu mới</h1>
     <form action="<?php echo base_url('enterNewPassword'); ?>" method="POST">
         <div class="form-group">

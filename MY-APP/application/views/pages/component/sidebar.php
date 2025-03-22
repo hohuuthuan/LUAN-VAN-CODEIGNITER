@@ -8,7 +8,7 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title"><a
-								href="<?php echo base_url('danh-muc/' . $cate->id . '/' . $cate->slug) ?>"><?php echo $cate->title ?></a>
+								href="<?php echo base_url('danh-muc/' . $cate->CategoryID . '/' . $cate->Slug) ?>"><?php echo $cate->Name ?></a>
 						</h4>
 					</div>
 				</div>
@@ -23,7 +23,7 @@
 					?>
 					<ul class="nav nav-pills nav-stacked">
 						<li><a
-								href="<?php echo base_url('thuong-hieu/' . $bra->id . '/' . $bra->slug) ?>"><?php echo $bra->title ?></a>
+								href="<?php echo base_url('thuong-hieu/' . $bra->BrandID . '/' . $bra->Slug) ?>"><?php echo $bra->Name ?></a>
 						</li>
 					</ul>
 				<?php } ?>

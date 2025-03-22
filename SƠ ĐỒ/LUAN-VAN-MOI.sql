@@ -1,355 +1,19 @@
--- MySQL dump 10.13  Distrib 8.0.38, for Win64 (x86_64)
---
--- Host: 127.0.0.1    Database: pesticide_shop
--- ------------------------------------------------------
--- Server version	8.0.37
+use pesticide_version2;
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `batches`
---
-
-DROP TABLE IF EXISTS `batches`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `batches` (
-  `Batch_ID` int NOT NULL AUTO_INCREMENT,
-  `ProductID` bigint NOT NULL,
-  `Quantity` bigint NOT NULL,
-  `Import_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `Expiry_date` datetime NOT NULL,
-  `Import_price` bigint NOT NULL,
-  `SupplierID` int NOT NULL,
-  `remaining_quantity` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Batch_ID`),
-  KEY `ProductID` (`ProductID`),
-  KEY `SupplierID` (`SupplierID`),
-  CONSTRAINT `batches_ibfk_1` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`),
-  CONSTRAINT `batches_ibfk_2` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers` (`SupplierID`),
-  CONSTRAINT `batches_chk_1` CHECK ((`Quantity` >= 0)),
-  CONSTRAINT `batches_chk_2` CHECK ((`Import_price` >= 0))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `batches`
---
-
-LOCK TABLES `batches` WRITE;
-/*!40000 ALTER TABLE `batches` DISABLE KEYS */;
-/*!40000 ALTER TABLE `batches` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `brand`
---
-
-DROP TABLE IF EXISTS `brand`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `brand` (
-  `BrandID` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(255) NOT NULL,
-  `Description` varchar(255) DEFAULT NULL,
-  `Image` varchar(255) DEFAULT NULL,
-  `Slug` varchar(255) NOT NULL,
-  `Publish` int NOT NULL DEFAULT '1',
-  PRIMARY KEY (`BrandID`),
-  UNIQUE KEY `Slug` (`Slug`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `brand`
---
-
-LOCK TABLES `brand` WRITE;
-/*!40000 ALTER TABLE `brand` DISABLE KEYS */;
-INSERT INTO `brand` VALUES (1,'Bayer','Thương hiệu thuốc bảo vệ thực vật',NULL,'bayer',1),(2,'Syngenta','Công ty sản xuất phân bón và hóa chất',NULL,'syngenta',1);
-/*!40000 ALTER TABLE `brand` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `category`
---
-
-DROP TABLE IF EXISTS `category`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `category` (
-  `CategoryID` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(255) NOT NULL,
-  `Description` varchar(255) DEFAULT NULL,
-  `Image` varchar(255) DEFAULT NULL,
-  `Slug` varchar(255) NOT NULL,
-  `Publish` int NOT NULL DEFAULT '1',
-  PRIMARY KEY (`CategoryID`),
-  UNIQUE KEY `Slug` (`Slug`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `category`
---
-
-LOCK TABLES `category` WRITE;
-/*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` VALUES (1,'Thuốc trừ sâu','Diệt côn trùng và sâu bệnh',NULL,'thuoc-tru-sau',1),(2,'Phân bón','Cung cấp dinh dưỡng cho cây trồng',NULL,'phan-bon',1);
-/*!40000 ALTER TABLE `category` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `discount`
---
-
-DROP TABLE IF EXISTS `discount`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `discount` (
-  `DiscountID` int NOT NULL AUTO_INCREMENT,
-  `Coupon_code` varchar(50) NOT NULL,
-  `Discount_type` enum('Percentage','Fixed') NOT NULL,
-  `Discount_value` bigint NOT NULL,
-  `Min_order_value` bigint NOT NULL DEFAULT '0',
-  `Max_discount` bigint DEFAULT NULL,
-  `Start_date` datetime NOT NULL,
-  `End_date` datetime NOT NULL,
-  PRIMARY KEY (`DiscountID`),
-  UNIQUE KEY `Coupon_code` (`Coupon_code`),
-  CONSTRAINT `discount_chk_1` CHECK ((`Discount_value` >= 0)),
-  CONSTRAINT `discount_chk_2` CHECK ((`Min_order_value` >= 0)),
-  CONSTRAINT `discount_chk_3` CHECK ((`Max_discount` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `discount`
---
-
-LOCK TABLES `discount` WRITE;
-/*!40000 ALTER TABLE `discount` DISABLE KEYS */;
-INSERT INTO `discount` VALUES (1,'SALE10','Percentage',10,500000,NULL,'2025-03-01 00:00:00','2025-12-31 00:00:00'),(2,'VIP100','Fixed',100000,300000,NULL,'2025-03-01 00:00:00','2025-12-31 00:00:00');
-/*!40000 ALTER TABLE `discount` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `order_detail`
---
-
-DROP TABLE IF EXISTS `order_detail`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `order_detail` (
-  `Order_Code` varchar(20) NOT NULL,
-  `ProductID` bigint NOT NULL,
-  `Batch_ID` int NOT NULL,
-  `Quantity` bigint NOT NULL,
-  `Selling_price` bigint NOT NULL,
-  `Applied_discount` bigint NOT NULL DEFAULT '0',
-  `Subtotal` bigint NOT NULL,
-  `Date_order` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Order_Code`,`ProductID`,`Batch_ID`),
-  KEY `ProductID` (`ProductID`),
-  KEY `Batch_ID` (`Batch_ID`),
-  CONSTRAINT `order_detail_ibfk_1` FOREIGN KEY (`Order_Code`) REFERENCES `orders` (`Order_Code`),
-  CONSTRAINT `order_detail_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`),
-  CONSTRAINT `order_detail_ibfk_3` FOREIGN KEY (`Batch_ID`) REFERENCES `batches` (`Batch_ID`),
-  CONSTRAINT `order_detail_chk_1` CHECK ((`Quantity` >= 0)),
-  CONSTRAINT `order_detail_chk_2` CHECK ((`Selling_price` >= 0)),
-  CONSTRAINT `order_detail_chk_3` CHECK ((`Subtotal` >= 0))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `order_detail`
---
-
-LOCK TABLES `order_detail` WRITE;
-/*!40000 ALTER TABLE `order_detail` DISABLE KEYS */;
-/*!40000 ALTER TABLE `order_detail` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `orders`
---
-
-DROP TABLE IF EXISTS `orders`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `orders` (
-  `OrderID` int NOT NULL AUTO_INCREMENT,
-  `Order_Code` varchar(20) NOT NULL,
-  `Order_Status` varchar(255) NOT NULL DEFAULT 'Pending',
-  `Payment_Status` varchar(255) NOT NULL DEFAULT 'Unpaid',
-  `UserID` int NOT NULL,
-  `TotalAmount` bigint NOT NULL,
-  `DiscountID` int DEFAULT NULL,
-  `Date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`OrderID`),
-  UNIQUE KEY `Order_Code` (`Order_Code`),
-  KEY `UserID` (`UserID`),
-  KEY `DiscountID` (`DiscountID`),
-  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`),
-  CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`DiscountID`) REFERENCES `discount` (`DiscountID`),
-  CONSTRAINT `orders_chk_1` CHECK ((`TotalAmount` >= 0))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `orders`
---
-
-LOCK TABLES `orders` WRITE;
-/*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-/*!40000 ALTER TABLE `orders` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `product`
---
-
-DROP TABLE IF EXISTS `product`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `product` (
-  `ProductID` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(200) NOT NULL,
-  `Description` varchar(500) DEFAULT NULL,
-  `Product_uses` varchar(255) DEFAULT NULL,
-  `Unit` varchar(50) NOT NULL,
-  `Selling_price` bigint NOT NULL,
-  `Promotion` int DEFAULT '0',
-  `Publish` int NOT NULL DEFAULT '1',
-  `Image` varchar(255) DEFAULT NULL,
-  `Slug` varchar(255) NOT NULL,
-  `CategoryID` bigint NOT NULL,
-  `BrandID` bigint NOT NULL,
-  `Date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `Deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`ProductID`),
-  UNIQUE KEY `Slug` (`Slug`),
-  KEY `CategoryID` (`CategoryID`),
-  KEY `BrandID` (`BrandID`),
-  CONSTRAINT `product_ibfk_1` FOREIGN KEY (`CategoryID`) REFERENCES `category` (`CategoryID`),
-  CONSTRAINT `product_ibfk_2` FOREIGN KEY (`BrandID`) REFERENCES `brand` (`BrandID`),
-  CONSTRAINT `product_chk_1` CHECK ((`Selling_price` >= 0)),
-  CONSTRAINT `product_chk_2` CHECK (((`Promotion` >= 0) and (`Promotion` <= 100)))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `product`
---
-
-LOCK TABLES `product` WRITE;
-/*!40000 ALTER TABLE `product` DISABLE KEYS */;
-INSERT INTO `product` VALUES (1,'Thuốc trừ sâu X','Diệt sâu hiệu quả','Trừ sâu bọ','Lọ',150000,0,1,NULL,'thuoc-tru-sau-x',1,1,'2025-03-03 20:25:19',NULL);
-/*!40000 ALTER TABLE `product` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `purchases`
---
-
-DROP TABLE IF EXISTS `purchases`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `purchases` (
-  `Purchase_ID` int NOT NULL AUTO_INCREMENT,
-  `Batch_ID` int NOT NULL,
-  `SupplierID` int NOT NULL,
-  `Quantity` bigint NOT NULL,
-  `Purchase_price` bigint NOT NULL,
-  `Purchase_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Purchase_ID`),
-  KEY `Batch_ID` (`Batch_ID`),
-  KEY `SupplierID` (`SupplierID`),
-  CONSTRAINT `purchases_ibfk_1` FOREIGN KEY (`Batch_ID`) REFERENCES `batches` (`Batch_ID`),
-  CONSTRAINT `purchases_ibfk_2` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers` (`SupplierID`),
-  CONSTRAINT `purchases_chk_1` CHECK ((`Quantity` >= 0)),
-  CONSTRAINT `purchases_chk_2` CHECK ((`Purchase_price` >= 0))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `purchases`
---
-
-LOCK TABLES `purchases` WRITE;
-/*!40000 ALTER TABLE `purchases` DISABLE KEYS */;
-/*!40000 ALTER TABLE `purchases` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `role`
---
-
+-- ROLE
 DROP TABLE IF EXISTS `role`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `role` (
   `Role_ID` int NOT NULL AUTO_INCREMENT,
   `Role_name` varchar(255) NOT NULL,
   `Description` varchar(255) NOT NULL,
   PRIMARY KEY (`Role_ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `role`
---
-
 LOCK TABLES `role` WRITE;
-/*!40000 ALTER TABLE `role` DISABLE KEYS */;
 INSERT INTO `role` VALUES (1,'Admin','Quản trị viên toàn hệ thống'),(2,'Customer','Khách hàng thông thường'),(3,'Supplier','Nhà cung cấp sản phẩm');
-/*!40000 ALTER TABLE `role` ENABLE KEYS */;
 UNLOCK TABLES;
 
---
--- Table structure for table `suppliers`
---
-
-DROP TABLE IF EXISTS `suppliers`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `suppliers` (
-  `SupplierID` int NOT NULL AUTO_INCREMENT,
-  `Name` varchar(255) NOT NULL,
-  `Contact` varchar(255) DEFAULT NULL,
-  `Phone` varchar(20) NOT NULL,
-  `Address` varchar(255) NOT NULL,
-  `Email` varchar(255) NOT NULL,
-  PRIMARY KEY (`SupplierID`),
-  UNIQUE KEY `Email` (`Email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `suppliers`
---
-
-LOCK TABLES `suppliers` WRITE;
-/*!40000 ALTER TABLE `suppliers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `suppliers` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `users`
---
-
+-- USER
 DROP TABLE IF EXISTS `users`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `UserID` int NOT NULL AUTO_INCREMENT,
   `Email` varchar(255) NOT NULL,
@@ -368,25 +32,307 @@ CREATE TABLE `users` (
   KEY `Role_ID` (`Role_ID`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`Role_ID`) REFERENCES `role` (`Role_ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
 LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'admin@example.com','hashed_password',1,'Admin','0123456789','Hà Nội','Active',NULL,NULL,'2025-03-03 20:25:19',NULL),(2,'user1@example.com','hashed_password',2,'Nguyễn Văn A','0987654321','Hồ Chí Minh','Active',NULL,NULL,'2025-03-03 20:25:19',NULL);
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+INSERT INTO `users` VALUES (1,'admin@gmail.com','$2y$10$hIaSVF4n63ypcR4nvKKiOeaeuOiuRfWjRZ5UPc829iKbD/O7qn7Zi',1,'Admin','0123456789','Hà Nội','1','1741616440ctu.png',NULL,'2025-03-03 20:25:19',NULL),(2,'hohuuthuan789@gmail.com','$2y$10$6aFWCXEm4k8yGultaxajI.51x8lrHnk7VdiBRlq733uTiISgE7e4O',2,'Hồ Hữu Thuận','0987654321','Hồ Chí Minh','1','1741628939-cabybara.jpg','XVJ047592','2025-03-12 01:41:31',NULL);
 UNLOCK TABLES;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+-- BRAND
+DROP TABLE IF EXISTS `brand`;
+CREATE TABLE `brand` (
+  `BrandID` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) NOT NULL,
+  `Description` varchar(255) DEFAULT NULL,
+  `Image` varchar(255) DEFAULT NULL,
+  `Slug` varchar(255) NOT NULL,
+  `Status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`BrandID`),
+  UNIQUE KEY `Slug` (`Slug`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `brand` WRITE;
+INSERT INTO `brand` VALUES (1,'Sygenta','Mô tả','1741612061cabybara.jpg','sygenta',0),(2,'Syngenta','Công ty sản xuất phân bón và hóa chất',NULL,'syngenta',1),(3,'Tập đoàn 1','Mô tả tập đoàn 1','1729689990ctu.png','tap-doan-1',1),(4,'Tập đoàn 2','Mô tả tập đoàn 2','1729689990ctu.png','tap-doan-2',1),(5,'Tập đoàn 3','Mô tả tập đoàn 3','1729689990ctu.png','tap-doan-3',1),(6,'Thương hiệu test','Cham hoi','1741613047ctu.png','thuong-hieu-test',1),(7,'Thương hiệu test2','Cham hoiiii','1741613123.jpg','thuong-hieu-test2',1),(8,'Danh mục 4','Mô tả danh mục 4','1741614417.jpg','danh-muc-4',1);
+UNLOCK TABLES;
 
--- Dump completed on 2025-03-10 16:54:01
+
+-- CATEGORY
+DROP TABLE IF EXISTS `category`;
+CREATE TABLE `category` (
+  `CategoryID` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) NOT NULL,
+  `Description` varchar(255) DEFAULT NULL,
+  `Image` varchar(255) DEFAULT NULL,
+  `Slug` varchar(255) NOT NULL,
+  `Status` tinyint(1) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`CategoryID`),
+  UNIQUE KEY `Slug` (`Slug`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `category` WRITE;
+INSERT INTO `category` VALUES (1,'Thuốc trừ sâu','Diệt côn trùng và sâu bệnh',NULL,'thuoc-tru-sau',1),(2,'Phân bón','Cung cấp dinh dưỡng cho cây trồng',NULL,'phan-bon',1),(3,'Danh mục 1','Mô tả danh mục 1','1729689990ctu.png','danh-muc-1',1),(4,'Danh mục 2','Mô tả danh mục 2','1729689990ctu.png','danh-muc-2',1),(5,'Danh mục 3','Mô tả danh mục 3','1729689990ctu.png','danh-muc-3',1);
+UNLOCK TABLES;
+
+
+-- CONMENT
+DROP TABLE IF EXISTS `comment`;
+CREATE TABLE `comment` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `comment` varchar(300) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` int NOT NULL,
+  `product_id_comment` int NOT NULL,
+  `date_cmt` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+LOCK TABLES `comment` WRITE;
+INSERT INTO `comment` VALUES (1,'Thuan','Thuan@gmail.com','Rat hai long',1,1,'2025-01-01');
+UNLOCK TABLES;
+
+
+-- DISCOUNT
+DROP TABLE IF EXISTS `discount`;
+CREATE TABLE `discount` (
+  `DiscountID` int NOT NULL AUTO_INCREMENT,
+  `Coupon_code` varchar(50) NOT NULL,
+  `Discount_type` enum('Percentage','Fixed') NOT NULL,
+  `Discount_value` bigint NOT NULL,
+  `Min_order_value` bigint NOT NULL DEFAULT '0',
+  `Max_discount` bigint DEFAULT NULL,
+  `Start_date` datetime NOT NULL,
+  `End_date` datetime NOT NULL,
+  PRIMARY KEY (`DiscountID`),
+  UNIQUE KEY `Coupon_code` (`Coupon_code`),
+  CONSTRAINT `discount_chk_1` CHECK ((`Discount_value` >= 0)),
+  CONSTRAINT `discount_chk_2` CHECK ((`Min_order_value` >= 0)),
+  CONSTRAINT `discount_chk_3` CHECK ((`Max_discount` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `discount` WRITE;
+INSERT INTO `discount` VALUES (1,'SALE10','Percentage',10,500000,NULL,'2025-03-01 00:00:00','2025-12-31 00:00:00'),(2,'VIP100','Fixed',100000,300000,NULL,'2025-03-01 00:00:00','2025-12-31 00:00:00');
+UNLOCK TABLES;
+
+
+-- PRODUCT
+DROP TABLE IF EXISTS `product`;
+CREATE TABLE `product` (
+  `ProductID` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(200) NOT NULL,
+  `Description` varchar(500) DEFAULT NULL,
+  `Product_uses` varchar(255) DEFAULT NULL,
+  `Unit` varchar(50) NOT NULL,
+  `Selling_price` bigint NOT NULL,
+  `Promotion` int DEFAULT '0',
+  `Publish` int NOT NULL DEFAULT '1',
+  `Image` varchar(255) DEFAULT NULL,
+  `Slug` varchar(255) NOT NULL,
+  `CategoryID` bigint NOT NULL,
+  `BrandID` bigint NOT NULL,
+  `Date_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `Status` int DEFAULT NULL,
+  `Deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`ProductID`),
+  UNIQUE KEY `Slug` (`Slug`),
+  KEY `CategoryID` (`CategoryID`),
+  KEY `BrandID` (`BrandID`),
+  CONSTRAINT `product_ibfk_1` FOREIGN KEY (`CategoryID`) REFERENCES `category` (`CategoryID`),
+  CONSTRAINT `product_ibfk_2` FOREIGN KEY (`BrandID`) REFERENCES `brand` (`BrandID`),
+  CONSTRAINT `product_chk_1` CHECK ((`Selling_price` >= 0)),
+  CONSTRAINT `product_chk_2` CHECK (((`Promotion` >= 0) and (`Promotion` <= 100)))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `product` WRITE;
+INSERT INTO `product` VALUES (1,'Thuốc trừ sâu X','Diệt sâu hiệu quả','Trừ sâu bọ','Lọ',10000,0,1,'1741620996ctu.png','thuoc-tru-sau-x',1,1,'2025-03-03 20:25:19',0,NULL),(2,'Thêm sản phẩm 1','Mô tả của sản phẩm 1','Công dụng của sản phẩm 1','Chai',10000,0,1,'1741620988ctu.png','them-san-pham-1',1,1,'2025-03-10 22:11:47',1,NULL);
+UNLOCK TABLES;
+
+
+-- SUPPLIER
+DROP TABLE IF EXISTS `suppliers`;
+CREATE TABLE `suppliers` (
+  `SupplierID` int NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) NOT NULL,
+  `Contact` varchar(255) DEFAULT NULL,
+  `Phone` varchar(20) NOT NULL,
+  `Address` varchar(255) NOT NULL,
+  `Email` varchar(255) NOT NULL,
+  PRIMARY KEY (`SupplierID`),
+  UNIQUE KEY `Email` (`Email`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `suppliers` WRITE;
+INSERT INTO `suppliers` VALUES (1,'Nhà cung cấp 1','Contac','0321654987','Địa chỉ nhà cung cấp','nhacungcap@gmail.com'),(2,'Nhà cung cấp 2','Contac ncc 2','0321654987','Địa chỉ nhà cung cấp','ncc2@gmail.com');
+UNLOCK TABLES;
+
+-- BATCHES
+DROP TABLE IF EXISTS `batches`;
+CREATE TABLE `batches` (
+  `Batch_ID` int NOT NULL AUTO_INCREMENT,
+  `ProductID` bigint NOT NULL,
+  `Quantity` bigint NOT NULL,
+  `Import_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `Expiry_date` datetime NOT NULL,
+  `Import_price` bigint NOT NULL,
+  `SupplierID` int NOT NULL,
+  `remaining_quantity` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Batch_ID`),
+  KEY `ProductID` (`ProductID`),
+  KEY `SupplierID` (`SupplierID`),
+  CONSTRAINT `batches_ibfk_1` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`),
+  CONSTRAINT `batches_ibfk_2` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers` (`SupplierID`),
+  CONSTRAINT `batches_chk_1` CHECK ((`Quantity` >= 0)),
+  CONSTRAINT `batches_chk_2` CHECK ((`Import_price` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `batches` WRITE;
+INSERT INTO `batches` VALUES (1,1,1000,'2025-01-01 00:00:00','2026-01-01 00:00:00',15000,1,999),(2,1,2000,'2026-01-02 00:00:00','2027-01-02 00:00:00',16000,1,2000);
+UNLOCK TABLES;
+
+
+-- PURCHASE
+DROP TABLE IF EXISTS `purchases`;
+CREATE TABLE `purchases` (
+  `Purchase_ID` int NOT NULL AUTO_INCREMENT,
+  `Batch_ID` int NOT NULL,
+  `SupplierID` int NOT NULL,
+  `Quantity` bigint NOT NULL,
+  `Purchase_price` bigint NOT NULL,
+  `Purchase_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Purchase_ID`),
+  KEY `Batch_ID` (`Batch_ID`),
+  KEY `SupplierID` (`SupplierID`),
+  CONSTRAINT `purchases_ibfk_1` FOREIGN KEY (`Batch_ID`) REFERENCES `batches` (`Batch_ID`),
+  CONSTRAINT `purchases_ibfk_2` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers` (`SupplierID`),
+  CONSTRAINT `purchases_chk_1` CHECK ((`Quantity` >= 0)),
+  CONSTRAINT `purchases_chk_2` CHECK ((`Purchase_price` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `purchases` WRITE;
+INSERT INTO `purchases` VALUES (1,1,1,1000,15000,'2025-01-01 00:00:00'),(2,2,1,2000,16000,'2025-01-02 00:00:00');
+UNLOCK TABLES;
+
+
+-- SHIPPING
+DROP TABLE IF EXISTS `shipping`;
+CREATE TABLE `shipping` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `phone` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `address` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `checkout_method` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+LOCK TABLES `shipping` WRITE;
+INSERT INTO `shipping` VALUES (1,2,'Hồ Hữu Thuận','0345492751','địa chỉ của thuận','phuongtuan@gmail.com','VNPAY');
+UNLOCK TABLES;
+
+
+-- ORDER
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE `orders` (
+  `OrderID` int NOT NULL AUTO_INCREMENT,
+  `Order_Code` varchar(20) NOT NULL,
+  `Order_Status` int NOT NULL DEFAULT '0',
+  `Payment_Status` int DEFAULT '0',
+  `UserID` int NOT NULL,
+  `TotalAmount` bigint NOT NULL,
+  `DiscountID` int DEFAULT NULL,
+  `Date_Order` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `Date_delivered` datetime DEFAULT NULL,
+  `Payment_date_successful` datetime DEFAULT NULL,
+  `ShippingID` int DEFAULT NULL,
+  PRIMARY KEY (`OrderID`),
+  UNIQUE KEY `Order_Code` (`Order_Code`),
+  KEY `UserID` (`UserID`),
+  KEY `DiscountID` (`DiscountID`),
+  KEY `fk_shipping` (`ShippingID`),
+  CONSTRAINT `fk_shipping` FOREIGN KEY (`ShippingID`) REFERENCES `shipping` (`id`),
+  CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`UserID`) REFERENCES `users` (`UserID`),
+  CONSTRAINT `orders_ibfk_2` FOREIGN KEY (`DiscountID`) REFERENCES `discount` (`DiscountID`),
+  CONSTRAINT `orders_chk_1` CHECK ((`TotalAmount` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `orders` WRITE;
+INSERT INTO `orders` VALUES (1,'HHT178912',1,1,2,250000,NULL,'2025-01-01 00:00:00',1);
+UNLOCK TABLES;
+
+
+-- ORDER_DETAIL
+DROP TABLE IF EXISTS `order_detail`;
+CREATE TABLE `order_detail` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `Order_Code` varchar(20) NOT NULL,
+  `ProductID` bigint NOT NULL,
+  `Quantity` bigint NOT NULL,
+  `Selling_price` bigint NOT NULL,
+  `Applied_discount` bigint NOT NULL DEFAULT '0',
+  `Subtotal` bigint NOT NULL,
+  `COD_date_delivered` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `Order_Code` (`Order_Code`),
+  KEY `ProductID` (`ProductID`),
+  CONSTRAINT `order_detail_ibfk_1` FOREIGN KEY (`Order_Code`) REFERENCES `orders` (`Order_Code`),
+  CONSTRAINT `order_detail_ibfk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`),
+  CONSTRAINT `order_detail_chk_1` CHECK ((`Quantity` >= 0)),
+  CONSTRAINT `order_detail_chk_2` CHECK ((`Selling_price` >= 0)),
+  CONSTRAINT `order_detail_chk_3` CHECK ((`Subtotal` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `order_detail` WRITE;
+INSERT INTO `order_detail` VALUES (1,'HHT178912',1,2000,50000,0,10000000,'2025-01-01 00:00:00');
+UNLOCK TABLES;
+
+
+
+
+
+
+-- ORDER_BATCHES
+DROP TABLE IF EXISTS `order_batches`;
+CREATE TABLE `order_batches` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_detail_id` int NOT NULL,
+  `batch_id` int NOT NULL,
+  `quantity` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_detail_id` (`order_detail_id`),
+  KEY `batch_id` (`batch_id`),
+  CONSTRAINT `order_batches_ibfk_1` FOREIGN KEY (`order_detail_id`) REFERENCES `order_detail` (`id`),
+  CONSTRAINT `order_batches_ibfk_2` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`Batch_ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `order_batches` WRITE;
+INSERT INTO `order_batches` VALUES (1,1,1,999), (2,1,2,1001);
+UNLOCK TABLES;
+
+
+-- VNPAY
+DROP TABLE IF EXISTS `vnpay`;
+CREATE TABLE `vnpay` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `ShippingID` int DEFAULT NULL,
+  `vnp_Amount` varchar(50) DEFAULT NULL,
+  `vnp_BankCode` varchar(50) DEFAULT NULL,
+  `vnp_BankTranNo` varchar(50) DEFAULT NULL,
+  `vnp_CardType` varchar(50) DEFAULT NULL,
+  `vnp_OrderInfo` varchar(50) DEFAULT NULL,
+  `vnp_PayDate` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,,
+  `vnp_ResponseCode` varchar(50) DEFAULT NULL,
+  `vnp_TmnCode` varchar(50) DEFAULT NULL,
+  `vnp_TransactionNo` varchar(50) DEFAULT NULL,
+  `vnp_TransactionStatus` varchar(50) DEFAULT NULL,
+  `vnp_TxnRef` varchar(50) DEFAULT NULL,
+  `vnp_SecureHash` text,
+  PRIMARY KEY (`id`),
+  KEY `shipping_method_vnpay` (`ShippingID`),
+  KEY `shipping_method_vnpay_ordercode` (`vnp_TxnRef`),
+  CONSTRAINT `shipping_method_vnpay` FOREIGN KEY (`ShippingID`) REFERENCES `shipping` (`id`),
+  CONSTRAINT `shipping_method_vnpay_ordercode` FOREIGN KEY (`vnp_TxnRef`) REFERENCES `orders` (`Order_Code`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+LOCK TABLES `vnpay` WRITE;
+INSERT INTO `vnpay` VALUES (1,1,'36000000','NCB','VNP14842024','ATM','Thanh toan don hang: HHT178912','20250312145337','00','F72UMWTL',NULL,'00','HHT178912','266689dccff15176efd1ddaf4fd89c7c5e167f6060f8cc4acc91aa20b1983adeef135296133086f21715ecddb698dad7bfc50d9b843687e27523d8b01cefe53f');
+UNLOCK TABLES;
+
+
+-- SLIDER
+DROP TABLE IF EXISTS `sliders`;
+CREATE TABLE `sliders` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `image` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `status` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+LOCK TABLES `sliders` WRITE;
+INSERT INTO `sliders` VALUES (1,'Test banner','1741614781anh-nenn.png',1);
+UNLOCK TABLES;

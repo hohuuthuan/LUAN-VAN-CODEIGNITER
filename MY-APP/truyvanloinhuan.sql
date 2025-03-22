@@ -1,67 +1,211 @@
-
--- Xác định doanh thu
-SELECT SUM(od.Quantity * od.SellingPrice) AS TotalRevenue
-FROM order_detail od;
-
--- Xác định giá vốn
-SELECT SUM(od.Quantity * b.Import_price) AS TotalCOGS
-FROM order_detail od
-JOIN batches b ON od.Batch_ID = b.Batch_ID;
+use pesticide_version2;
 
 
--- Tính lợi nhuận
+-- Thống kê doanh thu theo từng ngày
 SELECT 
-    (SUM(od.Quantity * od.SellingPrice) - SUM(od.Quantity * b.Import_price)) AS Profit
-FROM order_detail od
-JOIN batches b ON od.Batch_ID = b.Batch_ID;
+    DATE(o.Date_created) AS order_date,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+GROUP BY 
+    DATE(o.Date_created)
+ORDER BY 
+    order_date;
 
-
--- Thống kê lợi nhuận theo ngày
+-- Thống kê theo ngày cụ thể
 SELECT 
-    DATE(o.OrderDate) AS Date,
-    SUM(od.Quantity * od.SellingPrice) AS TotalRevenue,
-    SUM(od.Quantity * b.Import_price) AS TotalCOGS,
-    (SUM(od.Quantity * od.SellingPrice) - SUM(od.Quantity * b.Import_price)) AS Profit
-FROM orders o
-JOIN order_detail od ON o.OrderID = od.OrderID
-JOIN batches b ON od.Batch_ID = b.Batch_ID
-GROUP BY DATE(o.OrderDate)
-ORDER BY Date DESC;
+    SUM(TotalAmount) AS total_revenue
+FROM 
+    orders
+WHERE 
+    Payment_Status = 1
+    AND Date_created BETWEEN '2025-03-01' AND '2025-03-31';
 
 
--- Thống kê lợi nhuận theo tháng
+
+
+-- Thống kê doanh thu theo tuần
 SELECT 
-    DATE_FORMAT(o.OrderDate, '%Y-%m') AS Month,
-    SUM(od.Quantity * od.SellingPrice) AS TotalRevenue,
-    SUM(od.Quantity * b.Import_price) AS TotalCOGS,
-    (SUM(od.Quantity * od.SellingPrice) - SUM(od.Quantity * b.Import_price)) AS Profit
-FROM orders o
-JOIN order_detail od ON o.OrderID = od.OrderID
-JOIN batches b ON od.Batch_ID = b.Batch_ID
-GROUP BY DATE_FORMAT(o.OrderDate, '%Y-%m')
-ORDER BY Month DESC;
-
--- 10 sản phẩm có lợi nhuận cao nhất
+    YEAR(o.Date_created) AS order_year,
+    WEEK(o.Date_created, 1) AS order_week,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+GROUP BY 
+    YEAR(o.Date_created), WEEK(o.Date_created, 1)
+ORDER BY 
+    order_year, order_week;
+    
+-- Thống kê doanh thu theo tháng
 SELECT 
-    p.ProductName,
-    SUM(od.Quantity * od.SellingPrice) AS TotalRevenue,
-    SUM(od.Quantity * b.Import_price) AS TotalCOGS,
-    (SUM(od.Quantity * od.SellingPrice) - SUM(od.Quantity * b.Import_price)) AS Profit
-FROM order_detail od
-JOIN batches b ON od.Batch_ID = b.Batch_ID
-JOIN products p ON b.ProductID = p.ProductID
-GROUP BY p.ProductID
-ORDER BY Profit DESC
-LIMIT 10;
+    YEAR(o.Date_created) AS order_year,
+    MONTH(o.Date_created) AS order_month,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+GROUP BY 
+    YEAR(o.Date_created), MONTH(o.Date_created)
+ORDER BY 
+    order_year, order_month;
+    
+-- Thống kê doanh thu theo năm
+    SELECT 
+    YEAR(o.Date_created) AS order_year,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+GROUP BY 
+    YEAR(o.Date_created)
+ORDER BY 
+    order_year;
+    
 
-
-
--- Kiếm tra số lương còn lại theo từng lô
+-- Thống kê theo ngày cụ thể
 SELECT 
-    b.BatchID, 
-    b.ProductID, 
-    b.Quantity AS StockRemaining
-FROM batches b
-WHERE b.ProductID = 'P001' 
-ORDER BY b.ExpiryDate ASC;
+    DATE(o.COD_date_delivered) AS COD_date_delivered,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+	
+    DATE(o.Date_created) = '2025-03-14'
+GROUP BY 
+    DATE(o.Date_created);
+    
+-- Thống kê theo tháng cụ thể
+SELECT 
+    YEAR(o.Date_created) AS order_year,
+    MONTH(o.Date_created) AS order_month,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+    YEAR(o.Date_created) = 2023 AND MONTH(o.Date_created) = 3  -- Thay đổi năm và tháng theo yêu cầu
+GROUP BY 
+    YEAR(o.Date_created), MONTH(o.Date_created);
+    
+-- Thống kê theo năm cụ thể
+SELECT 
+    YEAR(o.Date_created) AS order_year,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+    YEAR(o.Date_created) = 2023  -- Thay đổi năm theo yêu cầu
+GROUP BY 
+    YEAR(o.Date_created);
+    
 
+-- Thống kê theo ngày bắt đầu và kết thúc
+SELECT 
+    DATE(o.Date_created) AS order_date,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+    DATE(o.Date_created) BETWEEN '2023-03-01' AND '2023-03-31'  -- Thay đổi ngày bắt đầu và kết thúc theo yêu cầu
+GROUP BY 
+    DATE(o.Date_created)
+ORDER BY 
+    order_date;
+    
+-- Thống kê theo tháng bắt đầu và kết thúc
+SELECT 
+    YEAR(o.Date_created) AS order_year,
+    MONTH(o.Date_created) AS order_month,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+    o.Date_created BETWEEN '2023-01-01' AND '2025-03-31' 
+GROUP BY 
+    YEAR(o.Date_created), MONTH(o.Date_created)
+ORDER BY 
+    order_year, order_month;
+    
+-- Thống kê theo năm bắt đầu và năm kết thúc
+SELECT 
+    YEAR(o.Date_created) AS order_year,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+    o.Date_created BETWEEN '2021-01-01' AND '2025-12-31'
+GROUP BY 
+    YEAR(o.Date_created)
+ORDER BY 
+    order_year;
+
+    
+    
+    
+
+
+-- Thống kê doanh thu
+SELECT 
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+    o.Date_created BETWEEN '2025-03-01' AND '2025-03-31';  -- Thay đổi ngày theo yêu cầu
+    
+SELECT 
+    SUM(b.Import_price * ob.quantity) AS total_cost
+FROM 
+    order_batches ob
+JOIN 
+    batches b ON ob.batch_id = b.Batch_ID
+JOIN 
+    order_detail od ON ob.order_detail_id = od.id
+JOIN 
+    orders o ON od.Order_Code = o.Order_Code
+WHERE 
+    o.Date_created BETWEEN '2025-03-01' AND '2025-03-31';  -- Thay đổi ngày theo yêu cầu
+    
+
+SELECT 
+    (SELECT SUM(od.Subtotal) FROM orders o JOIN order_detail od ON o.Order_Code = od.Order_Code WHERE o.Date_created BETWEEN '2025-03-01' AND '2025-03-31') 
+    -
+    (SELECT SUM(b.Import_price * ob.quantity) FROM order_batches ob JOIN batches b ON ob.batch_id = b.Batch_ID JOIN order_detail od ON ob.order_detail_id = od.id JOIN orders o ON od.Order_Code = o.Order_Code WHERE o.Date_created BETWEEN '2025-03-01' AND '2025-03-31') AS total_profit;
+
+
+
+
+
+-- Thống kê đơn hàng theo ngày giao hàng
+SELECT 
+    o.Order_Code,
+    od.COD_date_delivered,
+    SUM(od.Subtotal) AS total_revenue
+FROM 
+    orders o
+JOIN 
+    order_detail od ON o.Order_Code = od.Order_Code
+WHERE 
+    o.Payment_Status = 1
+GROUP BY 
+    o.Order_Code, od.COD_date_delivered
+ORDER BY 
+    od.COD_date_delivered;

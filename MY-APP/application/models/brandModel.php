@@ -3,23 +3,23 @@ class brandModel extends CI_Model
 {
     public function insertBrand($data)
     {
-        return $this->db->insert('brands', $data);
+        return $this->db->insert('brand', $data);
     }
 
     public function selectBrand()
     {
-        $query = $this->db->get('brands');
+        $query = $this->db->get('brand');
         return $query->result();
     }
-    public function selectBrandById($id)
+    public function selectBrandById($BrandID)
     {
-        $query = $this->db->get_where('brands', ['id' => $id]);
+        $query = $this->db->get_where('brand', ['BrandID' => $BrandID]);
         return $query->row();
     }
 
-    public function updateBrand($id, $data)
+    public function updateBrand($BrandID, $data)
     {
-        return $this->db->update('brands', $data, ['id' => $id]);
+        return $this->db->update('brand', $data, ['BrandID' => $BrandID]);
     }
 
 
@@ -39,9 +39,9 @@ class brandModel extends CI_Model
         }
     }
 
-    public function deleteBrand($id)
+    public function deleteBrand($BrandID)
     {
-        return $this->db->delete('brands', ['id' => $id]);
+        return $this->db->delete('brand', ['BrandID' => $BrandID]);
     }
 }
 

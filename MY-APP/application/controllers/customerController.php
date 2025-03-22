@@ -21,31 +21,32 @@ class customerController extends CI_Controller
 	}
 
 
-	public function editCustomer($id)
+	public function editCustomer($UserID)
 	{
 		$this->config->config['pageTitle'] = 'Edit Customer';
 		$this->load->model('customerModel');
-		$data['customers'] = $this->customerModel->selectCustomerById($id);
+		$data['customers'] = $this->customerModel->selectCustomerById($UserID);
 		$data['template'] = "manage-customer/editCustomer";
 		$data['title'] = "Chỉnh sửa người dùng";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
 
-	public function updateCustomer($id)
+	public function updateCustomer($UserID)
 	{
-		$this->form_validation->set_rules('username', 'Username', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+		$this->form_validation->set_rules('Name', 'Username', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Email', 'Email', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Phone', 'Phone', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Address', 'Address', 'trim|required', ['required' => 'Bạn cần điền %s']);
 
 
 		if ($this->form_validation->run()) {
 
-			if (!empty($_FILES['image']['name'])) {
-				// Upload Image
-				$ori_filename = $_FILES['image']['name'];
+			if (!empty($_FILES['Avatar']['name'])) {
+
+				$ori_filename = $_FILES['Avatar']['name'];
 				$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
+			
 				$config = [
 					'upload_path' => './uploads/user',
 					'allowed_types' => 'gif|jpg|png|jpeg',
@@ -53,44 +54,44 @@ class customerController extends CI_Controller
 				];
 				$this->load->library('upload', $config);
 
-				if (!$this->upload->do_upload('image')) {
-					$data['error'] = $this->upload->display_errors();
-					$data['template'] = "manage-customer/editCustomer";
-					$data['title'] = "Chỉnh sửa người dùng";
-					$this->load->view("admin-layout/admin-layout", $data);
+				if (!$this->upload->do_upload('Avatar')) {
+					$this->data['error'] = $this->upload->display_errors();
+					$this->data['template'] = "manage-customer/editCustomer";
+					$this->data['title'] = "Chỉnh sửa người dùng";
+					$this->load->view("admin-layout/admin-layout", $this->data);
 				} else {
 					$avatar_filename = $this->upload->data('file_name');
 					$data = [
-						'username' => $this->input->post('username'),
-						'email' => $this->input->post('email'),
-						'phone' => $this->input->post('phone'),
-						'address' => $this->input->post('address'),
-						'avatar' => $avatar_filename,
-						'status' => $this->input->post('status'),
+						'Name' => $this->input->post('Name'),
+						'Email' => $this->input->post('Email'),
+						'Phone' => $this->input->post('Phone'),
+						'Address' => $this->input->post('Address'),
+						'Avatar' => $avatar_filename,
+						'Status' => $this->input->post('Status'),
 					];
 				}
 			} else {
 				$data = [
-					'username' => $this->input->post('username'),
-					'email' => $this->input->post('email'),
-					'phone' => $this->input->post('phone'),
-					'address' => $this->input->post('address'),
-					'status' => $this->input->post('status'),
+					'Name' => $this->input->post('Name'),
+					'Email' => $this->input->post('Email'),
+					'Phone' => $this->input->post('Phone'),
+					'Address' => $this->input->post('Address'),
+					'Status' => $this->input->post('Status'),
 				];
 			}
 			$this->load->model('customerModel');
-			$this->customerModel->updateCustomer($id, $data);
+			$this->customerModel->updateCustomer($UserID, $data);
 			$this->session->set_flashdata('success', 'Đã chỉnh sửa trạng thái khách hàng thành công');
 			redirect(base_url('customer/list'));
 		} else {
-			$this->editCustomer($id);
+			$this->editCustomer($UserID);
 		}
 	}
 
-	public function deleteCustomer($id)
+	public function deleteCustomer($UserID)
 	{
 		$this->load->model('customerModel');
-		$this->customerModel->deleteCustomer($id);
+		$this->customerModel->deleteCustomer($UserID);
 		$this->session->set_flashdata('success', 'Đã xoá người dùng thành công');
 		redirect(base_url('category/list'));
 	}

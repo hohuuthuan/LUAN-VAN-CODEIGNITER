@@ -119,9 +119,9 @@
 							></a>
 	
 							<ul class="nav nav-second-level">
-								<li><a href="<?php echo base_url('warehouse/list'); ?>">Nhập hàng vào kho</a></li>
 								<li class="">
 									<a href="<?php echo base_url('warehouse/list'); ?>">Danh sách sản phẩm trong kho</a>
+									<a href="<?php echo base_url('warehouse/receive-goods'); ?>">Nhập kho</a>
 								</li>
 							</ul>
 						</li>

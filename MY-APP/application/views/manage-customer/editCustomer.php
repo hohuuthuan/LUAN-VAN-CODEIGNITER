@@ -1,14 +1,9 @@
-<?php if ($this->session->flashdata('success')) { ?>
-    <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-<?php } elseif ($this->session->flashdata('error')) { ?>
-    <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-<?php } ?>
 
 <?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 
-<form action="<?php echo base_url('manage-customer/update/' . $customers->id) ?>" method="post" class="box"
+<form action="<?php echo base_url('manage-customer/update/' . $customers->UserID) ?>" method="post" class="box"
     enctype="multipart/form-data">
-    <input type="hidden" name="id" value="<?php echo $customers->id ?>">
+    <input type="hidden" name="id" value="<?php echo $customers->UserID ?>">
     <div class="wrapper wrapper-content animated fadeInRight">
         <div class="row">
             <div class="col-lg-5">
@@ -26,8 +21,8 @@
                         <div class="row mb15">
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <label for="username">Tên người dùng</label>
-                                    <input name="username" value="<?php echo $customers->username ?>" type="text"
+                                    <label for="Name">Tên người dùng</label>
+                                    <input name="Name" value="<?php echo $customers->Name ?>" type="text"
                                         class="form-control" placeholder="Nhập tên người dùng">
                                     <?php echo '<span class="text-danger">' . form_error('title') . '</span>' ?>
                                 </div>
@@ -35,10 +30,10 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <label for="email">Email</label>
-                                    <input name="email" value="<?php echo $customers->email ?>" type="text"
-                                        class="form-control" id="convert_slug" placeholder="Nhập slug">
-                                    <?php echo '<span class="text-danger">' . form_error('slug') . '</span>' ?>
+                                    <label for="Email">Email</label>
+                                    <input name="Email" value="<?php echo $customers->Email ?>" type="text"
+                                        class="form-control" id="convert_slug" placeholder="Nhập email">
+                                    <?php echo '<span class="text-danger">' . form_error('Email') . '</span>' ?>
                                 </div>
                             </div>
 
@@ -49,18 +44,18 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="address" class="form-label">Địa chỉ</label>
-                                        <input type="text" class="form-control" id="address" name="address"
-                                            value="<?php echo $customers->address ?>">
+                                        <label for="Address" class="form-label">Địa chỉ</label>
+                                        <input name="Address" type="text" class="form-control" id="address" 
+                                            value="<?php echo $customers->Address ?>">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="phone" class="form-label">Số điện thoại</label>
-                                        <input type="text" class="form-control" id="phone" name="phone"
-                                            value="<?php echo $customers->phone ?>">
+                                        <label for="Phone" class="form-label">Số điện thoại</label>
+                                        <input name="Phone" type="text" class="form-control" id="phone" 
+                                            value="<?php echo $customers->Phone ?>">
                                     </div>
                                 </div>
                             </div>
@@ -70,10 +65,10 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="image" class="form-label">Ảnh đại diện</label>
-                                        <input type="file" class="form-control-file" id="image" name="image">
+                                        <label for="Avatar" class="form-label">Ảnh đại diện</label>
+                                        <input name="Avatar" type="file" class="form-control-file" id="image" >
                                         <div class="mt-2">
-                                            <img src="<?php echo base_url('uploads/user/' . $customers->avatar) ?>"
+                                            <img src="<?php echo base_url('uploads/user/' . $customers->Avatar) ?>"
                                                 alt="Avatar" width="150" height="150">
                                         </div>
                                     </div>
@@ -82,10 +77,10 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <label for="status" class="form-label">Trạng thái tài khoản</label>
-                                    <select class="form-control setupSelect2" id="=" name="status">
-                                        <option value="1" <?php echo ($customers->status == 1) ? 'selected' : ''; ?>>Kích
+                                    <select name="Status" class="form-control setupSelect2" id="=" >
+                                        <option value="1" <?php echo ($customers->Status == 1) ? 'selected' : ''; ?>>Kích
                                             hoạt</option>
-                                        <option value="0" <?php echo ($customers->status == 0) ? 'selected' : ''; ?>>Khóa
+                                        <option value="0" <?php echo ($customers->Status == 0) ? 'selected' : ''; ?>>Khóa
                                             tài khoản
                                         </option>
                                     </select>

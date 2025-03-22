@@ -19,14 +19,13 @@
 <script src="<?php echo base_url('frontend/dashboard/js/plugins/jquery-ui/jquery-ui.min.js') ?>"></script>
 
 
-
 <script>
 	$(document).ready(function () {
 		toastr.options = {
 			"closeButton": true,
 			"progressBar": true, 
 			"positionClass": "toast-top-right",
-			"timeOut": 5000,
+			"timeOut": 3000,
 			"extendedTimeOut": 1000,
 			"showEasing": "swing", 
 			"hideEasing": "linear",
@@ -38,15 +37,14 @@
 		var errorMessage = "<?php echo $this->session->flashdata('error'); ?>";
 		
 		if (successMessage) {
-			toastr.success(successMessage, 'Thành công', { timeOut: 4000 });
+			toastr.success(successMessage, 'Thành công', { timeOut: 3000 });
 		}
 
 		if (errorMessage) {
-			toastr.error(errorMessage, 'Lỗi', { timeOut: 4000 });
+			toastr.error(errorMessage, 'Lỗi', { timeOut: 3000 });
 		}
 	});
 </script>
-
 
 
 

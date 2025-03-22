@@ -88,20 +88,17 @@ defined('BASEPATH') or exit('No direct script access allowed');
 </head>
 
 <body>
-<div id="loader" class="loader"></div>
+    <div id="loader" class="loader"></div>
     <div class="container-xl px-4 mt-4">
-    <h1>Thông tin tài khoản</h1>
-        <?php if ($this->session->flashdata('success')) { ?>
-            <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-        <?php } elseif ($this->session->flashdata('error')) { ?>
-            <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-        <?php } ?>
+        <h1>Thông tin tài khoản</h1>
+
         <?php if (isset($profile_user)) { ?>
             <nav class="nav nav-borders">
                 <a class="nav-link" style="color: crimson;" href="<?php echo base_url('/') ?>">Trở về trang chủ</a>
                 <a class="nav-link  ms-0" href="<?php echo base_url('profile-user') ?>">Chi tiết thông tin người dùng</a>
-                <a class="nav-link active  ms-0" href="<?php echo base_url('customer/edit/' . $profile_user->id) ?>">Chỉnh sửa thông tin</a>
-            </nav>  
+                <a class="nav-link active  ms-0"
+                    href="<?php echo base_url('customer/edit/' . $profile_user->UserID) ?>">Chỉnh sửa thông tin</a>
+            </nav>
             <hr class="mt-0 mb-4">
             <div class="row">
 
@@ -109,21 +106,17 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <!-- Profile picture card-->
                     <div class="card mb-4 mb-xl-0">
                         <div class="card-header">Profile Picture</div>
-                <form action="<?php echo base_url('customer/update-avatar/' . $profile_user->id) ?>"
-                        method="POST" enctype="multipart/form-data">
-                        <div class="card-body text-center">
-                            <!-- Profile picture image-->
-                            <img class="img-account-profile rounded-circle mb-2"
-                                src="<?php echo base_url('uploads/user/' . $profile_user->avatar) ?>"
-                                alt="Hình ảnh người dùng"><br>
-                                <input  name="image"  type="file" class="form-control form-control-sm" id="formFileSm">
-                            <!-- Profile picture upload button-->
-                            <button class="btn btn-primary" type="submit">Cập nhật</button>
-                        </div>
-                </form>
-                       
+                        <form action="<?php echo base_url('customer/update-avatar/' . $profile_user->UserID) ?>"
+                            method="POST" enctype="multipart/form-data">
+                            <div class="card-body text-center">
+                                <img class="img-account-profile rounded-circle mb-2"
+                                    src="<?php echo base_url('uploads/user/' . $profile_user->Avatar) ?>"
+                                    alt="Hình ảnh người dùng"><br>
+                                <input name="Avatar" type="file" class="form-control form-control-sm" id="formFileSm">
+                                <button class="btn btn-primary" type="submit">Cập nhật</button>
+                            </div>
+                        </form>
 
-                      
                     </div>
                 </div>
                 <div class="col-xl-8">
@@ -132,27 +125,27 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         <div class="card-header">Thông tin tài khoản</div>
                         <div class="card-body">
                             <!-- Form Group (username)-->
-                            <form class="row" action="<?php echo base_url('customer/update/' . $profile_user->id) ?>"
+                            <form class="row" action="<?php echo base_url('customer/update/' . $profile_user->UserID) ?>"
                                 method="POST" enctype="multipart/form-data">
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputUsername"><b>Họ và tên</b></label>
-                                    <input name="username" class="form-control" id="inputUsername" type="text"
-                                        placeholder="Enter your username" value="<?php echo $profile_user->username ?>">
+                                    <input name="Name" class="form-control" id="inputUsername" type="text"
+                                        placeholder="Enter your username" value="<?php echo $profile_user->Name ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputEmail"><b>Email</b></label>
-                                    <input name="email" class="form-control" id="inputEmail" type="text"
-                                        placeholder="Enter your email" value="<?php echo $profile_user->email ?>">
+                                    <input name="Email" class="form-control" id="inputEmail" type="text"
+                                        placeholder="Enter your email" value="<?php echo $profile_user->Email ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputAddress"><b>Địa chỉ</b></label>
-                                    <input name="address" class="form-control" id="inputAddress" type="text"
-                                        placeholder="Enter your address" value="<?php echo $profile_user->address ?>">
+                                    <input name="Address" class="form-control" id="inputAddress" type="text"
+                                        placeholder="Enter your address" value="<?php echo $profile_user->Address ?>">
                                 </div>
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputPhone"><b>Số điện thoại</b></label>
-                                    <input name="phone" class="form-control" id="inputPhone" type="tel"
-                                        placeholder="Enter your phone number" value="<?php echo $profile_user->phone ?>">
+                                    <input name="Phone" class="form-control" id="inputPhone" type="tel"
+                                        placeholder="Enter your phone number" value="<?php echo $profile_user->Phone ?>">
                                 </div>
                                 <button class="btn btn-primary" type="submit">Lưu lại thay đổi</button>
                         </div>
@@ -172,10 +165,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
     </script>
 </body>
 <script>
-	// Hiển thị vòng xoay khi trang được tải lại
-	window.addEventListener('beforeunload', function () {
-		document.getElementById('loader').style.display = 'block';
-	});
+    // Hiển thị vòng xoay khi trang được tải lại
+    window.addEventListener('beforeunload', function () {
+        document.getElementById('loader').style.display = 'block';
+    });
 
 </script>
+
 </html>

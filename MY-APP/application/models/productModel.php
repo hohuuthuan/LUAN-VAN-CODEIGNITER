@@ -1,43 +1,55 @@
 <?php
 class productModel extends CI_Model
 {
-    public function insertProductAndWarehouse($data, $import_price_one_product)
+    // public function insertProductAndWarehouse($data, $import_price_one_product)
+    // {
+    //     // Bắt đầu giao dịch
+    //     $this->db->trans_start();
+
+    //     // Lưu lại quantity và loại bỏ nó khỏi productData
+    //     $quantity = $data['quantity'];
+    //     unset($data['quantity']);
+
+    //     // Chèn dữ liệu vào bảng products
+    //     $this->db->insert('products', $data);
+
+    //     // Lấy product_id vừa được chèn
+    //     $product_id = $this->db->insert_id();
+
+    //     // Chuẩn bị dữ liệu cho bảng warehouses
+    //     $warehouseData = array(
+    //         'product_id' => $product_id,
+    //         'quantity' => $quantity,
+    //         'import_price_one_product' => $import_price_one_product,
+    //         'total_import_price' => $quantity * $import_price_one_product
+    //     );
+
+    //     // Chèn dữ liệu vào bảng warehouses
+    //     $this->db->insert('warehouses', $warehouseData);
+
+    //     // Kết thúc giao dịch
+    //     $this->db->trans_complete();
+
+    //     // Kiểm tra xem giao dịch có thành công hay không
+    //     if ($this->db->trans_status() === FALSE) {
+    //         // Nếu có lỗi, giao dịch sẽ bị hủy bỏ
+    //         return FALSE;
+    //     } else {
+    //         // Nếu thành công, giao dịch sẽ được cam kết
+    //         return TRUE;
+    //     }
+    // }
+
+    public function insertProduct($data)
     {
-        // Bắt đầu giao dịch
         $this->db->trans_start();
-
-        // Lưu lại quantity và loại bỏ nó khỏi productData
-        $quantity = $data['quantity'];
-        unset($data['quantity']);
-
-        // Chèn dữ liệu vào bảng products
-        $this->db->insert('products', $data);
-
-        // Lấy product_id vừa được chèn
-        $product_id = $this->db->insert_id();
-
-        // Chuẩn bị dữ liệu cho bảng warehouses
-        $warehouseData = array(
-            'product_id' => $product_id,
-            'quantity' => $quantity,
-            'import_price_one_product' => $import_price_one_product,
-            'total_import_price' => $quantity * $import_price_one_product
-        );
-
-        // Chèn dữ liệu vào bảng warehouses
-        $this->db->insert('warehouses', $warehouseData);
-
-        // Kết thúc giao dịch
-        $this->db->trans_complete();
-
-        // Kiểm tra xem giao dịch có thành công hay không
-        if ($this->db->trans_status() === FALSE) {
-            // Nếu có lỗi, giao dịch sẽ bị hủy bỏ
-            return FALSE;
-        } else {
-            // Nếu thành công, giao dịch sẽ được cam kết
-            return TRUE;
+        $this->db->insert('product', $data);
+        if ($this->db->affected_rows() == 0) {
+            $this->db->trans_rollback();
+            return false;
         }
+        $this->db->trans_complete();
+        return true;
     }
 
     public function selectAllProduct()
@@ -50,12 +62,11 @@ class productModel extends CI_Model
             ->get();
         return $query->result();
     }
-    public function selectProductById($id)
+    public function selectProductById($ProductID)
     {
-        $this->db->select('products.*, warehouses.quantity');
-        $this->db->from('products');
-        $this->db->join('warehouses', 'warehouses.product_id = products.id', 'left');
-        $this->db->where('products.id', $id);
+        $this->db->select('product.*');
+        $this->db->from('product');
+        $this->db->where('product.ProductID', $ProductID);
         $query = $this->db->get();
         return $query->row();
     }
@@ -63,9 +74,9 @@ class productModel extends CI_Model
 
 
 
-    public function updateProduct($id, $data)
+    public function updateProduct($ProductID, $data)
     {
-        return $this->db->update('products', $data, ['id' => $id]);
+        return $this->db->update('product', $data, ['ProductID' => $ProductID]);
     }
 
 

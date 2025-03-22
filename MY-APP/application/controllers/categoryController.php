@@ -4,8 +4,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 		public function checkLogin()
 		{
-			if(!$this->session->userdata('logged_in')){
-				redirect(base_url('login'));
+			if(!$this->session->userdata('logged_in_admin')){
+				redirect(base_url('dang-mhap'));
 			}
 		}
 		public function index()
@@ -29,14 +29,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 		}
 		
 		public function storeCategory(){
-			$this->form_validation->set_rules('title', 'Title', 'trim|required', ['required' => 'Bạn cần diền %s']);
-			$this->form_validation->set_rules('description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
-			$this->form_validation->set_rules('slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+			$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
+			$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
+			$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
 			
 
 			if ($this->form_validation->run()) {
 
-				$ori_filename = $_FILES['image']['name'];
+				$ori_filename = $_FILES['Image']['name'];
 				$new_name = time()."".str_replace(' ', '-', $ori_filename);
 				$config = [
 					'upload_path' => './uploads/category',
@@ -45,10 +45,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				];
 				$this->load->library('upload', $config);
 
-				if (!$this->upload->do_upload('image')) {
+				if (!$this->upload->do_upload('Image')) {
 					$data['error'] = $this->upload->display_errors();
-
-		
 					$data['template'] = "category/storeCategory";
 					$data['title'] = "Thêm mới danh mục";
 					$this->load->view("admin-layout/admin-layout", $data);
@@ -56,11 +54,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 				else{
 					$category_filename = $this->upload->data('file_name');
 					$data = [
-						'title' => $this->input->post('title'),
-						'slug' => $this->input->post('slug'),
-						'description' => $this->input->post('description'),
-						'image' => $category_filename,
-						'status' => $this->input->post('status'),
+						'Name' => $this->input->post('Name'),
+						'Slug' => $this->input->post('Slug'),
+						'Description' => $this->input->post('Description'),
+						'Image' => $category_filename,
+						'Status' => $this->input->post('Status'),
 					];
 					$this->load->model('categoryModel');
 					$this->categoryModel->insertcategory($data);
@@ -87,19 +85,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 			
 		}
 		
-		public function updateCategory($id)
+		public function updateCategory($CategoryID)
 		{
-			$this->form_validation->set_rules('title', 'Title', 'trim|required', ['required' => 'Bạn cần diền %s']);
-			$this->form_validation->set_rules('description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
-			$this->form_validation->set_rules('slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+			$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
+			$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
+			$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
 			
 
 			if ($this->form_validation->run()) {
 
-				if(!empty($_FILES['image']['name'])){
+				if(!empty($_FILES['Image']['name'])){
 					// Upload Image
-					$ori_filename = $_FILES['image']['name'];
+					$ori_filename = $_FILES['Image']['name'];
 					$new_name = time()."".str_replace(' ', '-', $ori_filename);
+					
 					$config = [
 						'upload_path' => './uploads/category',
 						'allowed_types' => 'gif|jpg|png|jpeg',
@@ -107,7 +106,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					];
 					$this->load->library('upload', $config);
 
-					if (!$this->upload->do_upload('image')) {
+					if (!$this->upload->do_upload('Image')) {
 						$data['error'] = $this->upload->display_errors();
 						$data['category'] = $this->categoryModel->selectCategory();
 						$data['template'] = "category/storeCategory";
@@ -116,44 +115,45 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 					}else{
 						$category_filename = $this->upload->data('file_name');
 						$data = [
-							'title' => $this->input->post('title'),
-							'slug' => $this->input->post('slug'),
-							'description' => $this->input->post('description'),
-							'image' => $category_filename,
-							'status' => $this->input->post('status'),
+							'Name' => $this->input->post('Name'),
+							'Slug' => $this->input->post('Slug'),
+							'Description' => $this->input->post('Description'),
+							'Image' => $category_filename,
+							'Status' => $this->input->post('Status'),
 						];
 					}
 				}else{
 					$data = [
-						'title' => $this->input->post('title'),
-						'slug' => $this->input->post('slug'),
-						'description' => $this->input->post('description'),
-						'status' => $this->input->post('status'),
+						'Name' => $this->input->post('Name'),
+						'Slug' => $this->input->post('Slug'),
+						'Description' => $this->input->post('Description'),
+						'Status' => $this->input->post('Status'),
 					];
 				}
 				$this->load->model('categoryModel');
-				$this->categoryModel->updateCategory($id,$data);
+				$this->categoryModel->updateCategory($CategoryID, $data);
 				$this->session->set_flashdata('success', 'Đã chỉnh sửa danh mục thành công');
 				redirect(base_url('category/list'));	
 			}else{
-				$this->editcategory($id);
+				
+				$this->editcategory($CategoryID);
 			}
 		}
 
-		public function deleteCategory($id)
+		public function deleteCategory($CategoryID)
 		{
 			$this->load->model('categoryModel');
-			$this->load->model('productModel'); // Đảm bảo có model kiểm tra sản phẩm liên kết
+			$this->load->model('productModel');
 	
 			// Kiểm tra xem danh mục có sản phẩm liên kết hay không
-			$categoryUsedInProducts = $this->categoryModel->checkCategoryInProducts($id);
+			$categoryUsedInProducts = $this->categoryModel->checkCategoryInProducts($CategoryID);
 	
 			if ($categoryUsedInProducts) {
 				// Nếu có sản phẩm sử dụng danh mục này, không cho phép xóa
 				$this->session->set_flashdata('error', 'Không thể xóa danh mục vì có sản phẩm đang sử dụng.');
 			} else {
 				// Nếu không có sản phẩm nào liên kết, thực hiện xóa
-				if ($this->categoryModel->deleteCategory($id)) {
+				if ($this->categoryModel->deleteCategory($CategoryID)) {
 					$this->session->set_flashdata('success', 'Đã xóa danh mục thành công');
 				} else {
 					$this->session->set_flashdata('error', 'Xóa danh mục thất bại');

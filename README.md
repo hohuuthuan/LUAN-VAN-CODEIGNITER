@@ -74,3 +74,24 @@ vnp_Amount=4500000
 
 
 
+
+
+http://localhost:8000/thank-you-for-order?
+vnp_Amount=108000000&
+vnp_BankCode=NCB&
+vnp_BankTranNo=VNP14842511
+&vnp_CardType=ATM
+&vnp_OrderInfo=Thanh+toan+don+hang%3A+INA944033
+&vnp_PayDate=20250312174721
+&vnp_ResponseCode=00
+&vnp_TmnCode=F72UMWTL
+&vnp_TransactionNo=14842511
+&vnp_TransactionStatus=00
+&vnp_TxnRef=INA944033&vnp_SecureHash=98b809938be3dee73591d7be10ef48fbe6e424921f1a15508bc0778433525edffdb793ac431e37f6e7640063a6322d77f973781a22e669f1eb42ea6fc1736e96
+
+
+
+
+
+
+# Còn lỗi upload hình ảnh của user

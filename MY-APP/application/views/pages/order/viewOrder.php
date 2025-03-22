@@ -1,11 +1,6 @@
 <div style="margin-top: -42px;" class="container">
     <div class="card">
         <h1 style="text-align: center; margin-bottom: 30px; color: #FE980F;">Chi tiết đơn hàng</h1>
-        <?php if ($this->session->flashdata('success')) { ?>
-            <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-        <?php } elseif ($this->session->flashdata('error')) { ?>
-            <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-        <?php } ?>
         <div class="card-body">
             <table class="table">
                 <thead style="border-bottom: 3px solid #FE980F;" class="thead-light">
@@ -14,8 +9,9 @@
                         <th scope="col">Order Code</th>
                         <th scope="col">Product Image</th>
                         <th scope="col" style="width: 200px;">Product Name</th>
-                        <th scope="col">Product Price</th>
+                        <th scope="col">Original Price</th>
                         <th scope="col">Sale</th>
+                        <th scope="col">Discounted Price</th>
                         <th scope="col">Quantity</th>
                         <th scope="col">Hình thức thanh toán</th>
                         <th scope="col">Status</th>
@@ -26,18 +22,20 @@
                     <?php
                     $total_sub = 0;
                     foreach ($order_details as $key => $ord_details) {
-                        $total_sub += $ord_details->sub;
+                        $price_after_discount = $ord_details->Selling_price * (1 - $ord_details->Promotion / 100);
+                        $subtotal = $price_after_discount * $ord_details->qty;
+                        $total_sub += $subtotal;
                         ?>
                         <tr style="border-bottom: 2px solid #FE980F;">
                             <th scope="row"><?php echo $key + 1 ?></th>
-                            <td><?php echo $ord_details->order_code ?></td>
-                            <td><img src="<?php echo base_url('uploads/product/' . $ord_details->image) ?>" alt="" width="150"
-                                    height="150"></td>
-                            <td><?php echo $ord_details->title ?></td>
-                            <td><?php echo number_format($ord_details->selling_price, 0, ',', '.') ?>vnd</td>
-                            <td><?php echo $ord_details->discount ?>%</td>
+                            <td><?php echo $ord_details->Order_Code ?></td>
+                            <td><img src="<?php echo base_url('uploads/product/' . $ord_details->Image) ?>" alt="" width="150" height="150"></td>
+                            <td><?php echo $ord_details->Name ?></td>
+                            <td><?php echo number_format($ord_details->Selling_price, 0, ',', '.') ?> vnd</td>
+                            <td><?php echo $ord_details->Promotion ?>%</td>
+                            <td><?php echo number_format($price_after_discount, 0, ',', '.') ?> vnd</td>
                             <td><?php echo $ord_details->qty ?></td>
-                            <td><?php echo $ord_details->form_of_payment ?></td>
+                            <td><?php echo $ord_details->checkout_method ?></td>
                             <td>
                                 <?php
                                 if ($ord_details->order_status == 1) {
@@ -56,7 +54,7 @@
                             <?php if (($ord_details->order_status == 1) || ($ord_details->order_status == 2)) { ?>
                                 <td>
                                     <a onclick="return confirm('Bạn chắc chắn xóa đơn này chứ, các sản phẩm trong đơn sẽ được xóa')"
-                                        href="<?php echo base_url('order_customer/deleteOrder/' . $ord_details->order_code) ?>"
+                                        href="<?php echo base_url('order_customer/deleteOrder/' . $ord_details->Order_Code) ?>"
                                         class="btn btn-danger">Delete Order</a>
                                 </td>
                             <?php } elseif ($ord_details->order_status == 3) { ?>

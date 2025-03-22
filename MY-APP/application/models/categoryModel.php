@@ -1,32 +1,32 @@
-<?php 
-    class categoryModel extends CI_Model
+<?php
+class categoryModel extends CI_Model
+{
+    public function insertCategory($data)
     {
-        public function insertCategory($data)
-        {
-            return $this->db->insert('categories', $data);   
-        }
+        return $this->db->insert('category', $data);
+    }
 
-        public function selectCategory()
-        {
-            $query = $this->db->get('categories'); 
-            return $query->result();  
-        }
-        public function selectCategoryById($id)
-        {
-            $query = $this->db->get_where('categories', ['id' => $id]); 
-            return $query->row();  
-        }
+    public function selectCategory()
+    {
+        $query = $this->db->get('category');
+        return $query->result();
+    }
+    public function selectCategoryById($CategoryID)
+    {
+        $query = $this->db->get_where('category', ['CategoryID' => $CategoryID]);
+        return $query->row();
+    }
 
-        public function updateCategory($id, $data)
-        {
-            return $this->db->update('categories',$data, ['id'=>$id]);   
-        }
+    public function updateCategory($CategoryID, $data)
+    {
+        return $this->db->update('category', $data, ['CategoryID' => $CategoryID]);
+    }
 
-        public function checkCategoryInProducts($category_id)
+    public function checkCategoryInProducts($CategoryID)
     {
         $this->db->select('id');
         $this->db->from('products');
-        $this->db->where('category_id', $category_id);
+        $this->db->where('category_id', $CategoryID);
         $query = $this->db->get();
 
         if ($query->num_rows() > 0) {
@@ -37,10 +37,10 @@
             return false;
         }
     }
-        public function deleteCategory($id)
-        {
-            return $this->db->delete('categories',['id'=>$id]);   
-        }
+    public function deleteCategory($CategoryID)
+    {
+        return $this->db->delete('category', ['CategoryID' => $CategoryID]);
     }
+}
 
 ?>

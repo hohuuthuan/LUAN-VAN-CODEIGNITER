@@ -14,16 +14,13 @@ class productController extends CI_Controller
 
 	public function index()
 	{
-		$this->checkLogin();
+		// $this->checkLogin();
 		$this->config->config['pageTitle'] = 'List Products';
 		$this->load->model('indexModel');
 
-		// Tổng số sản phẩm
 		$total_products = $this->indexModel->countAllProduct();
 
-		// Cấu hình phân trang
 		$this->load->library('pagination');
-
 
 		$config = array();
 		$config["base_url"] = base_url() . 'product/list';
@@ -56,17 +53,20 @@ class productController extends CI_Controller
 		$start = ($page - 1) * $config['per_page'];
 
 		// Lấy dữ liệu sản phẩm theo phân trang
-		$data['products'] = $this->indexModel->getIndexPagination($config['per_page'], $start);
+		$data['products'] = $this->indexModel->getProductPagination($config['per_page'], $start);
 		$data['links'] = $this->pagination->create_links();
 		// echo '<pre>';
 		// print_r($data);
 		// echo '</pre>';
-	
+		
 		$data['template'] = "product/index";
 		$data['title'] = "Danh sách sản phẩm";
 		$this->load->view("admin-layout/admin-layout", $data);
 
 	}
+	
+
+
 	
 
 
@@ -91,16 +91,16 @@ class productController extends CI_Controller
 
 	public function storeProduct()
 	{
-		$this->form_validation->set_rules('title', 'Title', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('import_price_one_product', 'ImportPriceOneProduct', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		// $this->form_validation->set_rules('slug', 'Slug', 'trim|required', ['required' => 'Bạn cần đền %s']);
-		// $this->form_validation->set_rules('unit', 'Unit', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Product_uses', 'Product_uses', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Unit', 'Unit', 'trim|required', ['required' => 'Bạn cần điền %s']);
 
 		if ($this->form_validation->run()) {
 
-			$ori_filename = $_FILES['image']['name'];
+			$ori_filename = $_FILES['Image']['name'];
 			$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
 			$config = [
 				'upload_path' => './uploads/product',
@@ -109,59 +109,51 @@ class productController extends CI_Controller
 			];
 			$this->load->library('upload', $config);
 
-			if (!$this->upload->do_upload('image')) {
+			if (!$this->upload->do_upload('Image')) {
 				$data['error'] = $this->upload->display_errors();
-				$data['brand'] = $this->brandModel->selectBrand();
-				$data['template'] = "product/storeproduct";
+				$data['template'] = "product/storeProduct";
 				$data['title'] = "Thêm mới sản phẩm";
 				$this->load->view("admin-layout/admin-layout", $data);
 			} else {
 				$product_filename = $this->upload->data('file_name');
 				$data = [
-					'title' => $this->input->post('title'),
-					'slug' => $this->input->post('slug'),
-					'description' => $this->input->post('description'),
-					'selling_price' => $this->input->post('selling_price'),
-					'unit' => $this->input->post('unit'),
-					'production_date' => $this->input->post('production_date'),
-					'expiration_date' => $this->input->post('expiration_date'),
-					'discount' => $this->input->post('discount'),
-					'image' => $product_filename,
-					'status' => $this->input->post('status'),
-					'quantity' => $this->input->post('quantity'),
-					'brand_id' => $this->input->post('brand_id'),
-					'category_id' => $this->input->post('category_id'),
+					'Name' => $this->input->post('Name'),
+					'Description' => $this->input->post('Description'),
+					'Product_uses' => $this->input->post('Product_uses'),
+					'Slug' => $this->input->post('Slug'),
+					'Selling_price' => $this->input->post('Selling_price'),
+					'Unit' => $this->input->post('Unit'),
+					'Promotion' => $this->input->post('Promotion'),
+					'Image' => $product_filename,
+					'Status' => $this->input->post('Status'),
+					'BrandID' => $this->input->post('BrandID'),
+					'CategoryID' => $this->input->post('CategoryID'),
 				];
 				// echo '<pre>';
 				// print_r($data);
 				// echo '</pre>';
 
-				$import_price_one_product = $this->input->post('import_price_one_product');
 				$this->load->model('productModel');
-				$this->productModel->insertProductAndWarehouse($data, $import_price_one_product);
+				$this->productModel->insertProduct($data);
 				$this->session->set_flashdata('success', 'Đã thêm sản phẩm thành công');
 				redirect(base_url('product/list'));
 
 			}
 		} else {
-			echo "Không thêm được sản phẩm";
+			$this->session->set_flashdata('error', 'Tạo sản phẩm thất bại, Vui lòng thử lại');
 			$this->createProduct();
 		}
 	}
 
-	public function editProduct($id)
+	public function editProduct($ProductID)
 	{
 		$this->config->config['pageTitle'] = 'Edit Product';
-
-		// Load categories
 		$this->load->model('categoryModel');
 		$data['category'] = $this->categoryModel->selectCategory();
-		// Load brand
 		$this->load->model('brandModel');
 		$data['brand'] = $this->brandModel->selectBrand();
-
 		$this->load->model('productModel');
-		$data['product'] = $this->productModel->selectProductById($id);
+		$data['product'] = $this->productModel->selectProductById($ProductID);
 
 		// echo '<pre>';
 		// print_r($data['product'] );
@@ -174,21 +166,21 @@ class productController extends CI_Controller
 
 	}
 
-	public function updateProduct($id)
+	public function updateProduct($ProductID)
 	{
-		$this->form_validation->set_rules('title', 'Title', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
-		$this->form_validation->set_rules('unit', 'Unit', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('production_date', 'Production_date', 'trim|required', ['required' => 'Bạn cần chọn %s']);
-		$this->form_validation->set_rules('expiration_date', 'Expiration_date', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Product_uses', 'Product_uses', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Unit', 'Unit', 'trim|required', ['required' => 'Bạn cần điền %s']);
+
 
 		if ($this->form_validation->run()) {
 
-			if (!empty($_FILES['image']['name'])) {
+			if (!empty($_FILES['Image']['name'])) {
 				// Upload Image
-				$ori_filename = $_FILES['image']['name'];
+				$ori_filename = $_FILES['Image']['name'];
 				$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
 				$config = [
 					'upload_path' => './uploads/product',
@@ -197,47 +189,43 @@ class productController extends CI_Controller
 				];
 				$this->load->library('upload', $config);
 
-				if (!$this->upload->do_upload('image')) {
-			
+				if (!$this->upload->do_upload('Image')) {
 					$data['error'] = $this->upload->display_errors();
-					$data['brand'] = $this->brandModel->selectBrand();
 					$data['template'] = "product/storeProduct";
 					$data['title'] = "Chỉnh sửa sản phẩm";
 					$this->load->view("admin-layout/admin-layout", $data);
 				} else {
 					$product_filename = $this->upload->data('file_name');
 					$data = [
-						'title' => $this->input->post('title'),
-						'slug' => $this->input->post('slug'),
-						'description' => $this->input->post('description'),
-						'selling_price' => $this->input->post('selling_price'),
-						'unit' => $this->input->post('unit'),
-						'production_date' => $this->input->post('production_date'),
-						'expiration_date' => $this->input->post('expiration_date'),
-						'discount' => $this->input->post('discount'),
-						'image' => $product_filename,
-						'status' => $this->input->post('status'),
-						'brand_id' => $this->input->post('brand_id'),
-						'category_id' => $this->input->post('category_id'),
+						'Name' => $this->input->post('Name'),
+						'Description' => $this->input->post('Description'),
+						'Product_uses' => $this->input->post('Product_uses'),
+						'Slug' => $this->input->post('Slug'),
+						'Selling_price' => $this->input->post('Selling_price'),
+						'Unit' => $this->input->post('Unit'),
+						'Promotion' => $this->input->post('Promotion'),
+						'Image' => $product_filename,
+						'Status' => $this->input->post('Status'),
+						'BrandID' => $this->input->post('BrandID'),
+						'CategoryID' => $this->input->post('CategoryID'),
 					];
 				}
 			} else {
 				$data = [
-					'title' => $this->input->post('title'),
-					'slug' => $this->input->post('slug'),
-					'description' => $this->input->post('description'),
-					'selling_price' => $this->input->post('selling_price'),
-					'status' => $this->input->post('status'),
-					'unit' => $this->input->post('unit'),
-					'production_date' => $this->input->post('production_date'),
-					'expiration_date' => $this->input->post('expiration_date'),
-					'discount' => $this->input->post('discount'),
-					'brand_id' => $this->input->post('brand_id'),
-					'category_id' => $this->input->post('category_id'),
+					'Name' => $this->input->post('Name'),
+					'Description' => $this->input->post('Description'),
+					'Product_uses' => $this->input->post('Product_uses'),
+					'Slug' => $this->input->post('Slug'),
+					'Selling_price' => $this->input->post('Selling_price'),
+					'Unit' => $this->input->post('Unit'),
+					'Promotion' => $this->input->post('Promotion'),
+					'Status' => $this->input->post('Status'),
+					'BrandID' => $this->input->post('BrandID'),
+					'CategoryID' => $this->input->post('CategoryID'),
 				];
 			}
 			$this->load->model('productModel');
-			$this->productModel->updateProduct($id, $data);
+			$this->productModel->updateProduct($ProductID, $data);
 			$this->session->set_flashdata('success', 'Đã chỉnh sửa sản phẩm thành công');
 			redirect(base_url('product/list'));
 		} else {

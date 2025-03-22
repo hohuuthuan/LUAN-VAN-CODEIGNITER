@@ -28,14 +28,14 @@
                     ?>
                     <tr>
                         <th scope="row"><?php echo $key ?></th>
-                        <td><?php echo $cus->username?></td>
-                        <td><?php echo $cus->email?></td>
-                        <td><?php echo $cus->phone?></td>
-                        <td><?php echo $cus->address?></td>
-                        <td><img src="<?php echo base_url('uploads/user/'.$cus->avatar) ?>" alt="" class="img-thumbnail" width="100" height="100"></td>
+                        <td><?php echo $cus->Name?></td>
+                        <td><?php echo $cus->Email?></td>
+                        <td><?php echo $cus->Phone?></td>
+                        <td><?php echo $cus->Address?></td>
+                        <td><img src="<?php echo base_url('uploads/user/'.$cus->Avatar) ?>" alt="" class="img-thumbnail" width="100" height="100"></td>
                         <td>
                             <?php 
-                                if($cus->status == 1){
+                                if($cus->Status == 1){
                                     echo "<span class='badge bg-success'>Bình thường</span>";
                                 }else{
                                     echo "<span class='badge bg-danger'>Người dùng bị khóa</span>";
@@ -44,7 +44,7 @@
                         </td>
                         <td>
                             <a class="btn btn-danger btn-sm"><i class="fa-solid fa-trash"></i> Delete</a>
-                            <a href="<?php echo base_url('manage-customer/edit/'.$cus->id) ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-wrench"></i> Edit</a>
+                            <a href="<?php echo base_url('manage-customer/edit/'.$cus->User_ID) ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-wrench"></i> Edit</a>
                         </td>
                     </tr>
                     <?php } ?>

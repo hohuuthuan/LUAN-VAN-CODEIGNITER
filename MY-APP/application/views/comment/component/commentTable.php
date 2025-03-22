@@ -22,7 +22,7 @@
                     <input type="checkbox" value="" class="input-checkbox checkBoxItem">
                 </td>
                 <th scope="row"><?php echo $key + 1; ?></th>
-                <td><?php echo $cmt->product_name ?></td>
+                <td>Tên sản phẩm lấy ra từ bảng product</td>
                 <td><?php echo $cmt->name ?></td>
                 <td><?php echo $cmt->email ?></td>
                 <td><?php echo $cmt->date_cmt ?></td>

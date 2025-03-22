@@ -9,7 +9,7 @@
             </th>
             <th scope="text-center">#</th>
             <th scope="text-center">Image</th>
-            <th scope="text-center">Title</th>
+            <th scope="text-center">Name</th>
 
             <th scope="text-center">Description</th>
 
@@ -26,22 +26,22 @@
                 </td>
                 <th scope="row"><?php echo $key + 1; ?></th>
                 <td>
-                    <img style="height: 20px; width: 20px" src="<?php echo base_url('uploads/category/' . $cate->image); ?>"
+                    <img style="height: 20px; width: 20px" src="<?php echo base_url('uploads/category/' . $cate->Image); ?>"
                         alt="" width="150" height="150">
                 </td>
-                <td><?php echo $cate->title; ?></td>
+                <td><?php echo $cate->Name; ?></td>
 
-                <td style="max-width: 700px"><?php echo $cate->description ?></td>
+                <td style="max-width: 700px"><?php echo $cate->Description ?></td>
 
                 <td>
-                    <span class="badge <?php echo $cate->status == 1 ? 'badge-success' : 'badge-danger'; ?>">
-                        <?php echo $cate->status == 1 ? 'Active' : 'Inactive'; ?>
+                    <span class="badge <?php echo $cate->Status == 1 ? 'badge-success' : 'badge-danger'; ?>">
+                        <?php echo $cate->Status == 1 ? 'Active' : 'Inactive'; ?>
                     </span>
                 </td>
                 <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('category/edit/' . $cate->id); ?>" class="btn btn-success"><i
+                    <a href="<?php echo base_url('category/edit/' . $cate->CategoryID); ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
-                    <a href="<?php echo base_url('category/delete/' . $cate->id); ?>"
+                    <a href="<?php echo base_url('category/delete/' . $cate->CategoryID); ?>"
                         onclick="return confirm('Bạn chắc chắn muốn xóa?');" class="btn btn-danger"><i
                             class="fa fa-trash"></i></a>
                 </td>

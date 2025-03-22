@@ -7,6 +7,7 @@ class orderController extends CI_Controller
 	{
 		if (!$this->session->userdata('logged_in_admin')) {
 			redirect(base_url('dang_nhap'));
+			die();
 		}
 	}
 
@@ -19,10 +20,47 @@ class orderController extends CI_Controller
 		// echo '<pre>';
 		// print_r($data['order']);
 		// echo '</pre>';
-		$data['template'] = "order_admin/index";
-		$data['title'] = "Danh sách đơn hàng";
-		$this->load->view("admin-layout/admin-layout", $data);
+		if (!empty($data['order'])) {
+			$data['template'] = "order_admin/index";
+			$data['title'] = "Danh sách đơn hàng";
+			$this->load->view("admin-layout/admin-layout", $data);
+		} else {
+			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
+			redirect(base_url('dashboard'));
+			die();
+		}
+
+
 	}
+
+
+	// public function viewOrder($order_code)
+	// {
+	// 	$this->config->config['pageTitle'] = 'View Order';
+	// 	$this->load->model('orderModel');
+	// 	$data['order_details'] = $this->orderModel->selectOrderDetails($order_code);
+
+
+
+	// 	if (!empty($data['order_details'])) {
+	// 		$data['product_qty_in_batch'] = $this->orderModel->get_qty_product_in_batches($data['order_details'][0]->ProductID, $data['order_details'][0]->qty);
+	// 		$data['template'] = "order_admin/viewOrder";
+	// 		$data['title'] = "Chi tiết đơn hàng";
+	// 		$this->load->view("admin-layout/admin-layout", $data);
+	// 	} else {
+	// 		$this->session->set_flashdata('error', 'Không có đơn hàng nào');
+	// 		redirect(base_url('order_admin/listOrder'));
+	// 	}
+
+
+	// 	echo '<pre>';
+	// 	print_r($data['order_details']);
+	// 	echo '</pre>';
+	// 	echo '<pre>';
+	// 	print_r($data['product_qty_in_batch']);
+	// 	echo '</pre>';
+
+	// }
 
 
 	public function viewOrder($order_code)
@@ -30,78 +68,132 @@ class orderController extends CI_Controller
 		$this->config->config['pageTitle'] = 'View Order';
 		$this->load->model('orderModel');
 		$data['order_details'] = $this->orderModel->selectOrderDetails($order_code);
-		// In dữ liệu để kiểm tra
+
+		if (!empty($data['order_details'])) {
+			// Lặp qua từng sản phẩm trong order_details
+			foreach ($data['order_details'] as &$order_detail) {
+				// Lấy số lượng sản phẩm trong batch cho từng sản phẩm và gắn vào thuộc tính mới
+				$order_detail->product_qty_in_batches = $this->orderModel->get_qty_product_in_batches($order_detail->ProductID, $order_detail->qty);
+			}
+
+			$data['template'] = "order_admin/viewOrder";
+			$data['title'] = "Chi tiết đơn hàng";
+			$this->load->view("admin-layout/admin-layout", $data);
+
+		} else {
+			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
+			redirect(base_url('dashboard'));
+
+		}
+
 		// echo '<pre>';
 		// print_r($data['order_details']);
 		// echo '</pre>';
-		$data['template'] = "order_admin/viewOrder";
-		$data['title'] = "Chi tiết đơn hàng";
-		$this->load->view("admin-layout/admin-layout", $data);
 	}
+
+
+	// public function deleteOrder($order_code)
+	// {
+	// 	$this->load->model('orderModel');
+
+	// 	$order_detail_id = $this->orderModel->selectOrderDetails($order_code)[0]->id;
+
+	// 	// echo '<pre>';
+	// 	// print_r($order_detail_id);
+	// 	// echo '</pre>';
+	// 	// die();
+	// 	$del_order_batches = $this->orderModel->deleteOrderBatches($order_detail_id);
+	// 	$del_order_details = $this->orderModel->deleteOrderDetails($order_code);
+	// 	$ShippingID = $this->orderModel->deleteOrder($order_code);
+	// 	$del_Shipping = $this->orderModel->deleteShipping($ShippingID);
+
+
+	// 	if ($del_order_batches && $del_order_details && $ShippingID && $del_Shipping) {
+	// 		$this->session->set_flashdata('success', 'Xóa đơn hàng thành công');
+	// 		redirect(base_url('order_admin/listOrder'));
+	// 		die();
+	// 	} else {
+	// 		$this->session->set_flashdata('error', 'Xóa đơn hàng thất bại');
+	// 		redirect(base_url('order-admin/listOrder'));
+	// 		die();
+	// 	}
+	// }
+
 
 	public function deleteOrder($order_code)
 	{
 		$this->load->model('orderModel');
-		$del = $this->orderModel->deleteOrder($order_code);
-		$del_order_details = $this->orderModel->deleteOrderDetails($order_code);
-		if ($del && $del_order_details) {
-			$this->session->set_flashdata('success', 'Xóa đơn hàng thành công');
+		// Lấy danh sách order details
+		$order_detail = $this->orderModel->selectOrderDetails($order_code);
+		if (empty($order_detail)) {
+			$this->session->set_flashdata('error', 'Đơn hàng không tồn tại');
 			redirect(base_url('order_admin/listOrder'));
-		} else {
-			$this->session->set_flashdata('error', 'Xóa đơn hàng thất bại');
-			redirect(base_url('order-admin/listOrder'));
+			return;
 		}
+
+		if ($order_detail->checkout_method == 'COD') {
+			$this->db->trans_start();
+			foreach ($order_details as $order_detail) {
+				$this->orderModel->deleteOrderBatches($order_detail->order_detail_id);
+			}
+			$this->orderModel->deleteOrderDetails($order_code);
+			$ShippingID = $this->orderModel->deleteOrder($order_code);
+			if ($ShippingID !== false) {
+				$this->orderModel->deleteShipping($ShippingID);
+			}
+			$this->db->trans_complete();
+		}elseif($order_detail->checkout_method == 'VNPAY'){
+			$this->session->set_flashdata('error', 'Không thể xoá đơn hàng với phuong thức thanh toán VNPAY');
+			redirect(base_url('order_admin/listOrder'));
+		}
+
+		if ($this->db->trans_status() === FALSE) {
+			$this->session->set_flashdata('error', 'Xóa đơn hàng thất bại');
+		} else {
+			$this->session->set_flashdata('success', 'Xóa đơn hàng thành công');
+		}
+		redirect(base_url('order_admin/listOrder'));
 	}
 
 	public function update_order_status()
 	{
 		$value = $this->input->post('value');
-		$order_code = $this->input->post('order_code');
+		$order_code = $this->input->post('Order_Code');
+		$product_qty_in_batch = $this->input->post('product_qty_in_batch');
+
 		$this->load->model('orderModel');
 
-		if ($value == 4) {
-			$date_delivered = Carbon\Carbon::now('Asia/Ho_Chi_Minh');
+		if ($value == 4) { // Đơn hàng đã thanh toán
+			$timenow = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 			$data_order = array(
-				'status' => $value,
+				'Order_Status' => $value,
+				'Payment_Status' => 1,
+				'Date_delivered' => $timenow,
+				'Payment_date_successful' => $timenow
 			);
-			$data_order_details = array(
-				'date_delivered' => $date_delivered
-			);
-
-			// Tính tổng tiền của đơn hàng
-			$order_details = $this->orderModel->selectOrderDetails($order_code);
-			$tong = 0;
-			foreach ($order_details as $ord) {
-				$tong += $ord->sub;
-			}
-
-			// Chuẩn bị dữ liệu để chèn vào bảng revenue
-			$data_revenue = array(
-				'order_code' => $order_code,
-				'subtotal' => $tong,
-				'date_delivered' => $date_delivered
-			);
-
-			// Gọi hàm chèn dữ liệu vào bảng revenue
-			$this->orderModel->insertRevenue($data_revenue);
-			// Cập nhật dữ liệu vào bảng orders và order_details
 			$this->orderModel->updateOrder($data_order, $order_code);
-			$this->orderModel->updateOrderDetails($data_order_details, $order_code);
+			if (!empty($product_qty_in_batch)) {
+				foreach ($product_qty_in_batch as $batch) {
+					$batch_id = $batch['Batch_ID'];
+					$quantity_to_deduct = $batch['QuantityToTake'];
 
+					$this->orderModel->deductBatchQuantity($batch_id, $quantity_to_deduct);
+				}
+			} else {
+				$this->session->set_flashdata('error', 'Lỗi không thể cập nhật số lượng');
+				redirect(base_url('order_admin/listOrder'));
+			}
 		} elseif ($value == 5) {
 			$data_order = array(
-				'status' => $value,
+				'Order_Status' => $value,
 			);
 			$this->orderModel->updateOrder($data_order, $order_code);
 		} else {
 			$data_order = array(
-				'status' => $value
-			);
-			$data_order_details = array(
-				'date_delivered' => '0000-00-00'
+				'Order_Status' => $value
 			);
 			$this->orderModel->updateOrder($data_order, $order_code);
-			$this->orderModel->updateOrderDetails($data_order_details, $order_code);
+
 		}
 	}
 
@@ -150,18 +242,18 @@ class orderController extends CI_Controller
 
 		$total = 0;
 		foreach ($order_details as $key => $product) {
-			$discounted_price = $product->selling_price * (1 - $product->discount / 100);
+			$discounted_price = $product->Selling_price * (1 - $product->Promotion / 100);
 			$subtotal = $product->qty * $discounted_price;
 			$total += $subtotal;
 
 			$html .= '
             <tr style="text-align: center;">
                 <td>' . ($key + 1) . '</td>
-                <td>' . $order_code . '</td>
-                <td style="text-align: left;">' . $product->title . '</td>
-                <td>' . number_format($product->selling_price, 0, ',', '.') . 'đ</td>
+                <td>' . $Order_Code . '</td>
+                <td style="text-align: left;">' . $product->Name . '</td>
+                <td>' . number_format($product->Selling_price, 0, ',', '.') . 'đ</td>
                 <td>' . $product->qty . '</td>
-                <td>' . $product->discount . '%</td>
+                <td>' . $product->Promotion . '%</td>
                 <td>' . number_format($subtotal, 0, ',', '.') . 'đ</td>
             </tr>
         ';
@@ -185,7 +277,7 @@ class orderController extends CI_Controller
 		// Xuất PDF
 		$pdf->SetFont('dejavusans', '', 10);
 		$pdf->writeHTML($html, true, false, true, false, '');
-		$pdf->Output('Order_' . $order_code . '.pdf', 'I');
+		$pdf->Output('Order_' . $Order_Code . '.pdf', 'I');
 	}
 
 

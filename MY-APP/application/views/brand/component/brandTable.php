@@ -9,7 +9,7 @@
             </th>
             <th scope="text-center">#</th>
             <th scope="text-center">Image</th>
-            <th scope="text-center">Title</th>
+            <th scope="text-center">Name</th>
 
             <th scope="text-center">Description</th>
 
@@ -22,26 +22,26 @@
         <?php foreach ($brand as $key => $bra): ?>
             <tr>
                 <td>
-                    <input type="checkbox" value="{{ $userCatalogue->id }}" class="input-checkbox checkBoxItem">
+                    <input type="checkbox" value="" class="input-checkbox checkBoxItem">
                 </td>
                 <th scope="row"><?php echo $key + 1; ?></th>
                 <td>
-                    <img style="height: 20px; width: 20px" src="<?php echo base_url('uploads/brand/' . $bra->image); ?>"
+                    <img style="height: 20px; width: 20px" src="<?php echo base_url('uploads/brand/' . $bra->Image); ?>"
                         alt="" width="150" height="150">
                 </td>
-                <td><?php echo $bra->title; ?></td>
+                <td><?php echo $bra->Name; ?></td>
 
-                <td style="max-width: 700px"><?php echo $bra->description ?></td>
+                <td style="max-width: 700px"><?php echo $bra->Description ?></td>
 
                 <td>
-                    <span class="badge <?php echo $bra->status == 1 ? 'badge-success' : 'badge-danger'; ?>">
-                        <?php echo $bra->status == 1 ? 'Active' : 'Inactive'; ?>
+                    <span class="badge <?php echo $bra->Status == 1 ? 'badge-success' : 'badge-danger'; ?>">
+                        <?php echo $bra->Status == 1 ? 'Active' : 'Inactive'; ?>
                     </span>
                 </td>
                 <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('brand/edit/' . $bra->id); ?>" class="btn btn-success"><i
+                    <a href="<?php echo base_url('brand/edit/' . $bra->BrandID); ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
-                    <a href="<?php echo base_url('brand/delete/' . $bra->id); ?>"
+                    <a href="<?php echo base_url('brand/delete/' . $bra->BrandID); ?>"
                         onclick="return confirm('Bạn chắc chắn muốn xóa?');" class="btn btn-danger"><i
                             class="fa fa-trash"></i></a>
                 </td>

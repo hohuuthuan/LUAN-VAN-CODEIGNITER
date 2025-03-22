@@ -10,8 +10,11 @@ class CheckoutController extends CI_Controller
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
-        $this->load->library('cart');
 
+        $this->load->model('indexModel');
+        $this->load->library('cart');
+        $this->data['brand'] = $this->indexModel->getBrandHome();
+        $this->data['category'] = $this->indexModel->getCategoryHome();
     }
     public function checkLogin()
     {
@@ -55,217 +58,295 @@ class CheckoutController extends CI_Controller
         $this->email->send();
     }
 
-    public function execPostRequest($url, $data)
-    {
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type: application/json',
-                'Content-Length: ' . strlen($data)
-            )
-        );
-        curl_setopt($ch, CURLOPT_TIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        //execute post
-        $result = curl_exec($ch);
-        //close connection
-        curl_close($ch);
-        return $result;
-    }
-
-
 
     public function confirm_checkout_method()
     {
 
+        $this->form_validation->set_rules('name', 'Username', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+        $this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+        $this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+        $this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+
+
+        $user_id = $this->getUserOnSession();
+
+        // Tạo mã đơn hàng duy nhất
+        $letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
+        $numbers = sprintf("%06d", rand(0, 999999));
+        $order_code = $letters . $numbers;
+
+        // Lấy dữ liệu vận chuyển từ form
+        $shipping_data = [
+            'user_id' => $user_id['id'],
+            'name' => $this->input->post('name'),
+            'email' => $this->input->post('email'),
+            'phone' => $this->input->post('phone'),
+            'address' => $this->input->post('address'),
+            'checkout_method' => $this->input->post('checkout_method')
+        ];
+
+        // Lưu thông tin shipping vào session với key là mã đơn hàng
+        $this->session->set_userdata("shipping_data_{$order_code}", $shipping_data);
+
+        // Tính tổng tiền
         $subtotal = 0;
         $total = 0;
         foreach ($this->cart->contents() as $items) {
             $subtotal = $items['qty'] * $items['price'];
             $total += $subtotal;
         }
-        if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'COD') {
-            // echo $total;
-            $this->form_validation->set_rules('name', 'Username', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-            $this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-            $this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-            $this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
-            if ($this->form_validation->run() == TRUE) {
-                $name = $this->input->post('name');
-                $email = $this->input->post('email');
-                $phone = $this->input->post('phone');
-                $address = $this->input->post('address');
-                $checkout_method = $this->input->post('checkout_method');
-                $user_id = $this->getUserOnSession();
-                $data = [
-                    'user_id' => $user_id['id'],
-                    'name' => $name,
-                    'email' => $email,
-                    'phone' => $phone,
-                    'address' => $address,
-                    'form_of_payment' => $checkout_method
-                ];
 
-                $this->load->model('loginModel');
-                $result = $this->loginModel->newShipping($data);
-                if ($result) {
-                    $letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3); // Lấy 3 chữ cái ngẫu nhiên
-                    $numbers = sprintf("%06d", rand(0, 999999));
-                    $order_code = $letters . $numbers;
-                    // echo $order_code;
-                    // Lưu vàp orders
-                    $data_orders = [
-                        'order_code' => $order_code,
-                        'status' => 1,
-                        'form_of_payment_id' => $result
+        if ($this->form_validation->run()) {
+            if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'COD') {
+                // Truy xuất đúng session shipping theo order_code
+                $shipping_data_session = $this->session->userdata("shipping_data_{$order_code}");
 
-                    ];
-                    $insert_orders = $this->loginModel->insert_orders($data_orders);
+                // echo '<pre>';
+                // print_r($shipping_data_session);
+                // echo '</pre>';
+                // die();
 
-                    // Order details
-                    foreach ($this->cart->contents() as $items) {
-                        $date_created = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateString();
-                        $data_orders_details = array(
-                            'order_code' => $order_code,
-                            'product_id' => $items['id'],
-                            'quantity' => $items['qty'],
-                            'subtotal' => $items['subtotal'],
-                            'date_order' => $date_created
-                        );
-                        $insert_orders_details = $this->loginModel->insert_orders_details($data_orders_details);
+                $this->load->model('orderModel');
+                $ShippingID = $this->orderModel->newShipping($shipping_data_session);
+
+                if ($ShippingID) {
+                    if (!empty($this->session->userdata("shipping_data_{$order_code}"))) {
+                        $this->session->unset_userdata("shipping_data_{$order_code}");
                     }
 
+                    $data_order = [
+                        'Order_code' => $order_code,
+                        'Order_Status' => -1,
+                        'Payment_Status' => 0,
+                        'UserID' => $user_id['id'],
+                        'TotalAmount' => $total,
+                        // Chưa có giảm giá
+                        'Date_Order' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString(),
+                        'ShippingID' => $ShippingID
+                    ];
+                    $this->data['order_id'] = $this->orderModel->insert_order($data_order);
 
-                    $this->session->set_flashdata('success', 'Đặt hàng thành công');
-                    $this->cart->destroy();
+                    foreach ($this->cart->contents() as $items) {
+                        $data_order_detail = array(
+                            'Order_code' => $order_code,
+                            'ProductID' => $items['id'],
+                            'Quantity' => $items['qty'],
+                            'Selling_price' => $items['price'],
+                            // Chưa có áp mã giảm giá
+                            'Subtotal' => $items['subtotal'],
+                        );
+                        $order_detail_id = $this->orderModel->insert_order_detail($data_order_detail);
+                        $get_product_in_batches = $this->orderModel->get_qty_product_in_batches($items['id'], $items['qty']);
+                        if (!empty($get_product_in_batches)) {
+                            foreach ($get_product_in_batches['batches'] as $batch) {
+                                $data_order_batches = [
+                                    'order_detail_id' => $order_detail_id,
+                                    'batch_id' => $batch['Batch_ID'],
+                                    'quantity' => $get_product_in_batches['totalQuantity']
+                                ];
+                                $result = $this->orderModel->insert_order_batches($data_order_batches);
+                            }
+                        }
 
-                    $to_mail = $email;
-                    $subject = 'Thông báo đặt hàng';
-                    $message = 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.';
-                    $this->send_mail($to_mail, $subject, $message);
-                    redirect(base_url('thank-you-for-order'));
+                    }
+                }
+
+                $this->session->set_flashdata('success', 'Đặt hàng thành công');
+                $this->cart->destroy();
+
+                $to_mail = $email;
+                $subject = 'Thông báo đặt hàng';
+                $message = 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.';
+                $this->send_mail($to_mail, $subject, $message);
+                redirect(base_url('thank-you-for-order'));
+
+            } elseif (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
+
+                // Chuyển hướng thanh toán vnpay
+                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+                $vnp_Returnurl = "http://localhost:8000/thank-you-for-order";
+                $vnp_TmnCode = "F72UMWTL";
+                $vnp_HashSecret = "696U98UTDBDDD09ZN1T0GAVR3KC4EVMU";
+
+                $vnp_TxnRef = $order_code;
+                $vnp_OrderInfo = 'Thanh toan don hang: ' . $order_code;
+                $vnp_OrderType = 'billpayment';
+                $vnp_Amount = $total * 100;
+                $vnp_Locale = 'vn';
+                $vnp_BankCode = 'NCB';
+                $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+
+                $inputData = array(
+                    "vnp_Version" => "2.1.0",
+                    "vnp_TmnCode" => $vnp_TmnCode,
+                    "vnp_Amount" => $vnp_Amount,
+                    "vnp_Command" => "pay",
+                    "vnp_CreateDate" => date('YmdHis'),
+                    "vnp_CurrCode" => "VND",
+                    "vnp_IpAddr" => $vnp_IpAddr,
+                    "vnp_Locale" => $vnp_Locale,
+                    "vnp_OrderInfo" => $vnp_OrderInfo,
+                    "vnp_OrderType" => $vnp_OrderType,
+                    "vnp_ReturnUrl" => $vnp_Returnurl,
+                    "vnp_TxnRef" => $vnp_TxnRef
+
+                );
+
+                if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+                    $inputData['vnp_BankCode'] = $vnp_BankCode;
+                }
+                if (isset($vnp_Bill_State) && $vnp_Bill_State != "") {
+                    $inputData['vnp_Bill_State'] = $vnp_Bill_State;
+                }
+
+                ksort($inputData);
+                $query = "";
+                $i = 0;
+                $hashdata = "";
+                foreach ($inputData as $key => $value) {
+                    if ($i == 1) {
+                        $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+                    } else {
+                        $hashdata .= urlencode($key) . "=" . urlencode($value);
+                        $i = 1;
+                    }
+                    $query .= urlencode($key) . "=" . urlencode($value) . '&';
+                }
+
+                $vnp_Url = $vnp_Url . "?" . $query;
+                if (isset($vnp_HashSecret)) {
+                    $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);//  
+                    $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+                }
+                $returnData = array(
+                    'code' => '00'
+                    ,
+                    'message' => 'success'
+                    ,
+                    'data' => $vnp_Url
+                );
+                if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
+                    header('Location: ' . $vnp_Url);
+                    die();
                 } else {
-                    $this->session->set_flashdata('error', 'Đặt hàng thất bại');
-                    redirect(base_url('checkout'));
+                    echo json_encode($returnData);
                 }
             } else {
+                $this->session->set_flashdata('error', 'Vui lòng chọn phương thức thanh toán');
                 redirect(base_url('checkout'));
             }
-        } elseif (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
-
-
-            $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-            $vnp_Returnurl = "http://localhost:8000/thank-you-for-order";
-            $vnp_TmnCode = "F72UMWTL";
-            $vnp_HashSecret = "696U98UTDBDDD09ZN1T0GAVR3KC4EVMU";
-
-            $vnp_TxnRef = rand(00, 9999); //Mã đơn hàng. Trong thực tế Merchant cần insert đơn hàng vào DB và gửi mã này sang VNPAY
-            $vnp_OrderInfo = 'Noi dung thanh toan';
-            $vnp_OrderType = 'billpayment';
-            $vnp_Amount = $total * 100;
-            $vnp_Locale = 'vn';
-            $vnp_BankCode = 'NCB';
-            $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-            //Add Params of 2.0.1 Version
-            //$vnp_ExpireDate = $_POST['txtexpire'];
-            //Billing
-            // $vnp_Bill_Mobile = $_POST['txt_billing_mobile'];
-            // $vnp_Bill_Email = $_POST['txt_billing_email'];
-            // $fullName = trim($_POST['txt_billing_fullname']);
-            // if (isset($fullName) && trim($fullName) != '') {
-            //     $name = explode(' ', $fullName);
-            //     $vnp_Bill_FirstName = array_shift($name);
-            //     $vnp_Bill_LastName = array_pop($name);
-            // }
-            // $vnp_Bill_Address=$_POST['txt_inv_addr1'];
-            // $vnp_Bill_City=$_POST['txt_bill_city'];
-            // $vnp_Bill_Country=$_POST['txt_bill_country'];
-            // $vnp_Bill_State=$_POST['txt_bill_state'];
-            // // Invoice
-            // $vnp_Inv_Phone=$_POST['txt_inv_mobile'];
-            // $vnp_Inv_Email=$_POST['txt_inv_email'];
-            // $vnp_Inv_Customer=$_POST['txt_inv_customer'];
-            // $vnp_Inv_Address=$_POST['txt_inv_addr1'];
-            // $vnp_Inv_Company=$_POST['txt_inv_company'];
-            // $vnp_Inv_Taxcode=$_POST['txt_inv_taxcode'];
-            // $vnp_Inv_Type=$_POST['cbo_inv_type'];
-            $inputData = array(
-                "vnp_Version" => "2.1.0",
-                "vnp_TmnCode" => $vnp_TmnCode,
-                "vnp_Amount" => $vnp_Amount,
-                "vnp_Command" => "pay",
-                "vnp_CreateDate" => date('YmdHis'),
-                "vnp_CurrCode" => "VND",
-                "vnp_IpAddr" => $vnp_IpAddr,
-                "vnp_Locale" => $vnp_Locale,
-                "vnp_OrderInfo" => $vnp_OrderInfo,
-                "vnp_OrderType" => $vnp_OrderType,
-                "vnp_ReturnUrl" => $vnp_Returnurl,
-                "vnp_TxnRef" => $vnp_TxnRef
-
-                // "vnp_ExpireDate"=>$vnp_ExpireDate,
-                // "vnp_Bill_Mobile"=>$vnp_Bill_Mobile,
-                // "vnp_Bill_Email"=>$vnp_Bill_Email,
-                // "vnp_Bill_FirstName"=>$vnp_Bill_FirstName,
-                // "vnp_Bill_LastName"=>$vnp_Bill_LastName,
-                // "vnp_Bill_Address"=>$vnp_Bill_Address,
-                // "vnp_Bill_City"=>$vnp_Bill_City,
-                // "vnp_Bill_Country"=>$vnp_Bill_Country,
-                // "vnp_Inv_Phone"=>$vnp_Inv_Phone,
-                // "vnp_Inv_Email"=>$vnp_Inv_Email,
-                // "vnp_Inv_Customer"=>$vnp_Inv_Customer,
-                // "vnp_Inv_Address"=>$vnp_Inv_Address,
-                // "vnp_Inv_Company"=>$vnp_Inv_Company,
-                // "vnp_Inv_Taxcode"=>$vnp_Inv_Taxcode,
-                // "vnp_Inv_Type"=>$vnp_Inv_Type
-            );
-
-            if (isset($vnp_BankCode) && $vnp_BankCode != "") {
-                $inputData['vnp_BankCode'] = $vnp_BankCode;
-            }
-            if (isset($vnp_Bill_State) && $vnp_Bill_State != "") {
-                $inputData['vnp_Bill_State'] = $vnp_Bill_State;
-            }
-
-            //var_dump($inputData);
-            ksort($inputData);
-            $query = "";
-            $i = 0;
-            $hashdata = "";
-            foreach ($inputData as $key => $value) {
-                if ($i == 1) {
-                    $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-                } else {
-                    $hashdata .= urlencode($key) . "=" . urlencode($value);
-                    $i = 1;
-                }
-                $query .= urlencode($key) . "=" . urlencode($value) . '&';
-            }
-
-            $vnp_Url = $vnp_Url . "?" . $query;
-            if (isset($vnp_HashSecret)) {
-                $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);//  
-                $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
-            }
-            $returnData = array(
-                'code' => '00'
-                ,
-                'message' => 'success'
-                ,
-                'data' => $vnp_Url
-            );
-            if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
-                header('Location: ' . $vnp_Url);
-                die();
-            } else {
-                echo json_encode($returnData);
-            }
+        } else {
+            $this->session->set_flashdata('error', 'Vui lòng điền đầy đủ thông tin');
+            redirect(base_url('checkout'));
         }
+    }
+
+
+
+    public function thank_you_for_order()
+    {
+        if (isset($_GET['vnp_Amount']) && $_GET['vnp_ResponseCode'] == 00) {
+            $user_id = $this->getUserOnSession();
+            $shipping_data_session = $this->session->userdata("shipping_data_{$_GET['vnp_TxnRef']}");
+
+            $this->load->model('orderModel');
+            $ShippingID = $this->orderModel->newShipping($shipping_data_session);
+            
+
+            if ($ShippingID) {
+                if (!empty($this->session->userdata("shipping_data_{$_GET['vnp_TxnRef']}"))) {
+                    $this->session->unset_userdata("shipping_data_{$_GET['vnp_TxnRef']}");
+                }
+                // Tính tổng tiền
+                $subtotal = 0;
+                $total = 0;
+                foreach ($this->cart->contents() as $items) {
+                    $subtotal = $items['qty'] * $items['price'];
+                    $total += $subtotal;
+                }
+                $data_order = [
+                    'Order_code' => $_GET['vnp_TxnRef'],
+                    'Order_Status' => -1,
+                    'Payment_Status' => 1,
+                    'UserID' => $user_id['id'],
+                    'TotalAmount' => $total,
+                    // Chưa có giảm giá
+                    'Date_Order' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString(),
+                    'ShippingID' => $ShippingID,
+                    'Payment_date_successful' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString()
+                ];
+                $this->data['order_id'] = $this->orderModel->insert_order($data_order);
+
+
+                foreach ($this->cart->contents() as $items) {
+                    $data_order_detail = array(
+                        'Order_code' => $_GET['vnp_TxnRef'],
+                        'ProductID' => $items['id'],
+                        'Quantity' => $items['qty'],
+                        'Selling_price' => $items['price'],
+                        // Chưa có áp mã giảm giá
+                        'Subtotal' => $items['subtotal'],
+                    );
+                    $order_detail_id = $this->orderModel->insert_order_detail($data_order_detail);
+            
+                    $get_product_in_batches = $this->orderModel->get_qty_product_in_batches($items['id'], $items['qty']);
+
+
+                    if (!empty($get_product_in_batches)) {
+                        foreach ($get_product_in_batches['batches'] as $batch) {
+                            $data_order_batches = [
+                                'order_detail_id' => $order_detail_id,
+                                'batch_id' => $batch['Batch_ID'],
+                                'quantity' => $get_product_in_batches['totalQuantity']
+                            ];
+                            $this->orderModel->insert_order_batches($data_order_batches);
+                        }
+                    }
+        
+                }
+            }
+            // Lưu thông tin thanh toán VNPAY
+            $data_vnpay = [
+                'ShippingID' => $ShippingID,
+                'vnp_Amount' => $_GET['vnp_Amount'],
+                'vnp_BankCode' => $_GET['vnp_BankCode'],
+                'vnp_BankTranNo' => $_GET['vnp_BankTranNo'],
+                'vnp_CardType' => $_GET['vnp_CardType'],
+                'vnp_OrderInfo' => $_GET['vnp_OrderInfo'],
+                'vnp_PayDate' =>  $_GET['vnp_PayDate'],
+                'vnp_ResponseCode' => $_GET['vnp_ResponseCode'],
+                'vnp_TmnCode' => $_GET['vnp_TmnCode'],
+                'vnp_TransactionStatus' => $_GET['vnp_TransactionStatus'],
+                'vnp_TxnRef' => $_GET['vnp_TxnRef'], // Lưu giá trị order_code
+                'vnp_SecureHash' => $_GET['vnp_SecureHash']
+            ];
+            $this->load->model('indexModel');
+            $this->indexModel->insert_VNPAY($data_vnpay);
+
+
+            $this->session->set_flashdata('success', 'Đặt hàng thành công');
+            $this->cart->destroy();
+
+            $to_mail = $user_id['email'];
+            $subject = 'Thông báo đặt hàng';
+            $message = 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.';
+            $this->send_mail($to_mail, $subject, $message);
+            redirect(base_url('thank-you-for-order'));
+            die();
+        }
+
+
+        $this->config->config['pageTitle'] = 'Cảm ơn bạn đã đặt hàng';
+        $this->data['template'] = "thanks/index";
+        $this->load->view("pages/layout/index", $this->data);
+    }
+
+    public function thank_you_for_payment()
+    {
+        $this->config->config['pageTitle'] = 'Cảm ơn bạn đã đặt hàng';
+        $this->data['template'] = "thanks/index";
+        $this->load->view("pages/layout/index", $this->data);
     }
 
 }

@@ -1,5 +1,3 @@
-
-
 <section>
     <div class="container">
         <div class="row">
@@ -14,34 +12,42 @@
                         <form action="<?php echo base_url('add-to-cart') ?>" method="POST">
                             <div class="col-sm-4">
                                 <div class="product-image-wrapper">
-                                    <input type="hidden" value="<?php echo $allPro->product_id ?>" name="product_id">
-                                    <input type="hidden" value="1" name="quantity">
+                                    <input type="hidden" value="<?php echo $allPro->ProductID ?>" name="ProductID">
+                                    <input type="hidden" value="1" name="Quantity">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
-                                            <img src="<?php echo base_url('uploads/product/' . $allPro->image) ?>"
-                                                 alt="<?php echo $allPro->title ?>" />
+                                            <!-- <div
+                                                class="view-product <?php echo ($allPro->total_remaining == 0) ? 'out-of-stock' : ''; ?>">
+                                                <img style="width: 300px; height: 300px"
+                                                    src="<?php echo base_url('uploads/product/' . $allPro->Image) ?>"
+                                                    alt="<?php echo $allPro->Name ?>" />
+                                            </div> -->
+                                            <img src="<?php echo base_url('uploads/product/' . $allPro->Image) ?>"
+                                                alt="<?php echo $allPro->Name ?>" />
 
                                             <h2>
                                                 <?php
                                                 // Kiểm tra nếu có giảm giá
-                                                if (isset($allPro->discount) && $allPro->discount != 0) {
+                                                if (isset($allPro->Promotion) && $allPro->Promotion != 0) {
                                                     // Tính giá sau giảm
-                                                    $price_no_discount = $allPro->selling_price;
-                                                    $selling_price = $allPro->selling_price * (1 - $allPro->discount / 100);
+                                                    $price_no_Promotion = $allPro->Selling_price;
+                                                    $Selling_price = $allPro->Selling_price * (1 - $allPro->Promotion / 100);
                                                     ?>
                                                     <span style="color: red" class="sale-label">Sale: </span>
-                                                    <span class="discounted-price"><?php echo number_format($selling_price, 0, ',', '.') ?> VND</span>
+                                                    <span
+                                                        class="discounted-price"><?php echo number_format($Selling_price, 0, ',', '.') ?>
+                                                        VND</span>
                                                     <?php
                                                 } else {
                                                     // Nếu không có giảm giá
-                                                    echo number_format($allPro->selling_price, 0, ',', '.') . " VND";
+                                                    echo number_format($allPro->Selling_price, 0, ',', '.') . " VND";
                                                 }
                                                 ?>
                                             </h2>
 
-                                            <p><?php echo $allPro->title ?></p>
-                                            <a href="<?php echo base_url('san-pham/' . $allPro->product_id . '/' . $allPro->slug) ?>"
-                                               class="btn btn-default add-to-cart"><i class="fa fa-eye"></i>Details</a>
+                                            <p><?php echo $allPro->Name ?></p>
+                                            <a href="<?php echo base_url('san-pham/' . $allPro->ProductID . '/' . $allPro->Slug) ?>"
+                                                class="btn btn-default add-to-cart"><i class="fa fa-eye"></i>Details</a>
                                             <button type="submit" class="btn btn-default cart">
                                                 <i class="fa fa-shopping-cart"></i>
                                                 Add to cart
@@ -53,7 +59,7 @@
                         </form>
                     <?php } ?>
                 </div><!--features_items-->
-                
+
                 <?php echo $links; ?> <!-- Phân trang -->
             </div>
         </div>

@@ -63,12 +63,13 @@ $route['confirm-checkout-method']['POST'] = 'checkoutController/confirm_checkout
 
 /* LIST ORDER */
 $route['order_customer/listOrder']['GET'] = 'indexController/listOrder';
-$route['order_customer/update-order-status']['POST'] = 'orderController/update_order_status';
+$route['order_customer/update-order-status']['POST'] = 'orderController/update_order_status_COD';
 $route['order_customer/viewOrder/(:any)']['GET'] = 'indexController/viewOrder/$1';
 $route['order_customer/deleteOrder/(:any)']['GET'] = 'indexController/deleteOrder/$1';
 
 /* THANK PAGE */
-$route['thank-you-for-order']['GET'] = 'indexController/thank_you_for_order';
+$route['thank-you-for-order']['GET'] = 'checkoutController/thank_you_for_order';
+$route['thank-you-for-payment']['GET'] = 'checkoutController/thank_you_for_payment';
 
 /* SEARCH PRODUCT */
 $route['search-product']['GET'] = 'indexController/search_product';
@@ -137,9 +138,17 @@ $route['product/delete/(:any)']['GET'] = 'productController/deleteProduct/$1';
 
 /* MANAGE WAREHOUSE */
 $route['warehouse/list']['GET'] = 'warehouseController/index';
+$route['warehouse/receive-goods']['GET'] = 'warehouseController/receive_goods';
+$route['warehouse/enter-into-warehouse']['POST'] = 'warehouseController/enter_into_warehouse';
+
+
+
+
 $route['quantity/update/(:any)']['GET'] = 'warehouseController/updateQuantityProduct/$1';
 $route['product-in-warehouse/delete/(:any)']['GET'] = 'warehouseController/deleteProduct/$1';
 $route['warehouse/plusquantity-importpriceinwwarehouses/(:any)']['POST'] = 'warehouseController/plusQuantityWarehouses/$1';
+
+
 
 /* MANAGE ORDER */
 $route['order_admin/listOrder']['GET'] = 'orderController/index';

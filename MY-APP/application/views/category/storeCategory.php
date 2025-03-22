@@ -26,7 +26,7 @@
                                 <div class="form-row">
                                     <label for="" class="control-label text-right">Tên thương hiệu<span
                                             class="text-danger" required>(*)</span></label>
-                                            <input name="title" type="text" class="form-control" id="slug" onkeyup="ChangeToSlug();" placeholder="Nhập tên thương hiệu">
+                                            <input name="Name" type="text" class="form-control" id="slug" onkeyup="ChangeToSlug();" placeholder="Nhập tên thương hiệu">
                                 </div>
 
                             </div>
@@ -34,7 +34,7 @@
                                 <div class="form-row">
                                     <label for="" class="control-label text-right">Slug<span
                                             class="text-danger">(*)</span></label>
-                                    <input name="slug" type="text" class="form-control" id="convert_slug"
+                                    <input name="Slug" type="text" class="form-control" id="convert_slug"
                                         placeholder="Nhập slug">
                                 </div>
                             </div>
@@ -45,7 +45,7 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="description">Mô tả</label>
-                                        <textarea name="description" type="text" class="form-control" rows="4"
+                                        <textarea name="Description" type="text" class="form-control" rows="4"
                                             placeholder="Nhập mô tả thương hiệu"></textarea>
                                         <?php echo '<span class="text-danger">' . form_error('description') . '</span>' ?>
                                     </div>
@@ -54,8 +54,8 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="image">Hình ảnh</label>
-                                        <input name="image" type="file" class="form-control-file">
+                                        <label for="Image">Hình ảnh</label>
+                                        <input name="Image" type="file" class="form-control-file">
                                         <small class="text-danger"><?php if (isset($error))
                                             echo $error ?></small>
                                         </div>
@@ -66,8 +66,8 @@
                             <div class="row mb15">
                                 <div class="col-lg-6">
                                     <div class="form-row">
-                                        <label for="status">Trạng thái</label>
-                                        <select name="status" class="form-control setupSelect2">
+                                        <label for="Status">Trạng thái</label>
+                                        <select name="Status" class="form-control setupSelect2">
                                             <option selected value="1">Active</option>
                                             <option value="0">Inactive</option>
                                         </select>

@@ -91,18 +91,13 @@ defined('BASEPATH') or exit('No direct script access allowed');
 <div id="loader" class="loader"></div>
     <div class="container-xl px-4 mt-4">
         <h1>Thông tin tài khoản</h1>
-        <?php if ($this->session->flashdata('success')) { ?>
-            <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-        <?php } elseif ($this->session->flashdata('error')) { ?>
-            <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-        <?php } ?>
         <?php if (isset($profile_user)) { ?>
             <nav style="font-size: 16px" class="nav nav-borders">
                 <a class="nav-link" style="color: crimson;" href="<?php echo base_url('/') ?>">Trở về trang
                     chủ</a>
                 <a class="nav-link active   ms-0" href="<?php echo base_url('profile-user/') ?>">Chi tiết
                     thông tin người dùng</a>
-                <a class="nav-link ms-0" href="<?php echo base_url('customer/edit/' . $profile_user->id) ?>"
+                <a class="nav-link ms-0" href="<?php echo base_url('customer/edit/' . $profile_user->UserID) ?>"
                    >Chỉnh sửa thông tin</a>
             </nav>
             <hr class="mt-0 mb-4">
@@ -114,7 +109,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                         <div class="card-body text-center">
                             <!-- Profile picture image-->
                             <img class="img-account-profile rounded-circle mb-2"
-                                src="<?php echo base_url('uploads/user/' . $profile_user->avatar) ?>"
+                                src="<?php echo base_url('uploads/user/' . $profile_user->Avatar) ?>"
                                 alt="Hình ảnh người dùng">
                             <br>
                         </div>
@@ -130,28 +125,28 @@ defined('BASEPATH') or exit('No direct script access allowed');
                                 <!-- Form Group (username) -->
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputUsername">
-                                        <p><b>Họ và tên: </b><?php echo $profile_user->username; ?></p>
+                                        <p><b>Họ và tên: </b><?php echo $profile_user->Name; ?></p>
                                     </label>
                                 </div>
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputEmail">
-                                        <p><b>Email: </b><?php echo $profile_user->email; ?></p>
+                                        <p><b>Email: </b><?php echo $profile_user->Email; ?></p>
                                     </label>
                                 </div>
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputAddress">
-                                        <p><b>Địa chỉ: </b><?php echo $profile_user->address; ?></p>
+                                        <p><b>Địa chỉ: </b><?php echo $profile_user->Address; ?></p>
                                     </label>
                                 </div>
                                 <div class="mb-3">
                                     <label class="small mb-1" for="inputPhone">
-                                        <p><b>SĐT: </b><?php echo $profile_user->phone; ?></p>
+                                        <p><b>SĐT: </b><?php echo $profile_user->Phone; ?></p>
                                     </label>
                                 </div>
                                 <!-- Save changes button -->
                                 <div class="d-flex">
                                 <div class="">
-                                    <a style="width: 10px" href="<?php echo base_url('customer/edit/' . $profile_user->id) ?>">
+                                    <a style="width: 10px" href="<?php echo base_url('customer/edit/' . $profile_user->UserID) ?>">
                                         <button class="btn btn-primary" type="button">Chỉnh sửa</button>
                                     </a>
                                 </div>

@@ -88,7 +88,7 @@
 										foreach ($category as $key => $cate) {
 											?>
 											<li><a
-													href="<?php echo base_url('danh-muc/' . $cate->id . '/' . $cate->slug) ?>"><?php echo $cate->title ?></a>
+													href="<?php echo base_url('danh-muc/' . $cate->CategoryID . '/' . $cate->Slug) ?>"><?php echo $cate->Name ?></a>
 											</li>
 										<?php } ?>
 									</ul>

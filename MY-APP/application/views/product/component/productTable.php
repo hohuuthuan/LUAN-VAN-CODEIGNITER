@@ -13,7 +13,7 @@
             <th scope="text-center">Giảm giá</th>
 
             <th scope="text-center">Tồn kho</th>
-            <th scope="text-center">Ngày hết hạn</th>
+            <th scope="text-center">Hạn sử dụng theo lô</th>
             <th scope="text-center">Trạng thái</th>
             <th scope="text-center">Quản lý</th>
         </tr>
@@ -27,57 +27,73 @@
                 </td>
                 <th scope="row"><?php echo $key + 1; ?></th>
 
-                <td><?php echo $pro->title; ?></td>
+                <td><?php echo $pro->Name; ?></td>
 
                 <td style="max-width: 300px; word-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">
-                    <span title="<?php echo htmlspecialchars($pro->description); ?>">
-                        <?php echo mb_strimwidth($pro->description, 0, 50, "..."); ?>
+                    <span title="<?php echo htmlspecialchars($pro->Description); ?>">
+                        <?php echo mb_strimwidth($pro->Description, 0, 50, "..."); ?>
                     </span>
                 </td>
 
                 <td>
-                    <?php if ($pro->selling_price > 0): ?>
-                        <?php if ($pro->discount > 0): ?>
+                    <?php if ($pro->Selling_price > 0): ?>
+                        <?php if ($pro->Promotion > 0): ?>
                             <span style="text-decoration: line-through; color: red;">
-                                <?php echo number_format($pro->selling_price, 0, ',', '.'); ?> VNĐ
+                                <?php echo number_format($pro->Selling_price, 0, ',', '.'); ?> VNĐ
                             </span><br>
                             <span class="font-weight-bold text-success">
-                                <?php $discounted_price = $pro->selling_price * (1 - $pro->discount / 100);
+                                <?php $discounted_price = $pro->Selling_price * (1 - $pro->Promotion / 100);
                                 echo number_format($discounted_price, 0, ',', '.'); ?>
                                 VNĐ
                             </span>
                         <?php else: ?>
                             <span class="font-weight-bold text-success">
-                                <?php echo number_format($pro->selling_price, 0, ',', '.'); ?> VNĐ
+                                <?php echo number_format($pro->Selling_price, 0, ',', '.'); ?> VNĐ
                             </span>
                         <?php endif; ?>
                     <?php else: ?>
                         <span class="text-muted">Liên hệ</span>
                     <?php endif; ?>
                 </td>
-                <td><?php echo htmlspecialchars($pro->unit); ?></td>
+                <td><?php echo htmlspecialchars($pro->Unit); ?></td>
                 <td>
-                    <span style="color: <?php echo ($pro->discount > 0) ? 'blue' : 'black'; ?>">
-                        <?php echo $pro->discount ? $pro->discount . ' %' : 'Không giảm giá'; ?>
+                    <span style="color: <?php echo ($pro->Promotion > 0) ? 'blue' : 'black'; ?>">
+                        <?php echo $pro->Promotion ? $pro->Promotion . ' %' : 'Không giảm giá'; ?>
                     </span>
                 </td>
 
 
-                <td><?php echo htmlspecialchars($pro->quantity); ?></td>
-                <td><?php echo date('d-m-Y', strtotime($pro->expiration_date)); ?></td>
+                <td><?php echo $pro->total_remaining; ?></td>
+                <td>
+                    <?php if (!empty($pro->batches)): ?>
+                        
+                        <ul style="padding-left: 20px; margin: 0;">
+                            <?php foreach ($pro->batches as $batch): ?>
+                                <li>Lô #<?php echo $batch->Batch_ID; ?>:
+                                    <b><?php echo $batch->remaining_quantity; ?></b> sản phẩm
+                                    (Hạn: <?php echo date('d/m/Y', strtotime($batch->Expiry_date)); ?>)
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php else: ?>
+                        <span class="text-muted">Không có lô hàng</span>
+                    <?php endif; ?>
+                </td>
+
+
 
 
                 <td>
-                    <?php if ($pro->status == 1): ?>
+                    <?php if ($pro->Status == 1): ?>
                         <span class="badge badge-success">Active</span>
                     <?php else: ?>
                         <span class="badge badge-danger">Inactive</span>
                     <?php endif; ?>
                 </td>
                 <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('product/edit/' . $pro->product_id); ?>" class="btn btn-success"><i
+                    <a href="<?php echo base_url('product/edit/' . $pro->ProductID); ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
-                    <a href="<?php echo base_url('product/delete/' . $pro->product_id); ?>"
+                    <a href="<?php echo base_url('product/delete/' . $pro->ProductID); ?>"
                         onclick="return confirm('Bạn chắc chắn muốn xóa?');" class="btn btn-danger"><i
                             class="fa fa-trash"></i></a>
                 </td>

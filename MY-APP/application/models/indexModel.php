@@ -16,22 +16,20 @@ class indexModel extends CI_Model
 
     public function getBrandHome()
     {
-        $query = $this->db->get_where('brands', ['status' => 1]);
+        $query = $this->db->get_where('brand', ['Status' => 1]);
         return $query->result();
     }
     public function getCategoryHome()
     {
-        $query = $this->db->get_where('categories', ['status' => 1]);
+        $query = $this->db->get_where('category', ['Status' => 1]);
         return $query->result();
     }
 
     public function getAllProduct()
     {
-        // Chọn tất cả các cột từ bảng products và cột quantity từ bảng warehouses
-        $this->db->select('products.*, warehouses.quantity');
-        $this->db->from('products');
-        $this->db->join('warehouses', 'warehouses.product_id = products.id', 'left');
-        $this->db->where('products.status', 1);
+        $this->db->select('product.*');
+        $this->db->from('product');
+        $this->db->where('product.Status', 1);
         $query = $this->db->get();
         return $query->result();
     }
@@ -55,7 +53,7 @@ class indexModel extends CI_Model
     }
 
     // comment
-   public function commentSend($data)
+    public function commentSend($data)
     {
         $this->db->trans_start();
         $this->db->insert('comment', $data);
@@ -77,15 +75,15 @@ class indexModel extends CI_Model
     // Pagination
     public function countAllProduct()
     {
-        return $this->db->count_all('products');
+        return $this->db->count_all('product');
     }
     public function countAllCategory()
     {
-        return $this->db->count_all('categories');
+        return $this->db->count_all('category');
     }
     public function countAllBrand()
     {
-        return $this->db->count_all('brands');
+        return $this->db->count_all('brand');
     }
     public function countAllUser()
     {
@@ -93,49 +91,108 @@ class indexModel extends CI_Model
     }
     public function countAllProductByCate($id)
     {
-        $this->db->where('category_id', $id);
-        $this->db->from('products');
+        $this->db->where('CategoryID', $id);
+        $this->db->from('product');
         return $this->db->count_all_results();
 
     }
     public function countAllProductByBrand($id)
     {
-        $this->db->where('brand_id', $id);
-        $this->db->from('products');
+        $this->db->where('BrandID', $id);
+        $this->db->from('product');
         return $this->db->count_all_results();
 
     }
     public function countAllProductByKeyword($keyword)
     {
-        $this->db->like('products.title', $keyword);
-        $this->db->from('products');
+        $this->db->like('product.Name', $keyword);
+        $this->db->from('product');
         return $this->db->count_all_results();
 
+    }
+
+   
+
+
+    public function getProductPagination($limit, $start)
+    {
+        $query = $this->db->select('category.Name as tendanhmuc, 
+                                    product.*, 
+                                    brand.Name as tenthuonghieu, 
+                                    COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->join('batches', 'batches.ProductID = product.ProductID', 'left')
+            ->group_by('product.ProductID')
+            ->order_by('total_remaining', 'DESC')
+            ->limit($limit, $start)
+            ->get();
+    
+        $products = $query->result();
+    
+        // Lấy chi tiết số lượng tồn kho theo từng lô
+        foreach ($products as $product) {
+            $product->batches = $this->get_batches_by_product($product->ProductID);
+        }
+    
+        return $products;
     }
 
 
     public function getIndexPagination($limit, $start)
     {
-        $query = $this->db->select('categories.title as tendanhmuc, 
-                                    products.*, warehouses.*, 
-                                    brands.title as tenthuonghieu')->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('warehouses', 'products.id = warehouses.product_id')
-            ->join('brands', 'brands.id = products.brand_id')
+        $query = $this->db->select('category.Name as tendanhmuc, 
+                                    product.*, 
+                                    brand.Name as tenthuonghieu, 
+                                    COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->join('batches', 'batches.ProductID = product.ProductID', 'left')
+            ->where('product.Status', 1)
+            ->group_by('product.ProductID')
+            ->order_by('total_remaining', 'DESC')
             ->limit($limit, $start)
             ->get();
+    
+        $products = $query->result();
+    
+        // Lấy chi tiết số lượng tồn kho theo từng lô
+        foreach ($products as $product) {
+            $product->batches = $this->get_batches_by_product($product->ProductID);
+        }
+    
+        return $products;
+    }
+    
+
+
+    public function get_batches_by_product($product_id)
+    {
+        $query = $this->db->select('Batch_ID, Expiry_date, remaining_quantity')
+            ->from('batches')
+            ->where('ProductID', $product_id)
+            ->where('remaining_quantity >', 0)
+            ->order_by('Expiry_date', 'ASC')
+            ->get();
+
         return $query->result();
     }
+
+
+
 
 
     public function getCategoryPagination($id, $limit, $start)
     {
         $this->db->limit($limit, $start);
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->where('products.category_id', $id)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.CategoryID', $id)
+            ->where('product.Status', 1)
             ->get();
         return $query->result();
     }
@@ -143,100 +200,102 @@ class indexModel extends CI_Model
     public function getCategoryKyTuPagination($id, $kytu, $limit, $start)
     {
         $this->db->limit($limit, $start);
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->where('products.category_id', $id)
-            ->order_by('products.title', $kytu)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.Status', 1)
+            ->where('product.CategoryID', $id)
+            ->order_by('product.Name', $kytu)
             ->get();
         return $query->result();
     }
     public function getCategoryPricePagination($id, $gia, $limit, $start)
     {
         $this->db->limit($limit, $start);
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->where('products.category_id', $id)
-            ->order_by('products.selling_price', $gia)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.Status', 1)
+            ->where('product.CategoryID', $id)
+            ->order_by('product.selling_price', $gia)
             ->get();
         return $query->result();
     }
     public function getCategoryPriceRangePagination($id, $from_price, $to_price, $limit, $start)
     {
         $this->db->limit($limit, $start);
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->where('products.category_id', $id)
-            ->where('products.selling_price >=' . $from_price)
-            ->where('products.selling_price <=' . $to_price)
-            ->order_by('products.selling_price', 'asc')
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.Status', 1)
+            ->where('product.CategoryID', $id)
+            ->where('product.selling_price >=' . $from_price)
+            ->where('product.selling_price <=' . $to_price)
+            ->order_by('product.selling_price', 'asc')
             ->get();
         return $query->result();
     }
     public function getBrandPagination($id, $limit, $start)
     {
         $this->db->limit($limit, $start);
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->where('products.brand_id', $id)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.Status', 1)
+            ->where('product.BrandID', $id)
             ->get();
         return $query->result();
     }
 
-    public function getCategorySlug($id)
+    public function getCategorySlug($CategoryID)
     {
-        $this->db->select('categories.*');
-        $this->db->from('categories');
+        $this->db->select('category.*');
+        $this->db->from('category');
         $this->db->limit(1);
-        $this->db->where('categories.id', $id);
+        $this->db->where('category.CategoryID', $CategoryID);
         $query = $this->db->get();
         $result = $query->row();
-        return $title = $result->slug;
+        return $Slug = $result->Slug;
     }
-    public function getBrandSlug($id)
+    public function getBrandSlug($BrandID)
     {
-        $this->db->select('brands.*');
-        $this->db->from('brands');
+        $this->db->select('brand.*');
+        $this->db->from('brand');
         $this->db->limit(1);
-        $this->db->where('brands.id', $id);
+        $this->db->where('brand.BrandID', $BrandID);
         $query = $this->db->get();
         $result = $query->row();
-        return $title = $result->slug;
+        return $Slug = $result->Slug;
     }
     public function getSearchPagination($keyword, $limit, $start)
     {
         $this->db->limit($limit, $start);
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->like('products.title', $keyword)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->like('product.Name', $keyword)
             ->get();
         return $query->result();
     }
-    // Hết pagination
+
 
 
     public function getItemsCategoryHome()
     {
-        $this->db->select('products.*, categories.title as cate_title, categories.id');
-        $this->db->from('categories');
-        $this->db->join('products', 'products.category_id = categories.id');
+        $this->db->select('product.*, category.Name as cate_name, category.CategoryID');
+        $this->db->from('category');
+        $this->db->join('product', 'product.CategoryID = category.CategoryID');
         $query = $this->db->get();
         $result = $query->result_array();
-        // print_r($result);
         $newArray = array();
         foreach ($result as $key => $value) {
-            $newArray[$value['cate_title']][] = $value;
+            $newArray[$value['cate_name']][] = $value;
         }
-        // print_r($newArray);
         return $newArray;
 
     }
@@ -245,119 +304,159 @@ class indexModel extends CI_Model
 
 
 
-    public function getCategoryTitle($id)
+    public function getCategoryName($CategoryID)
     {
-        $this->db->select('categories.*');
-        $this->db->from('categories');
+        $this->db->select('category.*');
+        $this->db->from('category');
         $this->db->limit(1);
-        $this->db->where('categories.id', $id);
+        $this->db->where('category.CategoryID', $CategoryID);
         $query = $this->db->get();
         $result = $query->row();
-        return $title = $result->title;
+        return $Name = $result->Name;
     }
 
     public function getMinPriceProduct($id)
     {
         $this->db->select('MIN(selling_price) AS min_price');
-        $this->db->from('products');
-        $this->db->where('products.category_id', $id);
+        $this->db->from('product');
+        $this->db->where('product.CategoryID', $id);
         $query = $this->db->get();
         $result = $query->row();
         return $result ? $result->min_price : null;
     }
-    
+
     public function getMaxPriceProduct($id)
     {
         $this->db->select('MAX(selling_price) AS max_price');
-        $this->db->from('products');
-        $this->db->where('products.category_id', $id);
+        $this->db->from('product');
+        $this->db->where('product.CategoryID', $id);
         $query = $this->db->get();
         $result = $query->row();
         return $result ? $result->max_price : null;
     }
-    
+
 
 
 
     public function getBrandProduct($id)
     {
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->where('products.brand_id', $id)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.BrandID', $id)
             ->get();
         return $query->result();
     }
 
-    public function getCategoryProduct($id)
+    public function getCategoryProduct($CategoryID)
     {
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->where('products.category_id', $id)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.CategoryID', $CategoryID)
             ->get();
         return $query->result();
     }
-    public function getProductDetails($id)
+    // public function getProductDetails($id)
+    // {
+    //     $query = $this->db->select('category.title as tendanhmuc, 
+    //                                  product.*, brand.title as tenthuonghieu, 
+    //                                  warehouses.quantity')
+    //         ->from('category')
+    //         ->join('product', 'product.CategoryID = category.CategoryID')
+    //         ->join('brand', 'brand.BrandID = product.BrandID')
+    //         ->join('warehouses', 'warehouses.ProductID = product.ProductID', 'left')
+    //         ->where('product.ProductID', $id)
+    //         ->get();
+
+    //     $result = $query->result();
+    //     if (empty($result)) {
+    //         // You can log or handle this case
+    //         log_message('debug', 'No product details found for ID: ' . $id);
+    //     }
+    //     return $result;
+    // }
+
+
+    //     public function getProductDetails($ProductID)
+    // {
+    //     $query = $this->db->select('category.Name as tendanhmuc, 
+    //                                  product.*, brand.Name as tenthuonghieu')
+    //         ->from('category')
+    //         ->join('product', 'product.CategoryID = category.CategoryID')
+    //         ->join('brand', 'brand.BrandID = product.BrandID')
+    //         ->where('product.ProductID', $ProductID)
+    //         ->get();
+
+    //     $result = $query->result();
+    //     if (empty($result)) {
+    //         // You can log or handle this case
+    //         log_message('debug', 'No product details found for ID: ' . $ProductID);
+    //     }
+    //     return $result;
+    // }
+
+    public function getProductDetails($ProductID)
     {
-        $query = $this->db->select('categories.title as tendanhmuc, 
-                                     products.*, brands.title as tenthuonghieu, 
-                                     warehouses.quantity')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->join('warehouses', 'warehouses.product_id = products.id', 'left')
-            ->where('products.id', $id)
+        $query = $this->db->select('category.Name as tendanhmuc, 
+                                 product.*, 
+                                 brand.Name as tenthuonghieu, 
+                                 COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->join('batches', 'batches.ProductID = product.ProductID', 'left')
+            ->where('product.ProductID', $ProductID)
+            ->group_by('product.ProductID')
             ->get();
-    
-        $result = $query->result();
-        if (empty($result)) {
-            // You can log or handle this case
-            log_message('debug', 'No product details found for ID: ' . $id);
+
+        $result = $query->row();
+        if (!$result) {
+            log_message('debug', 'No product details found for ID: ' . $ProductID);
         }
         return $result;
     }
-    
 
 
-    public function getBrandTitle($id)
+
+    public function getBrandName($BrandID)
     {
-        $this->db->select('brands.*');
-        $this->db->from('brands');
+        $this->db->select('brand.*');
+        $this->db->from('brand');
         $this->db->limit(1);
-        $this->db->where('brands.id', $id);
+        $this->db->where('brand.BrandID', $BrandID);
         $query = $this->db->get();
         $result = $query->row();
-        return $title = $result->title;
+        return $Name = $result->Name;
     }
-    public function getProductTitle($id)
+    public function getProductName($ProductID)
     {
-        $this->db->select('products.title');
-        $this->db->from('products');
+        $this->db->select('product.Name');
+        $this->db->from('product');
         $this->db->limit(1);
-        $this->db->where('products.id', $id);
+        $this->db->where('product.ProductID', $ProductID);
         $query = $this->db->get();
         $result = $query->row();
-    
+
         if ($result) {
-            return $result->title;
+            return $result->Name;
         } else {
             // Handle the case where the product is not found
             return null; // Or you can return a default value or error message
         }
     }
-    
+
 
     // Tìm kiếm với từ khóa
     public function getProductByKeyword($keyword)
     {
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, brands.title as tenthuonghieu')
-            ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('brands', 'brands.id = products.brand_id')
-            ->like('products.title', $keyword)
+        $query = $this->db->select('category.Name as tendanhmuc, product.*, brand.Name as tenthuonghieu')
+            ->from('category')
+            ->join('product', 'product.CategoryID = category.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->like('product.Name', $keyword)
             ->get();
         return $query->result();
     }
@@ -388,12 +487,21 @@ class indexModel extends CI_Model
 
 
     // Comment
+    // public function getAllComment()
+    // {
+    //     $this->db->select('comment.*, product.Name AS product_name');
+    //     $this->db->from('comment');
+    //     $this->db->join('product', 'comment.ProductID_comment = product.ProductID');
+    //     $this->db->where('product.Status', 1);
+    //     $query = $this->db->get();
+    //     return $query->result();
+    // }
+
     public function getAllComment()
     {
-        $this->db->select('comment.*, products.title AS product_name');
+        $this->db->select('comment.*');
         $this->db->from('comment');
-        $this->db->join('products', 'comment.product_id_comment = products.id');
-        $this->db->where('products.status', 1);  // Chỉ lấy sản phẩm có status = 1
+        // $this->db->where('comment.status', 1);
         $query = $this->db->get();
         return $query->result();
     }

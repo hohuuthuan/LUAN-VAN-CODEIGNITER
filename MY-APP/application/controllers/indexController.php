@@ -43,20 +43,20 @@ class indexController extends CI_Controller
 	}
 	public function index()
 	{
+
+
 		$this->load->library('pagination');
 		// Lấy số lượng sản phẩm từ model
 		$total_products = $this->indexModel->countAllProduct();
 		$config["total_rows"] = !empty($total_products) ? (int) $total_products : 0;
 
-		// Cấu hình phân trang
+
 		$config = array();
 		$config["base_url"] = base_url() . '/pagination/index';
-		$config['total_rows'] = $total_products; // Sử dụng số lượng sản phẩm đã được đếm
-		$config["per_page"] = 6; // Số lượng sản phẩm trên mỗi trang
-		$config["uri_segment"] = 3; // Vị trí của số trang trong URI
+		$config['total_rows'] = $total_products;
+		$config["per_page"] = 6;
+		$config["uri_segment"] = 3;
 		$config['use_page_numbers'] = TRUE;
-
-		// Cấu hình HTML phân trang
 		$config['full_tag_open'] = '<ul class="pagination">';
 		$config['full_tag_close'] = '</ul>';
 		$config['first_link'] = 'First';
@@ -74,28 +74,18 @@ class indexController extends CI_Controller
 		$config['prev_tag_open'] = '<li>';
 		$config['prev_tag_close'] = '</li>';
 
-		// Khởi tạo phân trang
-		$this->pagination->initialize($config);
 
-		// Xác định trang hiện tại
+		$this->pagination->initialize($config);
 		$page_segment = $this->uri->segment(3);
 		$page = (!empty($page_segment) && is_numeric($page_segment)) ? (int) $page_segment : 1;
 		$start = ($page - 1) * $config["per_page"];
-
-		// Tạo các liên kết phân trang
 		$this->data["links"] = $this->pagination->create_links();
-
-		// Lấy danh sách sản phẩm có phân trang
 		$this->data['allproduct_pagination'] = $this->indexModel->getIndexPagination($config["per_page"], $start);
 		$this->data['items_category'] = $this->indexModel->getItemsCategoryHome();
 		$this->data['sliders'] = $this->sliderModel->selectAllSlider();
-
-
 		// echo '<pre>';
-		// print_r($this->data['allproduct_pagination']);
+		// print_r($this->data);
 		// echo '</pre>';
-
-		// Load view templates
 		$this->data['template'] = "pages/home/home";
 		$this->load->view("pages/layout/index", $this->data);
 
@@ -134,7 +124,7 @@ class indexController extends CI_Controller
 		if ($this->session->userdata('logged_in_customer') && $this->cart->contents()) {
 
 
-			$this->data['template'] = "pages/checkout/index";
+			$this->data['template'] = "pages/checkout/checkout";
 			$this->load->view("pages/layout/index", $this->data);
 		} else {
 			$this->session->set_flashdata('error', 'Vui lòng đăng nhập để thực hiện đặt hàng');
@@ -148,14 +138,16 @@ class indexController extends CI_Controller
 		$this->load->model('orderModel');
 		$this->load->model('productModel');
 		$data['order_items'] = $this->orderModel->getOrderByUserId($user_id['id']);
+
 		if (!empty($data['order_items'])) {
 			foreach ($data['order_items'] as $order_item) {
-				$product_details = $this->productModel->selectProductById($order_item->product_id);
+				$product_details = $this->productModel->selectProductById($order_item->ProductID);
 				$order_item->product_details = $product_details;
 			}
 		} else {
 			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
 		}
+
 		$this->data['order_items'] = $data['order_items'];
 		$this->data['template'] = 'pages/order/listOrder';
 		$this->load->view("pages/layout/index", $this->data);
@@ -170,7 +162,8 @@ class indexController extends CI_Controller
 		$this->load->model('productModel');
 		$data['order_details'] = $this->orderModel->selectOrderDetails($order_code);
 		foreach ($data['order_details'] as $order_detail) {
-			$product_details = $this->productModel->selectProductById($order_detail->product_id);
+			$product_details = $this->productModel->selectProductById($order_detail->ProductID);
+			$order_detail->product_details = $product_details;
 		}
 		$this->data['order_details'] = $data['order_details'];
 		$this->data['template'] = 'pages/order/viewOrder';
@@ -191,13 +184,13 @@ class indexController extends CI_Controller
 			redirect(base_url('order-customer/listOrder'));
 		}
 	}
-	public function category($id)
+	public function category($CategoryID)
 	{
-		$this->data['slug'] = $this->indexModel->getCategorySlug($id);
+		$this->data['slug'] = $this->indexModel->getCategorySlug($CategoryID);
 		//custom config link
 		$config = array();
-		$config["base_url"] = base_url() . '/pagination/danh-muc/' . '/' . $id . '/' . $this->data['slug'];
-		$config['total_rows'] = ceil($this->indexModel->countAllProductByCate($id)); //đếm tất cả sản phẩm //8 //hàm ceil làm tròn phân trang 
+		$config["base_url"] = base_url() . '/pagination/danh-muc/' . '/' . $CategoryID . '/' . $this->data['slug'];
+		$config['total_rows'] = ceil($this->indexModel->countAllProductByCate($CategoryID)); //đếm tất cả sản phẩm //8 //hàm ceil làm tròn phân trang 
 		$config["per_page"] = 6; //từng trang 3 sản phẩn
 		$config["uri_segment"] = 5; //lấy số trang hiện tại
 		$config['use_page_numbers'] = TRUE; //trang có số
@@ -223,44 +216,44 @@ class indexController extends CI_Controller
 		$this->data["links"] = $this->pagination->create_links(); //tự động tạo links phân trang dựa vào trang hiện tại
 
 		// Lấy giá thấp nhất và lớn nhất
-		$min_price = $this->data['min_price'] = $this->indexModel->getMinPriceProduct($id);
-		$max_price = $this->data['max_price'] = $this->indexModel->getMaxPriceProduct($id);
+		$min_price = $this->data['min_price'] = $this->indexModel->getMinPriceProduct($CategoryID);
+		$max_price = $this->data['max_price'] = $this->indexModel->getMaxPriceProduct($CategoryID);
 
 
 
 		// Filter
 		if (isset($_GET['kytu'])) {
 			$kytu = $_GET['kytu'];
-			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryKyTuPagination($id, $kytu, $config["per_page"], $this->page);
+			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryKyTuPagination($CategoryID, $kytu, $config["per_page"], $this->page);
 		} elseif (isset($_GET['gia'])) {
 			$kytu = $_GET['gia'];
-			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryPricePagination($id, $kytu, $config["per_page"], $this->page);
+			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryPricePagination($CategoryID, $kytu, $config["per_page"], $this->page);
 		} elseif (isset($_GET['to']) && isset($_GET['from'])) {
 			$from_price = $_GET['from'];
 			$to_price = $_GET['to'];
-			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryPriceRangePagination($id, $from_price, $to_price, $config["per_page"], $this->page);
+			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryPriceRangePagination($CategoryID, $from_price, $to_price, $config["per_page"], $this->page);
 		} else {
-			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryPagination($id, $config["per_page"], $this->page);
+			$this->data['allproductbycate_pagination'] = $this->indexModel->getCategoryPagination($CategoryID, $config["per_page"], $this->page);
 		}
 
 
 
 
 		// $this->data['category_Product'] = $this->indexModel->getCategoryProduct($id);
-		$this->data['title'] = $this->indexModel->getCategoryTitle($id);
-		$this->config->config['pageTitle'] = $this->data['title'];
+		$this->data['Name'] = $this->indexModel->getCategoryName($CategoryID);
+		$this->config->config['pageTitle'] = $this->data['Name'];
 
 		$this->data['template'] = "pages/category/category";
 		$this->load->view("pages/layout/index", $this->data);
 	}
-	public function brand($id)
+	public function brand($BrandID)
 	{
 
-		$this->data['slug'] = $this->indexModel->getBrandSlug($id);
+		$this->data['slug'] = $this->indexModel->getBrandSlug($BrandID);
 		//custom config link
 		$config = array();
-		$config["base_url"] = base_url() . '/pagination/thuong-hieu/' . '/' . $id . '/' . $this->data['slug'];
-		$config['total_rows'] = ceil($this->indexModel->countAllProductByBrand($id)); //đếm tất cả sản phẩm //8 //hàm ceil làm tròn phân trang 
+		$config["base_url"] = base_url() . '/pagination/thuong-hieu/' . '/' . $BrandID . '/' . $this->data['slug'];
+		$config['total_rows'] = ceil($this->indexModel->countAllProductByBrand($BrandID)); //đếm tất cả sản phẩm //8 //hàm ceil làm tròn phân trang 
 		$config["per_page"] = 6; //từng trang 3 sản phẩn
 		$config["uri_segment"] = 5; //lấy số trang hiện tại
 		$config['use_page_numbers'] = TRUE; //trang có số
@@ -285,11 +278,11 @@ class indexController extends CI_Controller
 		$this->page = ($this->uri->segment(5)) ? $this->uri->segment(5) : 0; //current page active 
 		$this->data["links"] = $this->pagination->create_links(); //tự động tạo links phân trang dựa vào trang hiện tại
 		// Giới hạn sản phẩm trong trang (limit, start)
-		$this->data['allproductbybrand_pagination'] = $this->indexModel->getbrandPagination($id, $config["per_page"], $this->page);
+		$this->data['allproductbybrand_pagination'] = $this->indexModel->getbrandPagination($BrandID, $config["per_page"], $this->page);
 
 
-		$this->data['title'] = $this->indexModel->getBrandTitle($id);
-		$this->config->config['pageTitle'] = $this->data['title'];
+		$this->data['Name'] = $this->indexModel->getBrandName($BrandID);
+		$this->config->config['pageTitle'] = $this->data['Name'];
 		$this->data['template'] = "pages/brand/brand";
 		$this->load->view("pages/layout/index", $this->data);
 	}
@@ -346,13 +339,13 @@ class indexController extends CI_Controller
 
 	}
 
-	public function product($id)
+	public function product($ProductID)
 	{
 		$this->load->model("indexModel");
-		$this->data['product_details'] = $this->indexModel->getProductDetails($id);
+		$this->data['product_details'] = $this->indexModel->getProductDetails($ProductID);
 
-		$this->data['product_comments'] = $this->indexModel->getListConmment($id);
-		$this->data['title'] = $this->indexModel->getProductTitle($id);
+		$this->data['product_comments'] = $this->indexModel->getListConmment($ProductID);
+		$this->data['title'] = $this->indexModel->getProductName($ProductID);
 		$this->config->config['pageTitle'] = $this->data['title'];
 		// echo '<pre>';
 		// print_r($this->data['product_details']);
@@ -360,32 +353,7 @@ class indexController extends CI_Controller
 		$this->data['template'] = "pages/product-detail/product-detail";
 		$this->load->view("pages/layout/index", $this->data);
 	}
-	public function thank_you_for_order()
-	{
-		if (isset($_GET['vnp_Amount'])) {
-			$data_vnpay = [
-				'vnp_Amount' => $_GET['vnp_Amount'],
-				'vnp_BankCode' => $_GET['vnp_BankCode'],
-				'vnp_BankTranNo' => $_GET['vnp_BankTranNo'],
-				'vnp_CardType' => $_GET['vnp_CardType'],
-				'vnp_OrderInfo' => $_GET['vnp_OrderInfo'],
-				'vnp_PayDate' => $_GET['vnp_PayDate'],
-				'vnp_ResponseCode' => $_GET['vnp_ResponseCode'],
-				'vnp_TmnCode' => $_GET['vnp_TmnCode'],
-				'vnp_TransactionStatus' => $_GET['vnp_TransactionStatus'],
-				'vnp_TxnRef' => $_GET['vnp_TxnRef'],
-				'vnp_SecureHash' => $_GET['vnp_SecureHash']
-			];
-		}
-		$this->load->model('indexModel');
-		$this->indexModel->insert_VNPAY($data_vnpay);
 
-		$this->config->config['pageTitle'] = 'Cảm ơn bạn đã đặt hàng';
-		$this->data['template'] = "thanks/index";
-		$this->load->view("pages/layout/index", $this->data);
-
-
-	}
 	public function cart()
 	{
 		$this->config->config['pageTitle'] = 'Giỏ hàng';
@@ -395,45 +363,44 @@ class indexController extends CI_Controller
 
 	public function add_to_cart()
 	{
-		$product_id = $this->input->post('product_id');
-		$quantity = $this->input->post('quantity');
-		$this->data['product_details'] = $this->indexModel->getProductDetails($product_id);
+		$ProductID = $this->input->post('ProductID');
+		$Quantity = $this->input->post('Quantity');
+		$product = $this->indexModel->getProductDetails($ProductID);
 
-		// Đặt hàng
-		$found = false;
+		if (!$product) {
+
+			$this->session->set_flashdata('error', 'Sản phẩm không tồn tại.');
+			redirect($_SERVER['HTTP_REFERER']);
+			
+		}
 		foreach ($this->cart->contents() as $items) {
-			if ($items['id'] == $product_id) {
-				$this->session->set_flashdata('error', 'Mặt hàng bạn đặt đã tồn tại trong giỏ hàng. Vui lòng vào giỏ hàng chỉnh sửa số lượng');
+			if ($items['id'] == $ProductID) {
+				$this->session->set_flashdata('error', 'Mặt hàng bạn đặt đã tồn tại trong giỏ hàng. Vui lòng vào giỏ hàng chỉnh sửa số lượng.');
 				redirect(base_url() . 'gio-hang', 'refresh');
-				$found = true;
-				break;
+				
 			}
 		}
-		if (!$found) {
-			foreach ($this->data['product_details'] as $key => $product) {
-				if ($quantity <= $product->quantity) {
-					// Tính giá giảm nếu có discount
-					if (isset($product->discount) && $product->discount != 0) {
-						$selling_price = $product->selling_price * (1 - $product->discount / 100);
-					} else {
-						$selling_price = $product->selling_price;
-					}
-					$cart = array(
-						'id' => $product->id,
-						'qty' => $quantity,
-						'price' => $selling_price,
-						'name' => $product->title,
-						'options' => array('image' => $product->image, 'in_stock' => $product->quantity)
-					);
-					$this->cart->insert($cart);
-					$this->session->set_flashdata('success', 'Thêm vào giỏ hàng thành công.');
-					redirect(base_url() . 'gio-hang', 'refresh');
-				} else {
-					$this->session->set_flashdata('error', 'Số lượng bạn chọn vượt quá số lượng tồn kho. Vui lòng chọn lại.');
-					redirect($_SERVER['HTTP_REFERER']);
-				}
-			}
+		if ($Quantity > $product->total_remaining) {
+			$this->session->set_flashdata('error', 'Số lượng bạn chọn vượt quá số lượng tồn kho. Vui lòng chọn lại.');
+			redirect($_SERVER['HTTP_REFERER']);
+			
 		}
+		$Selling_price = isset($product->Promotion) && $product->Promotion > 0
+			? $product->Selling_price * (1 - $product->Promotion / 100)
+			: $product->Selling_price;
+		$cart = array(
+			'id' => $product->ProductID,
+			'qty' => $Quantity,
+			'price' => $Selling_price,
+			'name' => $product->Name,
+			'options' => array(
+				'image' => $product->Image,
+				'in_stock' => $product->total_remaining
+			)
+		);
+		$this->cart->insert($cart);
+		$this->session->set_flashdata('success', 'Thêm vào giỏ hàng thành công.');
+		redirect(base_url() . 'gio-hang', 'refresh');
 	}
 
 	public function update_cart_item()
@@ -526,11 +493,13 @@ class indexController extends CI_Controller
 
 	public function updateAvatarCustomer($user_id)
 	{
+		$this->form_validation->set_rules('Avatar', 'Avatar', 'trim|required', ['required' => 'Bạn cần tải %s']);
 
-		if (!empty($_FILES['image']['name'])) {
+		if (!empty($_FILES['Avatar']['name']) && $this->form_validation->run()) {
 			// Upload Image
-			$ori_filename = $_FILES['image']['name'];
+			$ori_filename = $_FILES['Avatar']['name'];
 			$new_name = time() . "-" . str_replace(' ', '-', $ori_filename);
+
 			$config = [
 				'upload_path' => './uploads/user',
 				'allowed_types' => 'gif|jpg|png|jpeg',
@@ -538,14 +507,14 @@ class indexController extends CI_Controller
 			];
 			$this->load->library('upload', $config);
 
-			if (!$this->upload->do_upload('image')) {
+			if (!$this->upload->do_upload('Avatar')) {
 				$error = ['error' => $this->upload->display_errors()];
 				$this->load->view('pages/customer/profile_Customer', $error);
 				return; // Thêm return để dừng việc thực thi tiếp tục
 			} else {
 				$avatar_filename = $this->upload->data('file_name');
 				$data = [
-					'avatar' => $avatar_filename
+					'Avatar' => $avatar_filename
 				];
 			}
 		} else {
@@ -553,6 +522,8 @@ class indexController extends CI_Controller
 
 			];
 		}
+
+
 
 		// Kiểm tra giá trị của $data trước khi cập nhật
 		// echo '<pre>';
@@ -566,15 +537,18 @@ class indexController extends CI_Controller
 	}
 
 
+
+
+
 	public function updateCustomer($user_id)
 	{
-		$this->form_validation->set_rules('username', 'Username', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần chọn %s']);
-		$this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+		$this->form_validation->set_rules('Name', 'Username', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Email', 'Email', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Address', 'Address', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+		$this->form_validation->set_rules('Phone', 'Phone', 'trim|required', ['required' => 'Bạn cần chọn %s']);
 
 		if ($this->form_validation->run()) {
-			if (!empty($_FILES['image']['name'])) {
+			if (!empty($_FILES['Avatar']['name'])) {
 				// Upload Image
 				$ori_filename = $_FILES['image']['name'];
 				$new_name = time() . "-" . str_replace(' ', '-', $ori_filename);
@@ -585,26 +559,26 @@ class indexController extends CI_Controller
 				];
 				$this->load->library('upload', $config);
 
-				if (!$this->upload->do_upload('image')) {
+				if (!$this->upload->do_upload('Avatar')) {
 					$error = ['error' => $this->upload->display_errors()];
 					$this->load->view('customer/update_profile_user', $error);
-					return; // Thêm return để dừng việc thực thi tiếp tục
+					return;
 				} else {
 					$avatar_filename = $this->upload->data('file_name');
 					$data = [
-						'username' => $this->input->post('username'),
-						'email' => $this->input->post('email'),
-						'address' => $this->input->post('address'),
-						'phone' => $this->input->post('phone'),
-						'avatar' => $avatar_filename
+						'Name' => $this->input->post('Name'),
+						'Email' => $this->input->post('Email'),
+						'Address' => $this->input->post('Address'),
+						'Phone' => $this->input->post('Phone'),
+						'Avatar' => $avatar_filename
 					];
 				}
 			} else {
 				$data = [
-					'username' => $this->input->post('username'),
-					'email' => $this->input->post('email'),
-					'address' => $this->input->post('address'),
-					'phone' => $this->input->post('phone'),
+					'Name' => $this->input->post('Name'),
+					'Email' => $this->input->post('Email'),
+					'Address' => $this->input->post('Address'),
+					'Phone' => $this->input->post('Phone'),
 				];
 			}
 
@@ -639,7 +613,7 @@ class indexController extends CI_Controller
 	public function loginCustomer()
 	{
 		$max_attempts = 5;
-		$lockout_time = 300;
+		$lockout_time = 0;
 
 		// Lấy thông tin số lần thử đăng nhập và thời gian lần thử cuối cùng
 		$login_attempts = $this->session->userdata('login_attempts') ?? 0;
@@ -678,26 +652,29 @@ class indexController extends CI_Controller
 
 			$this->load->model('loginModel');
 			$result = $this->loginModel->checkLoginCustomer($email);
-
 			// echo '<pre>';
 			// print_r($result);
 			// echo '</pre>';
 
+
+
+
 			// Kiểm tra kết quả từ cơ sở dữ liệu và xác minh mật khẩu
-			if (!empty($result) && password_verify($password, $result[0]->password)) {
-				// Xóa dữ liệu đăng nhập không thành công trước đó
+			if (!empty($result) && password_verify($password, $result[0]->Password)) {
+
+				echo "Đăng nhập thành công";
 				$this->session->unset_userdata(['login_attempts', 'last_attempt_time']);
 
 				$session_array = [
-					'id' => $result[0]->id,
-					'role_id' => $result[0]->role_id,
-					'username' => $result[0]->username,
-					'email' => $result[0]->email,
-					'phone' => $result[0]->phone,
+					'id' => $result[0]->UserID,
+					'role_id' => $result[0]->Role_ID,
+					'username' => $result[0]->Name,
+					'email' => $result[0]->Email,
+					'phone' => $result[0]->Phone,
 				];
 
 				// Chuyển hướng dựa trên quyền
-				if ($result[0]->role_id == 1) {
+				if ($result[0]->Role_ID == 1) {
 					// echo '<pre>';
 					// print_r($session_array);
 					// echo '</pre>';
@@ -725,6 +702,9 @@ class indexController extends CI_Controller
 			redirect(base_url('/dang-nhap'));
 		}
 	}
+
+
+
 
 
 
@@ -838,7 +818,7 @@ class indexController extends CI_Controller
 		$customer = $this->indexModel->getCustomerToken($email);
 
 		$is_valid = false;
-		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh');
+		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 
 		if ($customer && $token == $customer->token && $customer->date_created > $time_now) {
 			$letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
@@ -881,16 +861,23 @@ class indexController extends CI_Controller
 		$this->load->model('customerModel');
 		$data['get_customer'] = $this->customerModel->getCustomerByEmailAndPhone($email, $phone);
 
+		// echo "<pre>";
+		// print_r($data['get_customer']);
+		// echo "</pre>";
+		// die();
+
+
 		if (!empty($data['get_customer'])) {
-			if ($data['get_customer']->email == $email && $data['get_customer']->phone == $phone) {
+			if ($data['get_customer']->Email == $email && $data['get_customer']->Phone == $phone) {
+
 				$letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
 				$numbers = sprintf("%06d", rand(0, 999999));
 				$new_token = $letters . $numbers;
 				$date_created = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->addMinutes(10);
 
 				$update_data = [
-					'token' => $new_token,
-					'date_created' => $date_created
+					'Token_Code' => $new_token,
+					'Date_created' => $date_created
 				];
 
 				$result = $this->customerModel->updateTokenCustomer($update_data, $email, $phone);
@@ -922,33 +909,40 @@ class indexController extends CI_Controller
 
 	public function lay_lai_mat_khau()
 	{
+
 		if (isset($_GET['email']) && $_GET['phone']) {
 			$email = $_GET['email'];
 			$phone = $_GET['phone'];
-			$data['email'] = $email;
-			$data['phone'] = $phone;
-
-
+			$this->data['email'] = $email;
+			$this->data['phone'] = $phone;
 			$this->data['template'] = "pages/auth/verify-token-forget-password";
 			$this->load->view("pages/layout/index", $this->data);
 		} else {
 			$this->session->set_flashdata('error', 'Thông tin kích hoạt không hợp lệ.');
 			redirect(base_url('dang-nhap'));
 		}
+
 	}
 
 	public function verify_token_forget_password()
 	{
 		$email = $this->input->post('email');
 		$phone = $this->input->post('phone');
-		$token = $this->input->post('token');
+		$Token_Code = $this->input->post('token');
 		$this->load->model('indexModel');
 		$customer = $this->indexModel->getCustomerToken($email);
 
-		$is_valid = false;
-		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh');
+		// echo "<pre>";
+		// print_r($customer);
+		// echo "</pre>";
+		// die();
 
-		if ($customer && $token == $customer->token && $customer->date_created > $time_now) {
+
+		$is_valid = false;
+		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
+
+		if ($customer && $email == $customer->Email && $Token_Code == $customer->Token_Code && $customer->Date_created > $time_now) {
+
 			$letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
 			$numbers = sprintf("%06d", rand(0, 999999));
 			$new_token = $letters . $numbers;
@@ -958,13 +952,16 @@ class indexController extends CI_Controller
 			$this->session->set_userdata('reset_token', $new_token);
 
 			$update_data = [
-				'token' => $new_token
+				'Token_code' => $new_token
 			];
-
 			$this->load->model('customerModel');
 			$this->customerModel->updateTokenCustomer($update_data, $email, $phone);
-			$this->session->set_flashdata('success', 'Xác thực thành công');
 
+			if (!empty($this->session->userdata('password_updated'))) {
+				$this->session->unset_userdata('password_updated');
+			}
+
+			$this->session->set_flashdata('success', 'Xác thực thành công');
 			$is_valid = true;
 			redirect(base_url('nhap-mat-khau-moi'));
 		}
@@ -978,25 +975,25 @@ class indexController extends CI_Controller
 
 
 
-
-
-
-
 	public function nhap_mat_khau_moi()
 	{
-
-		$email = $this->session->userdata('reset_email');
-		$phone = $this->session->userdata('reset_phone');
-
-		$data['email'] = $email;
-		$data['phone'] = $phone;
-		if ($email && $phone) {
-			$this->data = $data;
-			$this->data['template'] = "pages/auth/enterNewPassword";
-			$this->load->view("pages/layout/index", $this->data);
+		if (!empty($this->session->userdata('password_updated'))) {
+			$this->session->set_flashdata('error', 'Bạn đã thay đổi mật khẩu trước đó, hãy thực hiện lại');
+			redirect(base_url('profile-user'));
 		} else {
-			$this->session->set_flashdata('error', 'Mật khẩu bạn đã được đổi không thể quay lại');
-			redirect(base_url('dang-nhap'));
+			$email = $this->session->userdata('reset_email');
+			$phone = $this->session->userdata('reset_phone');
+
+			$data['email'] = $email;
+			$data['phone'] = $phone;
+			if ($email && $phone) {
+				$this->data = $data;
+				$this->data['template'] = "pages/auth/enterNewPassword";
+				$this->load->view("pages/layout/index", $this->data);
+			} else {
+				$this->session->set_flashdata('error', 'Mật khẩu bạn đã được đổi không thể quay lại');
+				redirect(base_url('dang-nhap'));
+			}
 		}
 	}
 
@@ -1016,15 +1013,15 @@ class indexController extends CI_Controller
 			$this->load->model('indexModel');
 			$customer = $this->indexModel->getCustomerToken($email);
 
-			if ($token_on_session == $customer->token) {
+			if ($token_on_session == $customer->Token_Code) {
 				$letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
 				$numbers = sprintf("%06d", rand(0, 999999));
 				$new_token = $letters . $numbers;
 
 				// Sử dụng hàm password_hash với hai tham số: mật khẩu và thuật toán
 				$update_data = [
-					'token' => $new_token,
-					'password' => password_hash($password, PASSWORD_DEFAULT),
+					'Token_Code' => $new_token,
+					'Password' => password_hash($password, PASSWORD_DEFAULT),
 				];
 
 				$this->load->model('customerModel');
@@ -1034,6 +1031,7 @@ class indexController extends CI_Controller
 					$this->session->unset_userdata('reset_email');
 					$this->session->unset_userdata('reset_phone');
 					$this->session->unset_userdata('reset_token');
+					$this->session->set_userdata('password_updated', TRUE);
 					$this->session->set_flashdata('success', 'Cập nhật mật khẩu thành công, xin mời bạn đăng nhập lại');
 					redirect(base_url('dang-nhap'));
 				} else {
@@ -1065,10 +1063,14 @@ class indexController extends CI_Controller
 		$this->load->view("pages/layout/index", $this->data);
 	}
 
+
+
+
+
 	public function enterPasswordNow()
 	{
 		$max_attempts = 5;
-		$lockout_time = 900; // 15 phút
+		$lockout_time = 300;
 
 		// Lấy thông tin số lần thử đăng nhập và thời gian lần thử cuối cùng
 		$login_attempts = $this->session->userdata('login_attempts') ?? 0;
@@ -1107,19 +1109,22 @@ class indexController extends CI_Controller
 
 			$this->load->model('loginModel');
 			$result = $this->loginModel->checkLoginCustomer($email);
-
 			// echo '<pre>';
 			// print_r($result);
 			// echo '</pre>';
 
-			// Kiểm tra kết quả từ cơ sở dữ liệu và xác minh mật khẩu
-			if (!empty($result) && password_verify($password, $result[0]->password)) {
+			// $hashedPassword = $result[0]->Password;
 
+			// if (password_verify($password, $hashedPassword)) {
+			// 	echo "✅ Mật khẩu khớp!";
+			// } else {
+			// 	echo "❌ Mật khẩu không khớp!";
+			// }
+			// Kiểm tra kết quả từ cơ sở dữ liệu và xác minh mật khẩu
+			if (!empty($result) && password_verify($password, $result[0]->Password)) {
 				$this->session->unset_userdata(['login_attempts', 'last_attempt_time']);
 				$this->session->set_flashdata('success', 'Kiểm tra email và nhập mã xác thực');
 				redirect(base_url('change-password'));
-
-
 			} else {
 				// Tăng số lần thử đăng nhập và cập nhật thời gian
 				$login_attempts++;
@@ -1150,8 +1155,8 @@ class indexController extends CI_Controller
 		$new_token = $letters . $numbers;
 		$date_created = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->addMinute(10);
 		$update_data = [
-			'token' => $new_token,
-			'date_created' => $date_created
+			'Token_Code' => $new_token,
+			'Date_created' => $date_created
 		];
 		$this->load->model('customerModel');
 		$result = $this->customerModel->updateTokenCustomer($update_data, $email, $phone);
@@ -1195,14 +1200,14 @@ class indexController extends CI_Controller
 		$this->load->model('customerModel');
 		$data['get_customer'] = $this->customerModel->getCustomerByEmailAndPhone($email, $phone);
 
-		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh');
-		if ($data['get_customer'] && $token == $data['get_customer']->token && $data['get_customer']->date_created > $time_now) {
+		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
+		if ($data['get_customer'] && $token == $data['get_customer']->Token_Code && $data['get_customer']->Date_created > $time_now) {
 			$letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
 			$numbers = sprintf("%06d", rand(0, 999999));
 			$new_token = $letters . $numbers;
 
 			$update_data = [
-				'token' => $new_token
+				'Token_Code' => $new_token
 			];
 
 			$this->load->model('customerModel');
@@ -1275,8 +1280,8 @@ class indexController extends CI_Controller
 
 
 				$update_data = [
-					'token' => $new_token,
-					'password' => password_hash($password, PASSWORD_DEFAULT),
+					'Token_Code' => $new_token,
+					'Password' => password_hash($password, PASSWORD_DEFAULT),
 				];
 
 				$this->load->model('customerModel');
@@ -1377,7 +1382,7 @@ class indexController extends CI_Controller
 			'comment' => $this->input->post('comment'),
 			'product_id_comment' => $this->input->post('pro_id_cmt'),
 			'status' => 0,
-			'date_cmt' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')
+			'date_cmt' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString()
 		];
 		$result = $this->indexModel->commentSend($data);
 
