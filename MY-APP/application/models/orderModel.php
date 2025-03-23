@@ -126,11 +126,11 @@ class orderModel extends CI_Model
         $this->db->where('Batch_ID', $batch_id);
         $this->db->update('batches');
 
-        if ($this->db->affected_rows() > 0) {
-            log_message('error', "Batch_ID: $batch_id - Giảm số lượng thành công: $quantity_to_deduct");
-        } else {
-            log_message('error', "Lỗi: Không thể cập nhật Batch_ID: $batch_id với số lượng $quantity_to_deduct");
-        }
+        // if ($this->db->affected_rows() > 0) {
+        //     log_message('error', "Batch_ID: $batch_id - Giảm số lượng thành công: $quantity_to_deduct");
+        // } else {
+        //     log_message('error', "Lỗi: Không thể cập nhật Batch_ID: $batch_id với số lượng $quantity_to_deduct");
+        // }
     }
 
 
@@ -198,14 +198,18 @@ class orderModel extends CI_Model
 
     public function printOrderDetails($orderCode)
     {
-        $query = $this->db->select('orders.Order_Code, 
-                                    orders.status as order_status, 
-                                    order_detail.quantity as qty, 
-                                    order_detail.Order_Code,
-                                    order_detail.ProductID, product.*')
+        $query = $this->db->select('orders.Order_Code, order_detail.id as order_detail_id,
+                                    orders.Order_Status as order_status,
+                                    orders.Payment_Status as payment_status,
+                                    order_detail.Subtotal as sub, 
+                                    order_detail.Quantity as qty, 
+                                    order_detail.Order_Code, 
+                                    order_detail.ProductID, 
+                                    product.*, shipping.*')
             ->from('order_detail')
-            ->join('product', 'order_detail.ProductID= product.ProductID')
-            ->join('orders', 'orders.Order_Code= order_detail.Order_Code')
+            ->join('product', 'order_detail.ProductID = product.ProductID', 'left')
+            ->join('orders', 'orders.Order_Code = order_detail.Order_Code')
+            ->join('shipping', 'orders.ShippingID = shipping.id')
             ->where('order_detail.Order_Code', $orderCode)
             ->get();
 

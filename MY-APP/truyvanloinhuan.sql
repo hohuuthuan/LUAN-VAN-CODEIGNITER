@@ -92,7 +92,7 @@ FROM
 JOIN 
     order_detail od ON o.Order_Code = od.Order_Code
 WHERE 
-    YEAR(o.Date_created) = 2023 AND MONTH(o.Date_created) = 3  -- Thay đổi năm và tháng theo yêu cầu
+    YEAR(o.Date_created) = 2023 AND MONTH(o.Date_created) = 3 
 GROUP BY 
     YEAR(o.Date_created), MONTH(o.Date_created);
     

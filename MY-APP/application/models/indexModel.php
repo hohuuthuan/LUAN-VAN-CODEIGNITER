@@ -34,6 +34,16 @@ class indexModel extends CI_Model
         return $query->result();
     }
 
+    public function getAllSupplier(){
+        $this->db->select('suppliers.*');
+        $this->db->from('suppliers');
+        // $this->db->where('supplier.Status', 1);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+
     public function getCustomerToken($email)
     {
         $query = $this->db->get_where('users', ['email' => $email]);

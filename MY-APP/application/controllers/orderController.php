@@ -20,48 +20,12 @@ class orderController extends CI_Controller
 		// echo '<pre>';
 		// print_r($data['order']);
 		// echo '</pre>';
-		if (!empty($data['order'])) {
-			$data['template'] = "order_admin/index";
-			$data['title'] = "Danh sách đơn hàng";
-			$this->load->view("admin-layout/admin-layout", $data);
-		} else {
-			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
-			redirect(base_url('dashboard'));
-			die();
-		}
 
+		$data['template'] = "order_admin/index";
+		$data['title'] = "Danh sách đơn hàng";
+		$this->load->view("admin-layout/admin-layout", $data);
 
 	}
-
-
-	// public function viewOrder($order_code)
-	// {
-	// 	$this->config->config['pageTitle'] = 'View Order';
-	// 	$this->load->model('orderModel');
-	// 	$data['order_details'] = $this->orderModel->selectOrderDetails($order_code);
-
-
-
-	// 	if (!empty($data['order_details'])) {
-	// 		$data['product_qty_in_batch'] = $this->orderModel->get_qty_product_in_batches($data['order_details'][0]->ProductID, $data['order_details'][0]->qty);
-	// 		$data['template'] = "order_admin/viewOrder";
-	// 		$data['title'] = "Chi tiết đơn hàng";
-	// 		$this->load->view("admin-layout/admin-layout", $data);
-	// 	} else {
-	// 		$this->session->set_flashdata('error', 'Không có đơn hàng nào');
-	// 		redirect(base_url('order_admin/listOrder'));
-	// 	}
-
-
-	// 	echo '<pre>';
-	// 	print_r($data['order_details']);
-	// 	echo '</pre>';
-	// 	echo '<pre>';
-	// 	print_r($data['product_qty_in_batch']);
-	// 	echo '</pre>';
-
-	// }
-
 
 	public function viewOrder($order_code)
 	{
@@ -92,33 +56,6 @@ class orderController extends CI_Controller
 	}
 
 
-	// public function deleteOrder($order_code)
-	// {
-	// 	$this->load->model('orderModel');
-
-	// 	$order_detail_id = $this->orderModel->selectOrderDetails($order_code)[0]->id;
-
-	// 	// echo '<pre>';
-	// 	// print_r($order_detail_id);
-	// 	// echo '</pre>';
-	// 	// die();
-	// 	$del_order_batches = $this->orderModel->deleteOrderBatches($order_detail_id);
-	// 	$del_order_details = $this->orderModel->deleteOrderDetails($order_code);
-	// 	$ShippingID = $this->orderModel->deleteOrder($order_code);
-	// 	$del_Shipping = $this->orderModel->deleteShipping($ShippingID);
-
-
-	// 	if ($del_order_batches && $del_order_details && $ShippingID && $del_Shipping) {
-	// 		$this->session->set_flashdata('success', 'Xóa đơn hàng thành công');
-	// 		redirect(base_url('order_admin/listOrder'));
-	// 		die();
-	// 	} else {
-	// 		$this->session->set_flashdata('error', 'Xóa đơn hàng thất bại');
-	// 		redirect(base_url('order-admin/listOrder'));
-	// 		die();
-	// 	}
-	// }
-
 
 	public function deleteOrder($order_code)
 	{
@@ -142,7 +79,7 @@ class orderController extends CI_Controller
 				$this->orderModel->deleteShipping($ShippingID);
 			}
 			$this->db->trans_complete();
-		}elseif($order_detail->checkout_method == 'VNPAY'){
+		} elseif ($order_detail->checkout_method == 'VNPAY') {
 			$this->session->set_flashdata('error', 'Không thể xoá đơn hàng với phuong thức thanh toán VNPAY');
 			redirect(base_url('order_admin/listOrder'));
 		}
@@ -200,10 +137,15 @@ class orderController extends CI_Controller
 
 	public function printOrder($order_code)
 	{
+
+		// echo $order_code; die();
 		$this->load->library('Pdf');
 		$this->load->model('orderModel');
 
 		$order_details = $this->orderModel->printOrderDetails($order_code);
+		// echo '<pre>';
+		// print_r($order_details);
+		// echo '</pre>';
 
 		$pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
 		$pdf->SetTitle('Hóa đơn: ' . $order_code);
@@ -217,28 +159,28 @@ class orderController extends CI_Controller
 
 		// Tạo tiêu đề hóa đơn
 		$html = '
-        <h2 style="text-align: center;">HÓA ĐƠN MUA HÀNG</h2>
-        <p style="text-align: center;">Cảm ơn bạn đã mua sắm tại <strong>Pesticide Shop</strong></p>
-        <p><strong>Mã đơn hàng:</strong> ' . $order_code . '</p>
-        <p><strong>Ngày in:</strong> ' . date('d/m/Y') . '</p>
-    ';
+	    <h2 style="text-align: center;">HÓA ĐƠN MUA HÀNG</h2>
+	    <p style="text-align: center;">Cảm ơn bạn đã mua sắm tại <strong>Pesticide Shop</strong></p>
+	    <p><strong>Mã đơn hàng:</strong> ' . $order_code . '</p>
+	    <p><strong>Ngày in:</strong> ' . date('d/m/Y') . '</p>
+	';
 
 		// Bảng chi tiết sản phẩm
 		$html .= '
-        <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-            <thead>
-                <tr style="background-color: #f2f2f2; text-align: center;">
-                    <th>STT</th>
-                    <th>Mã đơn hàng</th>
-                    <th>Tên sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                    <th>Chiết khấu</th>
-                    <th>Thành tiền</th>
-                </tr>
-            </thead>
-            <tbody>
-    ';
+	    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+	        <thead>
+	            <tr style="background-color: #f2f2f2; text-align: center;">
+	                <th>STT</th>
+	                <th>Mã đơn hàng</th>
+	                <th>Tên sản phẩm</th>
+	                <th>Giá</th>
+	                <th>Số lượng</th>
+	                <th>Chiết khấu</th>
+	                <th>Thành tiền</th>
+	            </tr>
+	        </thead>
+	        <tbody>
+	';
 
 		$total = 0;
 		foreach ($order_details as $key => $product) {
@@ -247,41 +189,44 @@ class orderController extends CI_Controller
 			$total += $subtotal;
 
 			$html .= '
-            <tr style="text-align: center;">
-                <td>' . ($key + 1) . '</td>
-                <td>' . $Order_Code . '</td>
-                <td style="text-align: left;">' . $product->Name . '</td>
-                <td>' . number_format($product->Selling_price, 0, ',', '.') . 'đ</td>
-                <td>' . $product->qty . '</td>
-                <td>' . $product->Promotion . '%</td>
-                <td>' . number_format($subtotal, 0, ',', '.') . 'đ</td>
-            </tr>
-        ';
+			<tr style="text-align: center;">
+				<td>' . ($key + 1) . '</td>
+				<td>' . $product->Order_Code . '</td>
+				<td style="text-align: left;">' . $product->Name . '</td>
+				<td>' . number_format($product->Selling_price, 0, ',', '.') . 'đ</td>
+				<td>' . $product->qty . '</td>
+				<td>' . $product->Promotion . '%</td>
+				<td>' . number_format($subtotal, 0, ',', '.') . 'đ</td>
+			</tr>
+			';
 		}
+
 
 		// Tổng cộng
 		$html .= '
-            <tr style="font-weight: bold; text-align: right;">
-                <td colspan="6">Tổng cộng:</td>
-                <td style="text-align: center;">' . number_format($total, 0, ',', '.') . 'đ</td>
-            </tr>
-        </tbody>
-        </table>
-    ';
+	        <tr style="font-weight: bold; text-align: right;">
+	            <td colspan="6">Tổng cộng:</td>
+	            <td style="text-align: center;">' . number_format($total, 0, ',', '.') . 'đ</td>
+	        </tr>
+	    </tbody>
+	    </table>
+	';
 
 		// Lời cảm ơn
 		$html .= '
-        <p style="text-align: center; margin-top: 20px;">Cảm ơn bạn đã ủng hộ. Mọi thắc mắc vui lòng liên hệ hotline: <strong>1900 1900</strong>.</p>
-    ';
+	    <p style="text-align: center; margin-top: 20px;">Cảm ơn bạn đã ủng hộ. Mọi thắc mắc vui lòng liên hệ hotline: <strong>1900 1900</strong>.</p>
+	';
 
 		// Xuất PDF
 		$pdf->SetFont('dejavusans', '', 10);
 		$pdf->writeHTML($html, true, false, true, false, '');
-		$pdf->Output('Order_' . $Order_Code . '.pdf', 'I');
+		$pdf->Output('Order_' . $order_code . '.pdf', 'I');
+
 	}
 
 
 
+	
 
 }
 ?>

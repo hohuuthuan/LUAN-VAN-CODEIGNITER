@@ -31,6 +31,12 @@
 							<div class="logo-element">IN+</div>
 						</li>
 						<li class="">
+							<a href="<?php echo base_url('dashboard'); ?>"><i class="fa fa-th-large"></i>
+								<span class="nav-label">Dashboard</span>
+							</a>
+							
+						</li>
+						<li class="">
 							<a href="#"
 								><i class="fa fa-th-large"></i>
 								<span class="nav-label">Quản lý thương hiệu</span>
@@ -120,8 +126,9 @@
 	
 							<ul class="nav nav-second-level">
 								<li class="">
-									<a href="<?php echo base_url('warehouse/list'); ?>">Danh sách sản phẩm trong kho</a>
 									<a href="<?php echo base_url('warehouse/receive-goods'); ?>">Nhập kho</a>
+									<a href="<?php echo base_url('warehouse/receive-goods-list'); ?>">Danh sách phiếu nhập</a>
+									<a href="<?php echo base_url('warehouse/list'); ?>">DS sản phẩm trong kho</a>
 								</li>
 							</ul>
 						</li>

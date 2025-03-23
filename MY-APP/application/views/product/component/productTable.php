@@ -6,14 +6,15 @@
             </th>
             <th scope="text-center">STT</th>
 
-            <th scope="text-center">Tên sản phẩm</th>
-            <th scope="text-center">Mô tả</th>
+            <th scope="text-center">Tên SP</th>
+            <th>Mã SP</th>
+            <!-- <th scope="text-center">Mô tả</th> -->
             <th scope="text-center">Giá bán</th>
             <th scope="text-center">Đơn vị tính</th>
-            <th scope="text-center">Giảm giá</th>
 
             <th scope="text-center">Tồn kho</th>
             <th scope="text-center">Hạn sử dụng theo lô</th>
+            <th scope="text-center">Giảm giá</th>
             <th scope="text-center">Trạng thái</th>
             <th scope="text-center">Quản lý</th>
         </tr>
@@ -28,12 +29,12 @@
                 <th scope="row"><?php echo $key + 1; ?></th>
 
                 <td><?php echo $pro->Name; ?></td>
-
-                <td style="max-width: 300px; word-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">
+                <td><?php echo $pro->Product_Code; ?></td>
+                <!-- <td style="max-width: 300px; word-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">
                     <span title="<?php echo htmlspecialchars($pro->Description); ?>">
                         <?php echo mb_strimwidth($pro->Description, 0, 50, "..."); ?>
                     </span>
-                </td>
+                </td> -->
 
                 <td>
                     <?php if ($pro->Selling_price > 0): ?>
@@ -56,17 +57,11 @@
                     <?php endif; ?>
                 </td>
                 <td><?php echo htmlspecialchars($pro->Unit); ?></td>
-                <td>
-                    <span style="color: <?php echo ($pro->Promotion > 0) ? 'blue' : 'black'; ?>">
-                        <?php echo $pro->Promotion ? $pro->Promotion . ' %' : 'Không giảm giá'; ?>
-                    </span>
-                </td>
-
 
                 <td><?php echo $pro->total_remaining; ?></td>
                 <td>
                     <?php if (!empty($pro->batches)): ?>
-                        
+
                         <ul style="padding-left: 20px; margin: 0;">
                             <?php foreach ($pro->batches as $batch): ?>
                                 <li>Lô #<?php echo $batch->Batch_ID; ?>:
@@ -79,10 +74,11 @@
                         <span class="text-muted">Không có lô hàng</span>
                     <?php endif; ?>
                 </td>
-
-
-
-
+                <td>
+                    <span style="color: <?php echo ($pro->Promotion > 0) ? 'blue' : 'black'; ?>">
+                        <?php echo $pro->Promotion ? $pro->Promotion . ' %' : '0%'; ?>
+                    </span>
+                </td>
                 <td>
                     <?php if ($pro->Status == 1): ?>
                         <span class="badge badge-success">Active</span>

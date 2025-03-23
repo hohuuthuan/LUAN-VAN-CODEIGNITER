@@ -79,7 +79,7 @@
                                     </table>
                                 </div>
                                 <div class="row">
-                                    <table style="width: 350px;" class="table table-bordered table-hover">
+                                    <table style="width: 350px;" class="table table-bordered table-hover" data-order-code="<?php echo $ord->Order_Code; ?>">
                                         <thead class="">
                                             <tr>
                                                 <th>Batches</th>
@@ -247,15 +247,11 @@
                                             <?php endforeach; ?>
                                         </td>
                                     </tr>
-
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>
@@ -285,8 +281,9 @@
             });
 
             // console.log('Dữ liệu gửi đi:', JSON.stringify(product_qty_in_batch));
-            // console.log('Dữ liệu gửi đi:', JSON.stringify(orderCode));
-            // console.log('Dữ liệu gửi đi:', JSON.stringify(value));
+            // console.log('Order Code:', orderCode);
+            // console.log('Order Status:', value);
+
             $.ajax({
                 url: '/order_admin/update-order-status',
                 method: 'POST',

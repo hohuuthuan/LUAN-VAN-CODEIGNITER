@@ -10,13 +10,26 @@
                                 alt="LOGO">
                         </div>
                         <div style="font-size: 16px;" class="col-lg-8">
-                            <p>CÔNG TY TNHH MTV PESTICIDE STORE</p>
-                            <p>MST: 0000000001</p>
-                            <p>Địa chỉ: 38C, đường Trần Vĩnh Kiết, Quận Ninh Kiều, TP.Cần Thơ</p>
+
+                            <label class="form-label">CÔNG TY TNHH MTV PESTICIDE STORE</label>
+                            <div class="form-group-receive-goods">
+                                <label class="form-label">MST <span class="text-danger">(*)</span>:</label>
+                                <input type="text" name="tax_identification_number"
+                                    class="input-dots input-ma-so-thue width150"
+                                    value="<?php echo isset($input['tax_identification_number']) ? $input['tax_identification_number'] : '0000000000001'; ?>">
+                                <span
+                                    class="error-message"><?php echo isset($errors['tax_identification_number']) ? $errors['tax_identification_number'] : ''; ?></span>
+
+                            </div>
+                            <label class="form-label">Địa chỉ: 38C, đường Trần Vĩnh Kiết, Quận Ninh Kiều, TP.Cần
+                                Thơ</label>
+
                         </div>
                         <div class="col-lg-3">
-                            <h3 class="float-right">Số: 000001</h3>
+                            <h3 class="float-right">Số: <?php echo isset($receipt_number) ? $receipt_number : ''; ?>
+                            </h3>
                         </div>
+
                     </div>
                     <div class="row">
                         <div class="container-fluid bg-white p-4 rounded shadow-sm mt-3">
@@ -44,6 +57,9 @@
                                 </div>
 
                             </div>
+
+
+
 
                             <div class="row receive-goods-input">
                                 <div class="col-lg-6">
@@ -91,6 +107,7 @@
                                             class="error-message"><?php echo isset($errors['phieu_giao_nhan_so']) ? $errors['phieu_giao_nhan_so'] : ''; ?></span>
                                     </div>
                                 </div>
+                           
 
                             </div>
 
@@ -107,6 +124,31 @@
                                 </div>
 
                             </div>
+
+
+                            <div class="row receive-goods-input">
+                                <div class="col-lg-12">
+                                    <div class="form-group-receive-goods supplier-select">
+                                        <label class="form-label">Nhà cung cấp <span class="text-danger">(*)</span>:
+                                        </label>
+                                        <select name="supplier_id" id="supplier_id"
+                                            class="supplier_select form-control setupSelect2 width500">
+                                            <option value="">-- Chọn nhà cung cấp --</option>
+                                            <?php foreach ($allsuppliers as $supplier): ?>
+                                                <option value="<?php echo $supplier->SupplierID; ?>" <?php echo (isset($input['supplier_id']) && $input['supplier_id'] == $supplier->SupplierID) ? 'selected' : ''; ?>>
+                                                    <?php echo htmlspecialchars($supplier->Name); ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+
+                                        <span class="error-message-supplier">
+                                            <?php echo isset($errors['supplier_id']) ? $errors['supplier_id'] : ''; ?>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+
                             <table class="table table-striped table-bordered mt-3">
                                 <thead class="table-light">
                                     <tr>
@@ -151,27 +193,27 @@
                                                 <?php
                                                 // Tìm sản phẩm đang được chọn để lấy đơn vị
                                                 $selectedProduct = array_filter($allproducts, function ($prod) use ($product) {
-                                                    return $prod->ProductID == ($product['name'] ?? '');
+                                                    return $prod->ProductID == ($product['ProductID'] ?? '');
                                                 });
                                                 $selectedProduct = reset($selectedProduct);
                                                 $unitValue = $selectedProduct->Unit ?? ''; // Nếu không tìm thấy thì để rỗng
                                                 ?>
                                                 <td>
                                                     <div>
-                                                    <select name="products[<?php echo $key; ?>][name]"
-                                                        class="form-control product-select setupSelect2"
-                                                        onchange="updateUnit(this)">
-                                                        <option value="">Chọn sản phẩm</option>
-                                                        <?php foreach ($allproducts as $prod): ?>
-                                                            <option value="<?= $prod->ProductID; ?>" data-unit="<?= $prod->Unit; ?>"
-                                                                <?= ($product['name'] == $prod->ProductID) ? 'selected' : ''; ?>>
-                                                                <?= $prod->Name; ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
+                                                        <select name="products[<?php echo $key; ?>][ProductID]"
+                                                            class="form-control product-select setupSelect2"
+                                                            onchange="updateUnit(this)">
+                                                            <option value="">Chọn sản phẩm</option>
+                                                            <?php foreach ($allproducts as $prod): ?>
+                                                                <option <?= ($product['ProductID'] == $prod->ProductID) ? 'selected' : ''; ?> value="<?= $prod->ProductID; ?>"
+                                                                    data-unit="<?= $prod->Unit; ?>">
+                                                                    <?= $prod->Name; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
                                                     </div>
                                                     <span
-                                                        class="error-message-table-product"><?php echo isset($errors["products[$key][name]"]) ? $errors["products[$key][name]"] : ''; ?></span>
+                                                        class="error-message-table-product"><?php echo isset($errors["products[$key][ProductID]"]) ? $errors["products[$key][ProductID]"] : ''; ?></span>
                                                 </td>
                                                 <td>
                                                     <input type="text" name="products[<?php echo $key; ?>][code]"
@@ -181,28 +223,32 @@
                                                         class="error-message-table-product"><?php echo isset($errors["products[$key][code]"]) ? $errors["products[$key][code]"] : ''; ?></span>
                                                 </td>
                                                 <td>
-                                                    <select name="products[<?php echo $key; ?>][unit]"
-                                                        class="form-control unit-select">
-                                                        <option value="">Đơn vị...</option>
-                                                        <?php foreach ($allproducts as $prod): ?>
-                                                            <option value="<?= $prod->Unit; ?>" <?= ($unitValue == $prod->Unit) ? 'selected' : ''; ?>>
-                                                                <?= $prod->Unit; ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
+                                                    <div>
+                                                        <select name="products[<?php echo $key; ?>][unit]"
+                                                            class="form-control unit-select setupSelect2">
+                                                            <option value="">Đơn vị...</option>
+                                                            <?php foreach ($allproducts as $prod): ?>
+                                                                <option value="<?= $prod->Unit; ?>" <?= ($unitValue == $prod->Unit) ? 'selected' : ''; ?>>
+                                                                    <?= $prod->Unit; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
                                                     <span
                                                         class="error-message-table-product"><?php echo isset($errors["products[$key][unit]"]) ? $errors["products[$key][unit]"] : ''; ?></span>
                                                 </td>
 
+
                                                 <td>
-                                                    <input type="number" min="0"
-                                                        name="products[<?php echo $key; ?>][Import_price]" class="form-control"
-                                                        value="<?php echo set_value("products[$key][Import_price]", is_array($product) ? $product['Import_price'] : ''); ?>">
+                                                    <input type="text" name="products[<?php echo $key; ?>][Import_price]"
+                                                        class="form-control format-money" placeholder="VNĐ"
+                                                        value="<?php echo set_value("products[$key][Import_price]", is_array($product) ? $product['Import_price'] : ''); ?>"
+                                                        oninput="formatMoney(this)" onfocus="removeFormat(this)"
+                                                        onblur="formatMoney(this)">
                                                     <span class="error-message-table-product">
                                                         <?php echo isset($errors["products[$key][Import_price]"]) ? $errors["products[$key][Import_price]"] : ''; ?>
                                                     </span>
                                                 </td>
-
                                                 <td>
                                                     <input type="date" name="products[<?php echo $key; ?>][Exp_date]"
                                                         class="form-control width130"
@@ -254,7 +300,7 @@
                                         <tr class="table-product-receive">
                                             <td>1</td>
                                             <td>
-                                                <select name="products[0][name]"
+                                                <select name="products[0][ProductID]"
                                                     class="form-control setupSelect2 product-select"
                                                     onchange="updateUnit(this)">
                                                     <option value="">Chọn sản phẩm</option>
@@ -265,14 +311,15 @@
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
-                                                <span class="error-message-table-product"></span>
+
                                             </td>
                                             <td><input type="text" name="products[0][code]" class="form-control" value="">
-                                                <span class="error-message-table-product"></span>
+
                                             </td>
 
                                             <td>
-                                                <select name="products[0][unit]" class="form-control unit-select">
+                                                <select name="products[0][unit]"
+                                                    class="form-control unit-select setupSelect2">
                                                     <option value="">Đơn vị...</option>
                                                     <?php foreach ($allproducts as $product): ?>
                                                         <option value="<?php echo $product->Unit; ?>">
@@ -281,25 +328,27 @@
                                                     <?php endforeach; ?>
                                                 </select>
                                             </td>
-                                            <td><input type="number" min="0" name="products[0][Import_price]"
-                                                    class="form-control" value="">
-                                                <span class="error-message-table-product"></span>
+                                            <td>
+                                                <input type="text" name="products[0][Import_price]"
+                                                    class="form-control format-money" value="" placeholder="VNĐ"
+                                                    oninput="formatMoney(this)" onfocus="removeFormat(this)"
+                                                    onblur="formatMoney(this)">
                                             </td>
+
                                             <td><input type="date" name="products[0][Exp_date]"
                                                     class="form-control width130" value="">
-                                                <span class="error-message-table-product"></span>
+
                                             </td>
 
                                             <td><input type="number" min="0" name="products[0][quantity_doc]"
                                                     class="form-control" value="">
-                                                <span class="error-message-table-product"></span>
+
                                             </td>
                                             <td><input type="number" min="0" name="products[0][quantity_real]"
                                                     class="form-control" value="">
-                                                <span class="error-message-table-product"></span>
+
                                             </td>
                                             <td><input type="text" name="products[0][note]" class="form-control" value="">
-                                                <span class="error-message-table-product"></span>
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-success btn-action"
@@ -308,10 +357,18 @@
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="7" class="text-right"><strong>Tổng cộng:</strong></td>
+                                        <td colspan="2">
+                                            <input name="sub_total" type="text" id="totalAmount" class="form-control"
+                                                readonly>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+
                             </table>
-
-
-                            <div class="row text-center mt-4">
+                            <div class="row text-center mt-4 signature">
                                 <div class="col-md-4">
                                     <p>Người giao hàng <br> (Ký, ghi rõ họ tên)</p>
                                 </div>
@@ -330,7 +387,7 @@
 
         <hr>
         <div class="text-right mb15">
-            <button type="submit" name="send" value="send" class="btn btn-primary">Tiến hành nhập kho</button>
+            <button type="submit" name="" value="" class="btn btn-primary">Tiến hành nhập kho</button>
         </div>
     </div>
 </form>
@@ -377,7 +434,7 @@
         newRow.innerHTML = `
         <td></td>
         <td>
-            <select name="products[${rowIndex}][name]" class="form-control product-select setupSelect2" onchange="updateUnit(this)">
+            <select name="products[${rowIndex}][ProductID]" class="form-control product-select setupSelect2" onchange="updateUnit(this)">
                 <option value="">Chọn sản phẩm</option>
                 <?php foreach ($allproducts as $prod): ?>                    
                     <option value="<?php echo $prod->ProductID ?>" data-unit="<?= $prod->Unit; ?>">
@@ -385,14 +442,14 @@
                     </option>
                 <?php endforeach; ?>
             </select>
-            <span class="error-message-table-product"></span>
+            
         </td>
         <td>
             <input type="text" name="products[${rowIndex}][code]" class="form-control">
-            <span class="error-message-table-product"></span>
+            
         </td>
         <td>
-            <select name="products[${rowIndex}][unit]" class="form-control unit-select">
+            <select name="products[${rowIndex}][unit]" class="form-control unit-select setupSelect2">
                 <option value="">Đơn vị...</option>
                 <?php foreach ($allproducts as $prod): ?>
                     <option value="<?php echo $prod->Unit; ?>">
@@ -400,27 +457,30 @@
                     </option>
                 <?php endforeach; ?>
             </select>
-            <span class="error-message-table-product"></span>
+            
         </td>
         <td>
-            <input type="number" min="0" name="products[${rowIndex}][Import_price]" class="form-control">
-            <span class="error-message-table-product"></span>
+            <input type="text" min="0" name="products[${rowIndex}][Import_price]" 
+            class="form-control format-money" value="" placeholder="VNĐ"
+            oninput="formatMoney(this)" onfocus="removeFormat(this)"
+            onblur="formatMoney(this)">
+            
         </td>
         <td>
             <input type="date" name="products[${rowIndex}][Exp_date]" class="form-control width130">
-            <span class="error-message-table-product"></span>
+            
         </td>
         <td>
             <input type="number" min="0" name="products[${rowIndex}][quantity_doc]" class="form-control">
-            <span class="error-message-table-product"></span>
+            
         </td>
         <td>
             <input type="number" min="0" name="products[${rowIndex}][quantity_real]" class="form-control">
-            <span class="error-message-table-product"></span>
+            
         </td>
         <td>
             <input type="text" name="products[${rowIndex}][note]" class="form-control">
-            <span class="error-message-table-product"></span>
+            
         </td>
         <td>
             <button type="button" class="btn btn-success btn-action" onclick="addRow(this)">+</button>
@@ -432,8 +492,6 @@
         rowIndex++;
         updateRowNumbers();
         HHT.select2(); // Nếu dùng Select2
-
-
 
         // ✅ Gọi updateUnit() cho dòng mới để cập nhật unit nếu sản phẩm đã được chọn
         let productSelect = newRow.querySelector(".product-select");
@@ -462,15 +520,18 @@
             }
         });
     }
+
     document.addEventListener("DOMContentLoaded", function () {
         updateRowNumbers();
     });
+
     document.addEventListener("DOMContentLoaded", function () {
         // Gọi updateUnit cho tất cả các select khi trang load
         document.querySelectorAll(".product-select").forEach(select => {
             updateUnit(select);
         });
     });
+
     function updateUnit(selectElement) {
         let selectedOption = selectElement.options[selectElement.selectedIndex];
         let unitValue = selectedOption.getAttribute("data-unit") || "";
@@ -478,9 +539,56 @@
         let unitSelect = row.querySelector(".unit-select");
 
         if (unitSelect) {
-            unitSelect.value = unitValue;  // Cập nhật giá trị trực tiếp
-            unitSelect.dispatchEvent(new Event("change", { bubbles: true })); // Kích hoạt sự kiện
-            $(unitSelect).val(unitValue).trigger("change"); // Nếu dùng Select2
+            unitSelect.value = unitValue;
+            unitSelect.dispatchEvent(new Event("change", { bubbles: true }));
+            $(unitSelect).val(unitValue).trigger("change");
         }
     }
+
+    function getNumberFromFormatted(value) {
+        return parseInt(value.replace(/\D/g, ""), 10) || 0;
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        document.querySelectorAll("#table-body tr").forEach(row => {
+            let priceInput = row.querySelector("[name*='[Import_price]']");
+            let quantityInput = row.querySelector("[name*='[quantity_real]']");
+
+            let price = getNumberFromFormatted(priceInput?.value || "0");
+            let quantity = parseInt(quantityInput?.value, 10) || 0;
+
+            total += price * quantity;
+        });
+
+        document.getElementById("totalAmount").value = total.toLocaleString("vi-VN") + " VNĐ";
+    }
+
+    document.addEventListener("input", function (event) {
+        if (event.target.matches("[name*='[Import_price]']") || event.target.matches("[name*='[quantity_real]']")) {
+            calculateTotal();
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", calculateTotal);
+
+
+
+
+
+
+    function formatMoney(input) {
+        let value = input.value.replace(/\D/g, "");
+        if (!value) {
+            input.value = "";
+            return;
+        }
+        let numericValue = parseInt(value, 10);
+        input.value = numericValue.toLocaleString("vi-VN");
+    }
+
+    function removeFormat(input) {
+        input.value = input.value.replace(/\D/g, "");
+    }
+
 </script>

@@ -1,4 +1,5 @@
-use pesticide_version3;
+CREATE SCHEMA `pesticide_version4`;
+use pesticide_version4;
 
 -- ROLE
 DROP TABLE IF EXISTS `role`;
@@ -109,11 +110,14 @@ INSERT INTO `discount` VALUES (1,'SALE10','Percentage',10,500000,NULL,'2025-03-0
 UNLOCK TABLES;
 
 
+
+
+
 -- PRODUCT
 DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `ProductID` bigint NOT NULL AUTO_INCREMENT,
-  `Product_code` varchar(50) NOT NULL,
+  `Product_Code` varchar(50) NOT NULL,
   `Name` varchar(200) NOT NULL,
   `Description` varchar(500) DEFAULT NULL,
   `Product_uses` varchar(255) DEFAULT NULL,
@@ -137,7 +141,7 @@ CREATE TABLE `product` (
   CONSTRAINT `product_chk_2` CHECK (((`Promotion` >= 0) and (`Promotion` <= 100)))
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 LOCK TABLES `product` WRITE;
-INSERT INTO `product` VALUES (1,'Thuốc trừ sâu X','Diệt sâu hiệu quả','Trừ sâu bọ','Lọ',10000,0,1,'1741620996ctu.png','thuoc-tru-sau-x',1,1,'2025-03-03 20:25:19',0,NULL),(2,'Thêm sản phẩm 1','Mô tả của sản phẩm 1','Công dụng của sản phẩm 1','Chai',10000,0,1,'1741620988ctu.png','them-san-pham-1',1,1,'2025-03-10 22:11:47',1,NULL);
+INSERT INTO `product` VALUES (1,'HHT2003','Thuốc trừ sâu X','Diệt sâu hiệu quả','Trừ sâu bọ','Lọ',10000,0,'1741620996ctu.png','thuoc-tru-sau-x',1,1,'2025-03-03 20:25:19',0,NULL),(2,'HHT2004','Thêm sản phẩm 1','Mô tả của sản phẩm 1','Công dụng của sản phẩm 1','Chai',10000,0,'1741620988ctu.png','them-san-pham-1',1,1,'2025-03-10 22:11:47',1,NULL);
 UNLOCK TABLES;
 
 
@@ -150,18 +154,85 @@ CREATE TABLE `suppliers` (
   `Phone` varchar(20) NOT NULL,
   `Address` varchar(255) NOT NULL,
   `Email` varchar(255) NOT NULL,
+  `Status` int NOT NULL DEFAULT 0,
   PRIMARY KEY (`SupplierID`),
   UNIQUE KEY `Email` (`Email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 LOCK TABLES `suppliers` WRITE;
-INSERT INTO `suppliers` VALUES (1,'Nhà cung cấp 1','Contac','0321654987','Địa chỉ nhà cung cấp','nhacungcap@gmail.com'),(2,'Nhà cung cấp 2','Contac ncc 2','0321654987','Địa chỉ nhà cung cấp','ncc2@gmail.com');
+INSERT INTO `suppliers` VALUES (1,'Nhà cung cấp 1','Contac','0321654987','Địa chỉ nhà cung cấp','nhacungcap@gmail.com', '1'),(2,'Nhà cung cấp 2','Contac ncc 2','0321654987','Địa chỉ nhà cung cấp','ncc2@gmail.com', '1');
 UNLOCK TABLES;
+
+
+
+
+
+
+
+-- WAREHOUSE_RECEIPT
+DROP TABLE IF EXISTS `warehouse_receipt`;
+CREATE TABLE `warehouse_receipt` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `tax_identification_number` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `name_of_delivery_person` varchar(100) NOT NULL,
+  `delivery_unit` varchar(100) DEFAULT NULL,  
+  `address` text DEFAULT NULL, 
+  `delivery_note_number` varchar(255) DEFAULT NULL, 
+  `warehouse_from` varchar(100) DEFAULT NULL,
+  `supplier_id` int DEFAULT NULL, 
+  `sub_total` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `warehouse_receipt_fk_1` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`SupplierID`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+-- WAREHOUSE_RECEIPT_ITEMS
+DROP TABLE IF EXISTS `warehouse_receipt_items`;
+CREATE TABLE `warehouse_receipt_items` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `Receipt_id` bigint NOT NULL,
+  `ProductID` bigint NOT NULL, 
+  `Product_Code` varchar(50) DEFAULT NULL,
+  `Unit` varchar(50) NOT NULL, 
+  `Import_price` bigint NOT NULL,
+  `Exp_date` datetime NOT NULL,
+  `Quantity_doc` bigint NOT NULL, 
+  `Quantity_actual` bigint NOT NULL, 
+  `Notes` text DEFAULT NULL, 
+
+  PRIMARY KEY (`id`),
+  KEY `receipt_id` (`receipt_id`),
+  CONSTRAINT `warehouse_receipt_items_fk_1` FOREIGN KEY (`Receipt_id`) REFERENCES `warehouse_receipt` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `warehouse_receipt_items_fk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE,
+  CONSTRAINT `warehouse_receipt_items_chk_1` CHECK ((`Quantity_doc` >= 0)),
+  CONSTRAINT `warehouse_receipt_items_chk_2` CHECK ((`Quantity_actual` >= 0))
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+-- WAREHOUSE_RECEIPT_SIGNATURES
+DROP TABLE IF EXISTS `warehouse_receipt_signatures`;
+CREATE TABLE `warehouse_receipt_signatures` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `receipt_id` bigint NOT NULL,
+  `position` enum('C.H.Trưởng', 'Người giao hàng', 'Cung ứng', 'Thủ kho', 'Người lập phiếu') NOT NULL,  
+  `signer_name` varchar(100) DEFAULT NULL, 
+  `signed_at` timestamp NULL,
+  PRIMARY KEY (`id`),
+  KEY `receipt_id` (`receipt_id`),
+  CONSTRAINT `warehouse_receipt_signatures_fk_1` FOREIGN KEY (`receipt_id`) REFERENCES `warehouse_receipt` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+
+
 
 -- BATCHES
 DROP TABLE IF EXISTS `batches`;
 CREATE TABLE `batches` (
   `Batch_ID` int NOT NULL AUTO_INCREMENT,
-  `Warehouse_receipt_id` bigint NOT NULL,
+  `Warehouse_Receipt_ID` bigint NOT NULL,
   `ProductID` bigint NOT NULL,
   `Quantity` bigint NOT NULL,
   `Import_date` datetime NOT NULL,
@@ -174,13 +245,16 @@ CREATE TABLE `batches` (
   KEY `SupplierID` (`SupplierID`),
   CONSTRAINT `batches_ibfk_1` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`),
   CONSTRAINT `batches_ibfk_2` FOREIGN KEY (`SupplierID`) REFERENCES `suppliers` (`SupplierID`),
-  CONSTRAINT `batches_ibfk_3` FOREIGN KEY (`Warehouse_receipt_id`) REFERENCES `warehouse_receipt` (`id`),
+  CONSTRAINT `batches_ibfk_3` FOREIGN KEY (`Warehouse_Receipt_ID`) REFERENCES `warehouse_receipt` (`id`),
   CONSTRAINT `batches_chk_1` CHECK ((`Quantity` >= 0)),
   CONSTRAINT `batches_chk_2` CHECK ((`Import_price` >= 0))
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 LOCK TABLES `batches` WRITE;
-INSERT INTO `batches` VALUES (1,1,1000,'2025-01-01 00:00:00','2026-01-01 00:00:00',15000,1,999),(2,1,2000,'2026-01-02 00:00:00','2027-01-02 00:00:00',16000,1,2000);
 UNLOCK TABLES;
+
+
+
+
 
 
 -- -- PURCHASE
@@ -218,7 +292,6 @@ CREATE TABLE `shipping` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 LOCK TABLES `shipping` WRITE;
-INSERT INTO `shipping` VALUES (1,2,'Hồ Hữu Thuận','0345492751','địa chỉ của thuận','phuongtuan@gmail.com','VNPAY');
 UNLOCK TABLES;
 
 
@@ -247,7 +320,6 @@ CREATE TABLE `orders` (
   CONSTRAINT `orders_chk_1` CHECK ((`TotalAmount` >= 0))
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 LOCK TABLES `orders` WRITE;
-INSERT INTO `orders` VALUES (1,'HHT178912',1,1,2,250000,NULL,'2025-01-01 00:00:00','2025-01-12 00:00:00', '2025-01-12 00:00:00',1);
 UNLOCK TABLES;
 
 
@@ -271,7 +343,7 @@ CREATE TABLE `order_detail` (
   CONSTRAINT `order_detail_chk_3` CHECK ((`Subtotal` >= 0))
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 LOCK TABLES `order_detail` WRITE;
-INSERT INTO `order_detail` VALUES (1,'HHT178912',1,2000,50000,NULL,10000000);
+
 UNLOCK TABLES;
 
 
@@ -293,7 +365,7 @@ CREATE TABLE `order_batches` (
   CONSTRAINT `order_batches_ibfk_2` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`Batch_ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 LOCK TABLES `order_batches` WRITE;
-INSERT INTO `order_batches` VALUES (1,1,1,999), (2,1,2,1001);
+
 UNLOCK TABLES;
 
 
@@ -321,7 +393,6 @@ CREATE TABLE `vnpay` (
   CONSTRAINT `shipping_method_vnpay_ordercode` FOREIGN KEY (`vnp_TxnRef`) REFERENCES `orders` (`Order_Code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 LOCK TABLES `vnpay` WRITE;
-INSERT INTO `vnpay` VALUES (1,1,'36000000','NCB','VNP14842024','ATM','Thanh toan don hang: HHT178912','20250312145337','00','F72UMWTL',NULL,'00','HHT178912','266689dccff15176efd1ddaf4fd89c7c5e167f6060f8cc4acc91aa20b1983adeef135296133086f21715ecddb698dad7bfc50d9b843687e27523d8b01cefe53f');
 UNLOCK TABLES;
 
 
@@ -340,60 +411,3 @@ UNLOCK TABLES;
 
 
 
-
--- WAREHOUSE_RECEIPT
-DROP TABLE IF EXISTS `warehouse_receipt`;
-CREATE TABLE `warehouse_receipt` (
-  `receipt_number` int NOT NULL AUTO_INCREMENT,
-  `supplier_id` int DEFAULT NULL, 
-  'tax_identification_number' varchar(15) NOT NULL,
-  `name_of_delivery_person` varchar(100) NOT NULL,
-  `delivery_unit` varchar(100) DEFAULT NULL,  
-  `address` text DEFAULT NULL, 
-  `delivery_note_number` varchar(255) DEFAULT NULL, 
-  `delivery_date` datetime DEFAULT NULL, 
-  `warehouse_from` varchar(100) DEFAULT NULL, 
-  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `Sub_total` bigint DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-
--- WAREHOUSE_RECEIPT_ITEMS
-DROP TABLE IF EXISTS `warehouse_receipt_items`;
-CREATE TABLE `warehouse_receipt_items` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `Receipt_id` int NOT NULL,
-  `ProductID` varchar(255) NOT NULL, 
-  `Product_code` varchar(50) DEFAULT NULL,
-  `Unit` varchar(50) NOT NULL, 
-  `Quantity_doc` bigint NOT NULL, 
-  `Quantity_actual` bigint NOT NULL, 
-  `Import_price` bigint NOT NULL, 
-  `Exp_date` datetime NOT NULL,
-  `Notes` text DEFAULT NULL, 
-  `Created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `receipt_id` (`receipt_id`),
-  CONSTRAINT `warehouse_receipt_items_fk_1` FOREIGN KEY (`receipt_id`) REFERENCES `warehouse_receipt` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `warehouse_receipt_items_fk_2` FOREIGN KEY (`ProductID`) REFERENCES `product` (`ProductID`) ON DELETE CASCADE,
-  CONSTRAINT `warehouse_receipt_items_fk_3` FOREIGN KEY (`Product_code`) REFERENCES `product` (`Product_code`) ON DELETE CASCADE,
-  CONSTRAINT `warehouse_receipt_items_chk_1` CHECK ((`quantity_doc` >= 0)),
-  CONSTRAINT `warehouse_receipt_items_chk_2` CHECK ((`quantity_actual` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-
--- WAREHOUSE_RECEIPT_SIGNATURES
-DROP TABLE IF EXISTS `warehouse_receipt_signatures`;
-CREATE TABLE `warehouse_receipt_signatures` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `receipt_id` int NOT NULL,  -- Liên kết với phiếu nhập kho
-  `position` enum('C.H.Trưởng', 'Người giao hàng', 'Cung ứng', 'Thủ kho', 'Người lập phiếu') NOT NULL,  
-  `signer_name` varchar(100) DEFAULT NULL,  -- Họ tên người ký
-  `signed_at` timestamp NULL,  -- Thời gian ký
-  PRIMARY KEY (`id`),
-  KEY `receipt_id` (`receipt_id`),
-  CONSTRAINT `warehouse_receipt_signatures_fk_1` FOREIGN KEY (`receipt_id`) REFERENCES `warehouse_receipt` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

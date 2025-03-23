@@ -6,9 +6,14 @@ Làm sao để rollback lại, dữ liệu phải được chèn vào các bản
 
 Số phiếu lấy từ cột id ra tự động điền vào
 
+Tái cấu trúc lại bảng batches:
+Khi nhập kho thì có nhiều sản phẩm với, những sản phẩm đó có cùng Warehouse_Receipt_ID, 
+Cần phải có thêm cột batches_location, để biết được rằng là nhập vào kho vị trí nào
 
 
 
+Với phần hiển thị sản phẩm, cột hạn sử dụng theo lô, chỉ cần in ra số thứ tự của lô là #1 #2
+Khi click vào thì hiển thị location của lô hàng đó trong kho: dropdown hoặc hover
 
 
 

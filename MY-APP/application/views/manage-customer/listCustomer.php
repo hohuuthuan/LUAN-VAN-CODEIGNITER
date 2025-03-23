@@ -3,11 +3,6 @@
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Danh sách khách hàng</h5>
         </div>
-        <?php if($this->session->flashdata('success')) { ?>
-            <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-        <?php } elseif($this->session->flashdata('error')) { ?>
-            <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-        <?php } ?>
         <div class="card-body">
             <table class="table table-striped table-bordered table-hover">
                 <thead class="thead-light">

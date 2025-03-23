@@ -14,7 +14,7 @@ class warehouseController extends CI_Controller
 
 		$this->checkLogin();
 	}
-	
+
 	public function checkLogin()
 	{
 		if (!$this->session->userdata('logged_in_admin')) {
@@ -76,115 +76,103 @@ class warehouseController extends CI_Controller
 	}
 
 
-	public function receive_goods()
+	private function _loadReceiveGoodsPage($extraData = [])
 	{
 		$this->load->model('indexModel');
-		$data['allproducts'] = $this->indexModel->getAllProduct();
+		$this->load->model('warehouseModel');
+		$data = [
+			'allproducts' => $this->indexModel->getAllProduct(),
+			'allsuppliers' => $this->indexModel->getAllSupplier(),
+			'receipt_number' => $this->warehouseModel->getLatestReceiptNumber(),
+			'pageTitle' => 'Phiếu nhập hàng',
+			'template' => "warehouse/receive-goods",
+			'title' => "Phiếu nhập kho"
+		];
 
-		// echo '<pre>';
-		// print_r($data['allproducts']);
-		// echo '</pre>';
+		// Gộp thêm dữ liệu nếu có
+		$data = array_merge($data, $extraData);
 
-		$this->config->config['pageTitle'] = 'Phiếu nhập hàng';
-		$data['template'] = "warehouse/receive-goods";
-		// $data['template'] = "warehouse/test-data";
-		// $data['template'] = "warehouse/test2";
-		$data['title'] = "Phiếu nhập kho";
 		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+
+
+	public function receive_goods()
+	{
+		$this->_loadReceiveGoodsPage();
 	}
 
 	public function enter_into_warehouse()
 	{
-		$this->form_validation->set_rules('date', 'date', 'trim|required', ['required' => 'Bạn cần chọn ngày']);
-		$this->form_validation->set_rules('ho_ten_nguoi_giao', 'HoTen', 'trim|required', ['required' => 'Bạn cần nhập họ tên người giao']);
-		$this->form_validation->set_rules('donvi', 'DonVi', 'trim|required', ['required' => 'Bạn cần nhập đơn vị']);
-		$this->form_validation->set_rules('address', 'Diachi', 'trim|required', ['required' => 'Bạn cần nhập địa chỉ']);
-		$this->form_validation->set_rules('phieu_giao_nhan_so', 'PhieuGiaoNhanSo', 'trim|required', ['required' => 'Bạn cần nhập phiếu giao nhận số']);
-		$this->form_validation->set_rules('nhan_noi_bo_tu_kho', 'NhanNoiBo', 'trim|required', ['required' => 'Bạn cần nhập nhận nội bộ từ kho']);
+		$fields = [
+			'tax_identification_number' => 'Chưa có mã số thuế',
+			'date' => 'Bạn cần chọn ngày',
+			'ho_ten_nguoi_giao' => 'Bạn cần nhập họ tên người giao',
+			'donvi' => 'Bạn cần nhập đơn vị',
+			'address' => 'Bạn cần nhập địa chỉ',
+			'phieu_giao_nhan_so' => 'Bạn cần nhập phiếu giao nhận số',
+			'nhan_noi_bo_tu_kho' => 'Bạn cần nhập nhận nội bộ từ kho',
+			'supplier_id' => 'Thiếu nhà cung cấp'
+		];
 
+		foreach ($fields as $field => $message) {
+			$this->form_validation->set_rules($field, ucfirst(str_replace('_', ' ', $field)), 'trim|required', ['required' => $message]);
+		}
 
 		$products = $this->input->post('products') ?? [];
 		foreach ($products as $key => $product) {
-			$this->form_validation->set_rules("products[$key][name]", 'ProductName', 'trim|required', ['required' => 'Bạn cần chọn sản phẩm']);
-			$this->form_validation->set_rules("products[$key][code]", 'ProductCode', 'trim|required', ['required' => 'Thiếu mã sản phẩm']);
-			$this->form_validation->set_rules("products[$key][unit]", 'ProductUnit', 'trim|required', ['required' => 'Thiếu đơn vị tính']);
-			$this->form_validation->set_rules("products[$key][Import_price]", 'ImportPrice', 'trim|required|numeric', [
-				'required' => 'Thiếu giá nhập',
-				'numeric' => 'Giá nhập phải là số'
-			]);
-			$this->form_validation->set_rules("products[$key][Exp_date]", 'Exp_date', 'trim|required', ['required' => 'Thiếu hạn sử dụng']);
-			$this->form_validation->set_rules("products[$key][quantity_doc]", 'QuantityDoc', 'trim|required|numeric', [
-				'required' => 'Thiếu số lượng',
-				'numeric' => 'Số lượng phải là số'
-			]);
-			$this->form_validation->set_rules("products[$key][quantity_real]", 'QuantityReal', 'trim|required|numeric', [
-				'required' => 'Thiếu số lượng',
-				'numeric' => 'Số lượng phải là số'
-			]);
+			$product_fields = [
+				"ProductID" => "Bạn cần chọn sản phẩm",
+				"code" => "Thiếu mã sản phẩm",
+				"unit" => "Thiếu đơn vị tính",
+				"Import_price" => "Thiếu giá nhập",
+				"Exp_date" => "Thiếu hạn sử dụng",
+				"quantity_doc" => "Thiếu số lượng",
+				"quantity_real" => "Thiếu số lượng"
+			];
+
+			foreach ($product_fields as $field => $message) {
+				$rule = in_array($field, ['Import_price', 'quantity_doc', 'quantity_real']) ? 'trim|required|numeric' : 'trim|required';
+				$this->form_validation->set_rules("products[$key][$field]", ucfirst($field), $rule, [
+					'required' => $message,
+					'numeric' => 'Giá trị phải là số'
+				]);
+			}
 		}
 
 		if ($this->form_validation->run() == FALSE) {
-			$errors = array_merge([
-				"date" => form_error("date"),
-				"ho_ten_nguoi_giao" => form_error("ho_ten_nguoi_giao"),
-				"donvi" => form_error("donvi"),
-				"address" => form_error("address"),
-				"phieu_giao_nhan_so" => form_error("phieu_giao_nhan_so"),
-				"nhan_noi_bo_tu_kho" => form_error("nhan_noi_bo_tu_kho")
-			], array_reduce(array_keys($products), function ($carry, $key) {
-				return array_merge($carry, [
-					
-					"products[$key][name]" => form_error("products[$key][name]"),
-					"products[$key][code]" => form_error("products[$key][code]"),
-					"products[$key][unit]" => form_error("products[$key][unit]"),
-					"products[$key][Import_price]" => form_error("products[$key][Import_price]"),
-					"products[$key][Exp_date]" => form_error("products[$key][Exp_date]"),
-					"products[$key][quantity_doc]" => form_error("products[$key][quantity_doc]"),
-					"products[$key][quantity_real]" => form_error("products[$key][quantity_real]")
-				]);
-			}, []));
-
-			$data['errors'] = $errors;
-			$data['input'] = $this->input->post();
-		
-			// echo "<pre>";
-			// print_r($data['input']);
-			// echo "</pre>";		
-
-			$this->load->model('indexModel');
-			$data['allproducts'] = $this->indexModel->getAllProduct();
-			$this->config->config['pageTitle'] = 'Phiếu nhập hàng';
-			// $data['template'] = "warehouse/test2";
-			// $data['template'] = "warehouse/test-data";
-			$data['template'] = "warehouse/receive-goods";
-			$data['title'] = "Phiếu nhập kho";
-			$this->load->view("admin-layout/admin-layout", $data);
-		} else {
-
-			$result = false;
-
-
-			$data = [
-				'date' => $this->input->post('date'),
-				'ho_ten_nguoi_giao' => $this->input->post('ho_ten_nguoi_giao'),
-				'donvi' => $this->input->post('donvi'),
-				'phieu_giao_nhan_so' => $this->input->post('phieu_giao_nhan_so'),
-				'nhan_noi_bo_tu_kho' => $this->input->post('nhan_noi_bo_tu_kho'),
-				'products' => $this->input->post('products')
-			];
-
-			// echo "<pre>";
-			// print_r($data);
-			// echo "</pre>";
-
-			$this->session->set_flashdata('success', 'Nhập kho thành công');
-			// redirect(base_url('dashboard'));
+			$errors = $this->form_validation->error_array();
+			$this->_loadReceiveGoodsPage([
+				'errors' => $errors,
+				'input' => $this->input->post()
+			]);
+			return;
 		}
+
+		$data_warehouse_receipt = [
+			'tax_identification_number' => $this->input->post('tax_identification_number'),
+			'created_at' => $this->input->post('date'),
+			'name_of_delivery_person' => $this->input->post('ho_ten_nguoi_giao'),
+			'delivery_unit' => $this->input->post('donvi'),
+			'address' => $this->input->post('address'),
+			'delivery_note_number' => $this->input->post('phieu_giao_nhan_so'),
+			'warehouse_from' => $this->input->post('nhan_noi_bo_tu_kho'),
+			'supplier_id' => $this->input->post('supplier_id'),
+			'sub_total' => $this->input->post('sub_total')
+		];
+
+		$products = $this->input->post('products') ?? [];
+		$this->load->model('warehouseModel');
+		$warehouse_receipt_id = $this->warehouseModel->insertWarehouseReceiptWithItems($data_warehouse_receipt, $products);
+
+
+		if ($warehouse_receipt_id) {
+			$this->session->set_flashdata('success', 'Phiếu nhập kho đã được tạo thành công!');
+		} else {
+			$this->session->set_flashdata('error', 'Lỗi: Không thể tạo phiếu nhập kho!');
+		}
+		redirect('warehouse/receive-goods');
 	}
-
-
-
-
 
 	public function updateQuantityProduct($id)
 	{
@@ -218,30 +206,7 @@ class warehouseController extends CI_Controller
 		redirect(base_url('quantity/update/' . $id));
 	}
 
-	public function deleteProduct($id)
-	{
-		$this->load->model('productModel');
-
-		// Kiểm tra nếu sản phẩm liên quan đến đơn hàng
-		$orders = $this->productModel->getOrdersByProductId($id);
-		if (!empty($orders)) {
-			$order_codes = array_column($orders, 'order_code');
-			$this->session->set_flashdata(
-				'error',
-				'Không thể xóa sản phẩm vì đang được sử dụng trong các đơn hàng: ' . implode(', ', $order_codes)
-			);
-			redirect(base_url('warehouse/list')); // Quay lại danh sách kho
-		}
-
-		// Nếu không liên quan đến đơn hàng, tiến hành xóa
-		if ($this->productModel->deleteProduct($id)) {
-			$this->session->set_flashdata('success', 'Sản phẩm đã được xóa thành công khỏi kho');
-		} else {
-			$this->session->set_flashdata('error', 'Xóa sản phẩm thất bại');
-		}
-
-		redirect(base_url('warehouse/list'));
-	}
+	
 
 
 }

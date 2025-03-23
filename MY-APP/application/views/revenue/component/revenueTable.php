@@ -1,9 +1,4 @@
 
-<?php if($this->session->flashdata('success')) { ?>
-				<div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-			<?php } elseif($this->session->flashdata('error')) { ?>
-				<div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-			<?php } ?>
 <!-- Doanh thu theo ngày và tháng -->
 <div class="container-fluid mt20">
     <div class="row">

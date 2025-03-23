@@ -227,23 +227,6 @@ input[type=radio].form-control{
 }
 
 
-.toast-success {
-    background-color: #28a745 !important; /* Màu nền */
-    color: #fff !important; /* Màu chữ */
-    font-family: Arial, sans-serif; /* Font chữ */
-}
-
-.toast-success .toast-title {
-    font-weight: bold; /* Tiêu đề in đậm */
-}
-
-.toast-success::before {
-    font-family: 'FontAwesome';
-    content: "\f00c"; 
-    color: #fff; /* Màu icon */
-    font-size: 20px;
-    margin-right: 10px;
-}
 
 .wrapper-content-receive-goods {
     padding: 15px 0px 40px;
@@ -285,7 +268,7 @@ input[type=radio].form-control{
 .row.receive-goods-input {
     display: flex;
     flex-wrap: wrap; 
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 .form-group-receive-goods {
@@ -302,11 +285,10 @@ input[type=radio].form-control{
     border: none;
     border-bottom: 2px dotted #000;
     outline: none; 
-    padding: 2px 0px;
     width: 100%;
-    font-size: 16px;
+    font-size: 15px;
     margin-top: -20px;
-    line-height: 1.5;
+ 
 }
 
 .input-dots:focus {
@@ -347,6 +329,13 @@ input[type=radio].form-control{
     margin-top: 34px; 
 }
 
+.error-message-supplier{
+    position: absolute;
+    color: red;
+    font-size: 12px;
+    margin-top: 40px; 
+}
+
 .error-message-select-product{
     position: absolute;
     color: red;
@@ -376,6 +365,9 @@ input[type=radio].form-control{
     margin-bottom: 30px; 
 }
 
+.width500{
+    width: 500px;
+}
 
 .width400{
     width: 400px;
@@ -454,3 +446,10 @@ span .bi-calendar-date{
     font-size: 30px;
 }
 
+
+.input-ma-so-thue{
+    margin-bottom: -4px;
+}
+.signature{
+    padding-bottom: 120px;
+}
