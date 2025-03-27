@@ -44,8 +44,8 @@
 								<ul class="dropdown-menu dropdown-messages">
 									<li>
 										<div class="dropdown-messages-box">
-											<a href="profile.html" class="pull-left">
-												<img alt="image" class="img-circle" src="img/a7.jpg" />
+											<a href="" class="pull-left">
+												<img alt="image" class="img-circle" src="" />
 											</a>
 											<div>
 												<small class="pull-right">46h ago</small>
@@ -60,8 +60,8 @@
 									<li class="divider"></li>
 									<li>
 										<div class="dropdown-messages-box">
-											<a href="profile.html" class="pull-left">
-												<img alt="image" class="img-circle" src="img/a4.jpg" />
+											<a href="" class="pull-left">
+												<img alt="image" class="img-circle" src="" />
 											</a>
 											<div>
 												<small class="pull-right text-navy">5h ago</small>
@@ -76,11 +76,11 @@
 									<li class="divider"></li>
 									<li>
 										<div class="dropdown-messages-box">
-											<a href="profile.html" class="pull-left">
+											<a href="" class="pull-left">
 												<img
 													alt="image"
 													class="img-circle"
-													src="img/profile.jpg"
+													src=""
 												/>
 											</a>
 											<div>
@@ -127,7 +127,7 @@
 									</li>
 									<li class="divider"></li>
 									<li>
-										<a href="profile.html">
+										<a href="">
 											<div>
 												<i class="fa fa-twitter fa-fw"></i> 3 New Followers
 												<span class="pull-right text-muted small"

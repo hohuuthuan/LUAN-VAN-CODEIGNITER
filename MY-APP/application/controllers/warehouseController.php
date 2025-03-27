@@ -1,5 +1,21 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+/**
+ * @property session $session
+ * @property config $config
+ * @property form_validation $form_validation
+ * @property input $input
+ * @property load $load
+ * @property model $model
+ * @property warehouseModel $warehouseModel
+ * @property indexModel $indexModel
+ * @property productModel $productModel
+ * @property pagination $pagination
+ * @property uri $uri
+ * @property pagination $pagination
+ */
+
+
 class warehouseController extends CI_Controller
 {
 
@@ -160,7 +176,13 @@ class warehouseController extends CI_Controller
 			'supplier_id' => $this->input->post('supplier_id'),
 			'sub_total' => $this->input->post('sub_total')
 		];
+		// echo "<pre>";
+		// print_r($products);
+		// echo "</pre>";
 
+		// echo "<pre>";
+		// print_r($data_warehouse_receipt);
+		// echo "</pre>";
 		$products = $this->input->post('products') ?? [];
 		$this->load->model('warehouseModel');
 		$warehouse_receipt_id = $this->warehouseModel->insertWarehouseReceiptWithItems($data_warehouse_receipt, $products);
@@ -180,9 +202,9 @@ class warehouseController extends CI_Controller
 		$this->load->model('productModel');
 		$data['product'] = $this->productModel->selectProductById($id);
 
-		// echo '<pre>';
-		// print_r($data);
-		// echo '</pre>';
+		echo "<pre>";
+		print_r($data);
+		echo "</pre>";
 
 		$data['template'] = "warehouse/plusQuantityInWarehouse";
 		$data['title'] = "Cập nhật số lượng sản phẩm trong kho";

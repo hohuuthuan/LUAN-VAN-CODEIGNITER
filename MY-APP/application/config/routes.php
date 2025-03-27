@@ -170,6 +170,9 @@ $route['revenue-custom']['POST'] = 'revenueController/customRevenue';
 $route['revenuee']['GET'] = 'revenueController/revenuee';
 $route['revenueee']['POST'] = 'revenueController/revenueee';
 
+$route['revenueReport']['GET'] = 'revenueController/index';
+$route['revenueBatches']['GET'] = 'revenueController/batches';
+
 
 // Phần xử lý AI
 // $route['getlayoutAI']['GET'] = 'indexController/AI';

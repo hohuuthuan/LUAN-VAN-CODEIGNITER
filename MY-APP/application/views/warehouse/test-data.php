@@ -1,4 +1,4 @@
-<form action="<?php echo base_url('warehouse/enter-into-warehouse') ?>" method="POST" class="box"
+﻿<form action="<?php echo base_url('warehouse/enter-into-warehouse') ?>" method="POST" class="box"
     enctype="multipart/form-data">
     <div class="wrapper wrapper-content-receive-goods animated fadeInRight">
         <div class="col-lg-12">
@@ -38,7 +38,6 @@
                                         </span>
                                         <input type="date" name="date" id="date-picker"
                                             value="<?= set_value('date'); ?>">
-
                                     </div>
 
                                 </div>
@@ -158,17 +157,17 @@
                                                 ?>
                                                 <td>
                                                     <div>
-                                                    <select name="products[<?php echo $key; ?>][name]"
-                                                        class="form-control product-select setupSelect2"
-                                                        onchange="updateUnit(this)">
-                                                        <option value="">Chọn sản phẩm</option>
-                                                        <?php foreach ($allproducts as $prod): ?>
-                                                            <option value="<?= $prod->ProductID; ?>" data-unit="<?= $prod->Unit; ?>"
-                                                                <?= ($product['name'] == $prod->ProductID) ? 'selected' : ''; ?>>
-                                                                <?= $prod->Name; ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
+                                                        <select name="products[<?php echo $key; ?>][name]"
+                                                            class="form-control product-select setupSelect2"
+                                                            onchange="updateUnit(this)">
+                                                            <option value="">Chọn sản phẩm</option>
+                                                            <?php foreach ($allproducts as $prod): ?>
+                                                                <option value="<?= $prod->ProductID; ?>" data-unit="<?= $prod->Unit; ?>"
+                                                                    <?= ($product['name'] == $prod->ProductID) ? 'selected' : ''; ?>>
+                                                                    <?= $prod->Name; ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
                                                     </div>
                                                     <span
                                                         class="error-message-table-product"><?php echo isset($errors["products[$key][name]"]) ? $errors["products[$key][name]"] : ''; ?></span>
@@ -337,8 +336,7 @@
 
 
 <script>
-
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         let datePicker = document.getElementById("date-picker");
         if (datePicker.value) {
             let selectedDate = new Date(datePicker.value);
@@ -350,7 +348,7 @@
         }
     });
 
-    document.getElementById("date-picker").addEventListener("change", function () {
+    document.getElementById("date-picker").addEventListener("change", function() {
         if (this.value) {
             let selectedDate = new Date(this.value);
             let day = selectedDate.getDate();
@@ -463,13 +461,13 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         updateRowNumbers();
     });
 
 
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         // Gọi updateUnit cho tất cả các select khi trang load
         document.querySelectorAll(".product-select").forEach(select => {
             updateUnit(select);
@@ -483,16 +481,11 @@
         let unitSelect = row.querySelector(".unit-select");
 
         if (unitSelect) {
-            unitSelect.value = unitValue;  // Cập nhật giá trị trực tiếp
-            unitSelect.dispatchEvent(new Event("change", { bubbles: true })); // Kích hoạt sự kiện
+            unitSelect.value = unitValue; // Cập nhật giá trị trực tiếp
+            unitSelect.dispatchEvent(new Event("change", {
+                bubbles: true
+            })); // Kích hoạt sự kiện
             $(unitSelect).val(unitValue).trigger("change"); // Nếu dùng Select2
         }
     }
-
-
-
-
-
-
-
 </script>

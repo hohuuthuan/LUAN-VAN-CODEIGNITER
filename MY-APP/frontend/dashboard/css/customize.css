@@ -95,6 +95,11 @@ table strong{
 .mr10{
     margin-right:10px;
 }
+
+.mb10{
+    margin-bottom:10px;
+}
+
 .mb15{
     margin-bottom:15px;
 }
@@ -453,3 +458,64 @@ span .bi-calendar-date{
 .signature{
     padding-bottom: 120px;
 }
+
+
+
+.select-time-type {
+    appearance: none; /* Ẩn giao diện mặc định của trình duyệt */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    width: 100%;
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 2px solid #3498db;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+}
+
+/* Hover & Focus */
+.select-time-type:hover {
+    border-color: #2980b9;
+}
+
+.select-time-type:focus {
+    outline: none;
+    border-color: #1abc9c;
+    box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
+}
+
+#revenueChart {
+    width: 70%; 
+    height: 70%; 
+    margin: 0 auto; 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

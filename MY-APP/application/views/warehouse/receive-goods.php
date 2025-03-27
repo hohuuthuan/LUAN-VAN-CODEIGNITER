@@ -107,7 +107,7 @@
                                             class="error-message"><?php echo isset($errors['phieu_giao_nhan_so']) ? $errors['phieu_giao_nhan_so'] : ''; ?></span>
                                     </div>
                                 </div>
-                           
+
 
                             </div>
 
@@ -237,14 +237,13 @@
                                                     <span
                                                         class="error-message-table-product"><?php echo isset($errors["products[$key][unit]"]) ? $errors["products[$key][unit]"] : ''; ?></span>
                                                 </td>
-
-
                                                 <td>
-                                                    <input type="text" name="products[<?php echo $key; ?>][Import_price]"
+                                                    <input type="text"
                                                         class="form-control format-money" placeholder="VNĐ"
                                                         value="<?php echo set_value("products[$key][Import_price]", is_array($product) ? $product['Import_price'] : ''); ?>"
                                                         oninput="formatMoney(this)" onfocus="removeFormat(this)"
                                                         onblur="formatMoney(this)">
+                                                    <input type="hidden" name="products[<?php echo $key; ?>][Import_price]" value="<?php echo set_value("products[$key][Import_price]", is_array($product) ? $product['Import_price'] : ''); ?>" class="real-value">
                                                     <span class="error-message-table-product">
                                                         <?php echo isset($errors["products[$key][Import_price]"]) ? $errors["products[$key][Import_price]"] : ''; ?>
                                                     </span>
@@ -329,11 +328,12 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <input type="text" name="products[0][Import_price]"
-                                                    class="form-control format-money" value="" placeholder="VNĐ"
+                                                <input type="text" class="form-control format-money" placeholder="VNĐ"
                                                     oninput="formatMoney(this)" onfocus="removeFormat(this)"
                                                     onblur="formatMoney(this)">
+                                                <input type="hidden" name="products[0][Import_price]" class="real-value">
                                             </td>
+
 
                                             <td><input type="date" name="products[0][Exp_date]"
                                                     class="form-control width130" value="">
@@ -361,11 +361,12 @@
                                     <tr>
                                         <td colspan="7" class="text-right"><strong>Tổng cộng:</strong></td>
                                         <td colspan="2">
-                                            <input name="sub_total" type="text" id="totalAmount" class="form-control"
-                                                readonly>
+                                            <input type="text" id="totalAmount" class="form-control" readonly>
+                                            <input type="hidden" name="sub_total" id="totalAmountHidden">
                                         </td>
                                     </tr>
                                 </tfoot>
+
 
                             </table>
                             <div class="row text-center mt-4 signature">
@@ -394,8 +395,7 @@
 
 
 <script>
-
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         let datePicker = document.getElementById("date-picker");
         if (datePicker.value) {
             let selectedDate = new Date(datePicker.value);
@@ -407,7 +407,7 @@
         }
     });
 
-    document.getElementById("date-picker").addEventListener("change", function () {
+    document.getElementById("date-picker").addEventListener("change", function() {
         if (this.value) {
             let selectedDate = new Date(this.value);
             let day = selectedDate.getDate();
@@ -460,11 +460,11 @@
             
         </td>
         <td>
-            <input type="text" min="0" name="products[${rowIndex}][Import_price]" 
-            class="form-control format-money" value="" placeholder="VNĐ"
-            oninput="formatMoney(this)" onfocus="removeFormat(this)"
-            onblur="formatMoney(this)">
-            
+            <input type="text" name="products[${rowIndex}][Import_price]"
+                class="form-control format-money" placeholder="VNĐ" value=""
+                oninput="formatMoney(this)" onfocus="removeFormat(this)"
+                onblur="formatMoney(this)">
+            <input type="hidden" name="products[${rowIndex}][Import_price]" class="real-value">                             
         </td>
         <td>
             <input type="date" name="products[${rowIndex}][Exp_date]" class="form-control width130">
@@ -521,11 +521,11 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         updateRowNumbers();
     });
 
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         // Gọi updateUnit cho tất cả các select khi trang load
         document.querySelectorAll(".product-select").forEach(select => {
             updateUnit(select);
@@ -540,13 +540,15 @@
 
         if (unitSelect) {
             unitSelect.value = unitValue;
-            unitSelect.dispatchEvent(new Event("change", { bubbles: true }));
+            unitSelect.dispatchEvent(new Event("change", {
+                bubbles: true
+            }));
             $(unitSelect).val(unitValue).trigger("change");
         }
     }
 
     function getNumberFromFormatted(value) {
-        return parseInt(value.replace(/\D/g, ""), 10) || 0;
+        return Number(value.replace(/\./g, "")) || 0;
     }
 
     function calculateTotal() {
@@ -555,16 +557,23 @@
             let priceInput = row.querySelector("[name*='[Import_price]']");
             let quantityInput = row.querySelector("[name*='[quantity_real]']");
 
-            let price = getNumberFromFormatted(priceInput?.value || "0");
-            let quantity = parseInt(quantityInput?.value, 10) || 0;
+            let price = priceInput ? getNumberFromFormatted(priceInput.value) : 0;
+            let quantity = quantityInput ? parseInt(quantityInput.value, 10) || 0 : 0;
 
             total += price * quantity;
         });
 
-        document.getElementById("totalAmount").value = total.toLocaleString("vi-VN") + " VNĐ";
+        let formattedTotal = total.toLocaleString("vi-VN") + " VNĐ";
+
+
+        document.getElementById("totalAmount").value = formattedTotal;
+
+
+        document.getElementById("totalAmountHidden").value = total;
     }
 
-    document.addEventListener("input", function (event) {
+
+    document.addEventListener("input", function(event) {
         if (event.target.matches("[name*='[Import_price]']") || event.target.matches("[name*='[quantity_real]']")) {
             calculateTotal();
         }
@@ -578,17 +587,23 @@
 
 
     function formatMoney(input) {
-        let value = input.value.replace(/\D/g, "");
+        let value = input.value.replace(/\D/g, ""); // Loại bỏ ký tự không phải số
         if (!value) {
             input.value = "";
             return;
         }
-        let numericValue = parseInt(value, 10);
-        input.value = numericValue.toLocaleString("vi-VN");
+
+        let formatted = parseInt(value, 10).toLocaleString("vi-VN"); // Định dạng có dấu `.`
+        input.value = formatted;
+
+        // Cập nhật giá trị thực vào input hidden
+        let hiddenInput = input.nextElementSibling; // Lấy input hidden ngay sau nó
+        if (hiddenInput && hiddenInput.classList.contains("real-value")) {
+            hiddenInput.value = value; // Lưu giá trị thực (không dấu `.`)
+        }
     }
 
     function removeFormat(input) {
         input.value = input.value.replace(/\D/g, "");
     }
-
 </script>

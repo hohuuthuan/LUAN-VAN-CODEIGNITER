@@ -1,5 +1,27 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+/**
+ * @property session $session
+ * @property config $config
+ * @property form_validation $form_validation
+ * @property input $input
+ * @property load $load
+ * @property data $data
+ * @property indexModel $indexModel
+ * @property pagination $pagination
+ * @property uri $uri
+ * @property sliderModel $sliderModel
+ * @property email $email
+ * @property cart $cart
+ * @property orderModel $orderModel
+ * @property productModel $productModel
+ * @property page $page
+ * @property customerModel $customerModel
+ * @property loginModel $loginModel
+ * @property upload $upload
+ * @property db $db
+ */
+
 class orderController extends CI_Controller
 {
 
@@ -70,7 +92,7 @@ class orderController extends CI_Controller
 
 		if ($order_detail->checkout_method == 'COD') {
 			$this->db->trans_start();
-			foreach ($order_details as $order_detail) {
+			foreach ($order_detail as $order_detail) {
 				$this->orderModel->deleteOrderBatches($order_detail->order_detail_id);
 			}
 			$this->orderModel->deleteOrderDetails($order_code);

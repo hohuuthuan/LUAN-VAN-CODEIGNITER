@@ -23,7 +23,7 @@
                                     <input name="Name" type="text" class="form-control" id="slug"
                                         onkeyup="ChangeToSlug();" placeholder="Nhập tên sản phẩm">
                                     <?php echo '<span class="text-danger">' . form_error('Name') . '</span>' ?>
-                              
+
                                     <input type="hidden" name="Slug" type="text" class="form-control" id="convert_slug"
                                         placeholder="Nhập slug">
                                     <?php echo '<span class="text-danger">' . form_error('slug') . '</span>' ?>
@@ -101,83 +101,83 @@
             </div>
         </div>
         <div class="row">
-                <div class="col-lg-4">
-                    <div class="panel-head">
-                        <div class="panel-title">
-                            Mô tả và công dụng sản phẩm
-                        </div>
-                        <div class="panel-description">
-                            - Nhập thông tin giá và đơn vị tính của sản phẩm
-                            <p>- Lưu ý: những trường được đánh dấu <span class="text-danger">(*)</span> là bắt buộc</p>
-                        </div>
+            <div class="col-lg-4">
+                <div class="panel-head">
+                    <div class="panel-title">
+                        Mô tả và công dụng sản phẩm
+                    </div>
+                    <div class="panel-description">
+                        - Nhập thông tin giá và đơn vị tính của sản phẩm
+                        <p>- Lưu ý: những trường được đánh dấu <span class="text-danger">(*)</span> là bắt buộc</p>
                     </div>
                 </div>
-                <div class="col-lg-8">
-                    <div class="ibox">
-                        <div class="ibox-content">
-                            <div class="row mb15">
-                                <div class="col-lg-6">
-                                    <div class="form-row">
-                                        <label for="Description">Mô tả</label>
-                                        <textarea name="Description" class="form-control" rows="4"
-                                            placeholder="Nhập mô tả sản phẩm"></textarea>
-                                        <?php echo '<span class="text-danger">' . form_error('description') . '</span>' ?>
-                                    </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="row mb15">
+                            <div class="col-lg-6">
+                                <div class="form-row">
+                                    <label for="Description">Mô tả</label>
+                                    <textarea name="Description" class="form-control" rows="4"
+                                        placeholder="Nhập mô tả sản phẩm"></textarea>
+                                    <?php echo '<span class="text-danger">' . form_error('description') . '</span>' ?>
                                 </div>
-                                <div class="col-lg-6">
-                                    <div class="form-row">
-                                        <div class="form-group">
-                                            <label for="Product_uses">Công dụng của sản phẩm</label>
-                                            <textarea name="Product_uses" class="form-control textarea_custom" rows="4"
-                                                placeholder="Nhập mô tả sản phẩm"></textarea>
-                                            <?php echo '<span class="text-danger">' . form_error('Product_uses') . '</span>' ?>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="Product_uses">Công dụng của sản phẩm</label>
+                                        <textarea name="Product_uses" class="form-control textarea_custom" rows="4"
+                                            placeholder="Nhập mô tả sản phẩm"></textarea>
+                                        <?php echo '<span class="text-danger">' . form_error('Product_uses') . '</span>' ?>
 
 
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
         <div class="row">
-                <div class="col-lg-4">
-                    <div class="panel-head">
-                        <div class="panel-title">
-                            Trạng thái và hình ảnh sản phẩm
-                        </div>
-                        <!-- <div class="panel-description">
+            <div class="col-lg-4">
+                <div class="panel-head">
+                    <div class="panel-title">
+                        Trạng thái và hình ảnh sản phẩm
+                    </div>
+                    <!-- <div class="panel-description">
                             - Nhập thông tin mô tả và hình ảnh của sản phẩm
                             <p>- Lưu ý: những trường được đánh dấu <span class="text-danger">(*)</span> là bắt buộc</p>
                         </div> -->
-                    </div>
                 </div>
-                <div class="col-lg-8">
-                    <div class="ibox">
-                        <div class="ibox-content">
-                            <div class="row mb15">
-                                <div class="col-lg-6">
-                                    <div class="form-row">
-                                        <label for="Status">Trạng thái</label>
-                                        <select name="Status" class="form-control setupSelect2">
-                                            <option selected value="1">Active</option>
-                                            <option value="0">Inactive</option>
-                                        </select>
-                                    </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="row mb15">
+                            <div class="col-lg-6">
+                                <div class="form-row">
+                                    <label for="Status">Trạng thái</label>
+                                    <select name="Status" class="form-control setupSelect2">
+                                        <option selected value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
                                 </div>
-                                <div class="col-lg-6">
-                                    <div class="form-row">
-                                        <label for="Image">Hình ảnh</label>
-                                        <input name="Image" type="file" class="form-control-file">
-                                        <small class="text-danger"><?php if (isset($error))
-                                            echo $error ?></small>
-                                    </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-row">
+                                    <label for="Image">Hình ảnh</label>
+                                    <input name="Image" type="file" class="form-control-file">
+                                    <small class="text-danger"><?php if (isset($error))
+                                                                    echo $error ?></small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
         <hr>
 

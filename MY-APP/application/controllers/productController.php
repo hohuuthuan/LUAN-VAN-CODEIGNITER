@@ -1,5 +1,28 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+/**
+ * @property session $session
+ * @property config $config
+ * @property form_validation $form_validation
+ * @property input $input
+ * @property load $load
+ * @property data $data
+ * @property indexModel $indexModel
+ * @property pagination $pagination
+ * @property uri $uri
+ * @property sliderModel $sliderModel
+ * @property email $email
+ * @property cart $cart
+ * @property orderModel $orderModel
+ * @property productModel $productModel
+ * @property page $page
+ * @property customerModel $customerModel
+ * @property loginModel $loginModel
+ * @property upload $upload
+ * @property categoryModel $categoryModel
+ * @property brandModel $brandModel
+ */
+
 class productController extends CI_Controller
 {
 
@@ -229,7 +252,7 @@ class productController extends CI_Controller
 			$this->session->set_flashdata('success', 'Đã chỉnh sửa sản phẩm thành công');
 			redirect(base_url('product/list'));
 		} else {
-			$this->editProduct($id);
+			$this->editProduct($ProductID);
 		}
 	}
 	public function deleteProduct($id)

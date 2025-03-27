@@ -1,5 +1,25 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+
+/**
+ * @property session $session
+ * @property config $config
+ * @property form_validation $form_validation
+ * @property input $input
+ * @property load $load
+ * @property model $model
+ * @property warehouseModel $warehouseModel
+ * @property indexModel $indexModel
+ * @property productModel $productModel
+ * @property pagination $pagination
+ * @property uri $uri
+ * @property pagination $pagination
+ * @property brandModel $brandModel
+ * @property customerModel $customerModel
+ * @property upload $upload
+ * @property data $data
+ */
+
 class customerController extends CI_Controller
 {
 

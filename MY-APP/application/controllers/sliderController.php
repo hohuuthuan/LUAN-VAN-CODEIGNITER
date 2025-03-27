@@ -1,5 +1,27 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+/**
+ * @property session $session
+ * @property config $config
+ * @property form_validation $form_validation
+ * @property input $input
+ * @property load $load
+ * @property data $data
+ * @property indexModel $indexModel
+ * @property pagination $pagination
+ * @property uri $uri
+ * @property sliderModel $sliderModel
+ * @property email $email
+ * @property cart $cart
+ * @property orderModel $orderModel
+ * @property productModel $productModel
+ * @property page $page
+ * @property customerModel $customerModel
+ * @property loginModel $loginModel
+ * @property upload $upload
+ */
+
+
 class sliderController extends CI_Controller
 {
 
@@ -63,10 +85,7 @@ class sliderController extends CI_Controller
 				$this->sliderModel->insertSlider($data);
 				$this->session->set_flashdata('success', 'Đã thêm Slider thành công');
 				redirect(base_url('slider/list'));
-
 			}
-
-
 		} else {
 			$this->createSlider();
 		}
@@ -80,7 +99,6 @@ class sliderController extends CI_Controller
 		$data['template'] = "slider/editSlider";
 		$data['title'] = "Chỉnh sửa banner";
 		$this->load->view("admin-layout/admin-layout", $data);
-
 	}
 
 	public function updateSlider($id)
@@ -103,7 +121,6 @@ class sliderController extends CI_Controller
 					$data['template'] = "slider/editSlider";
 					$data['title'] = "Chỉnh sửa Banner";
 					$this->load->view("admin-layout/admin-layout", $data);
-
 				} else {
 					$slider_filename = $this->upload->data('file_name');
 					$data = [
@@ -136,5 +153,4 @@ class sliderController extends CI_Controller
 		$this->session->set_flashdata('success', 'Đã xoá Slider thành công');
 		redirect(base_url('slider/list'));
 	}
-
 }

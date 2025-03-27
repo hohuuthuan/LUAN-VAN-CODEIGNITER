@@ -34,7 +34,8 @@ class indexModel extends CI_Model
         return $query->result();
     }
 
-    public function getAllSupplier(){
+    public function getAllSupplier()
+    {
         $this->db->select('suppliers.*');
         $this->db->from('suppliers');
         // $this->db->where('supplier.Status', 1);
@@ -104,24 +105,21 @@ class indexModel extends CI_Model
         $this->db->where('CategoryID', $id);
         $this->db->from('product');
         return $this->db->count_all_results();
-
     }
     public function countAllProductByBrand($id)
     {
         $this->db->where('BrandID', $id);
         $this->db->from('product');
         return $this->db->count_all_results();
-
     }
     public function countAllProductByKeyword($keyword)
     {
         $this->db->like('product.Name', $keyword);
         $this->db->from('product');
         return $this->db->count_all_results();
-
     }
 
-   
+
 
 
     public function getProductPagination($limit, $start)
@@ -138,14 +136,14 @@ class indexModel extends CI_Model
             ->order_by('total_remaining', 'DESC')
             ->limit($limit, $start)
             ->get();
-    
+
         $products = $query->result();
-    
+
         // Lấy chi tiết số lượng tồn kho theo từng lô
         foreach ($products as $product) {
             $product->batches = $this->get_batches_by_product($product->ProductID);
         }
-    
+
         return $products;
     }
 
@@ -165,17 +163,17 @@ class indexModel extends CI_Model
             ->order_by('total_remaining', 'DESC')
             ->limit($limit, $start)
             ->get();
-    
+
         $products = $query->result();
-    
+
         // Lấy chi tiết số lượng tồn kho theo từng lô
         foreach ($products as $product) {
             $product->batches = $this->get_batches_by_product($product->ProductID);
         }
-    
+
         return $products;
     }
-    
+
 
 
     public function get_batches_by_product($product_id)
@@ -307,7 +305,6 @@ class indexModel extends CI_Model
             $newArray[$value['cate_name']][] = $value;
         }
         return $newArray;
-
     }
 
 
@@ -544,7 +541,4 @@ class indexModel extends CI_Model
         $this->db->trans_complete();
         return true;
     }
-
 }
-
-?>

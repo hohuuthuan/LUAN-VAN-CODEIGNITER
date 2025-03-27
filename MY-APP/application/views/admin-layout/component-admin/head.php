@@ -5,7 +5,6 @@
     <link rel="shortcut icon" href="<?php echo base_url('frontend/image/icon-logo.png') ?>">
     <!-- Các file CSS -->
     <link href="<?php echo base_url('frontend/dashboard/css/bootstrap.min.css') ?>" rel="stylesheet">
-
     <link href="<?php echo base_url('frontend/dashboard/css/animate.css') ?>" rel="stylesheet">
     <link href="<?php echo base_url('frontend/dashboard/css/style.css') ?>" rel="stylesheet">
     <link href="<?php echo base_url('frontend/dashboard/css/customize.css') ?>" rel="stylesheet">
@@ -23,6 +22,11 @@
 
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+ 
     <script src="<?php echo base_url('public/library/library.js')?>"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

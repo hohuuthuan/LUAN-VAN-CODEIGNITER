@@ -347,10 +347,6 @@ LOCK TABLES `order_detail` WRITE;
 UNLOCK TABLES;
 
 
-
-
-
-
 -- ORDER_BATCHES
 DROP TABLE IF EXISTS `order_batches`;
 CREATE TABLE `order_batches` (

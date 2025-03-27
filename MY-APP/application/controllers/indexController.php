@@ -1,6 +1,30 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
+
+/**
+ * @property session $session
+ * @property config $config
+ * @property form_validation $form_validation
+ * @property input $input
+ * @property load $load
+ * @property data $data
+ * @property indexModel $indexModel
+ * @property pagination $pagination
+ * @property uri $uri
+ * @property sliderModel $sliderModel
+ * @property email $email
+ * @property cart $cart
+ * @property orderModel $orderModel
+ * @property productModel $productModel
+ * @property page $page
+ * @property customerModel $customerModel
+ * @property loginModel $loginModel
+ * @property upload $upload
+ */
+
+
+
 class indexController extends CI_Controller
 {
 
@@ -173,7 +197,7 @@ class indexController extends CI_Controller
 	public function deleteOrder($order_code)
 	{
 		$this->load->model('orderModel');
-		$status = $this->orderModel->selectOrderDetails($orderCode)['order_status'];
+		$status = $this->orderModel->selectOrderDetails($order_code)['order_status'];
 		$del_order_details = $this->orderModel->deleteOrderDetails($order_code);
 		$del = $this->orderModel->deleteOrder($order_code);
 		if ($del && $del_order_details) {

@@ -1,5 +1,28 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
+
+/**
+ * @property session $session
+ * @property config $config
+ * @property form_validation $form_validation
+ * @property input $input
+ * @property load $load
+ * @property model $model
+ * @property warehouseModel $warehouseModel
+ * @property indexModel $indexModel
+ * @property productModel $productModel
+ * @property pagination $pagination
+ * @property uri $uri
+ * @property pagination $pagination
+ * @property brandModel $brandModel
+ * @property categoryModel $categoryModel
+ * @property upload $upload
+ * @property data $data
+ * @property email $email
+ * @property cart $cart
+ * @property orderModel $orderModel
+ */
+
 class CheckoutController extends CI_Controller
 {
 
@@ -67,9 +90,10 @@ class CheckoutController extends CI_Controller
         $this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
         $this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
 
+        
 
         $user_id = $this->getUserOnSession();
-
+        $email = $this->input->post('email');
         // Tạo mã đơn hàng duy nhất
         $letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
         $numbers = sprintf("%06d", rand(0, 999999));
@@ -147,7 +171,6 @@ class CheckoutController extends CI_Controller
                                 $result = $this->orderModel->insert_order_batches($data_order_batches);
                             }
                         }
-
                     }
                 }
 
@@ -159,7 +182,6 @@ class CheckoutController extends CI_Controller
                 $message = 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.';
                 $this->send_mail($to_mail, $subject, $message);
                 redirect(base_url('thank-you-for-order'));
-
             } elseif (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
 
                 // Chuyển hướng thanh toán vnpay
@@ -216,14 +238,12 @@ class CheckoutController extends CI_Controller
 
                 $vnp_Url = $vnp_Url . "?" . $query;
                 if (isset($vnp_HashSecret)) {
-                    $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret);//  
+                    $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret); //  
                     $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
                 }
                 $returnData = array(
-                    'code' => '00'
-                    ,
-                    'message' => 'success'
-                    ,
+                    'code' => '00',
+                    'message' => 'success',
                     'data' => $vnp_Url
                 );
                 if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
@@ -252,7 +272,7 @@ class CheckoutController extends CI_Controller
 
             $this->load->model('orderModel');
             $ShippingID = $this->orderModel->newShipping($shipping_data_session);
-            
+
 
             if ($ShippingID) {
                 if (!empty($this->session->userdata("shipping_data_{$_GET['vnp_TxnRef']}"))) {
@@ -289,7 +309,7 @@ class CheckoutController extends CI_Controller
                         'Subtotal' => $items['subtotal'],
                     );
                     $order_detail_id = $this->orderModel->insert_order_detail($data_order_detail);
-            
+
                     $get_product_in_batches = $this->orderModel->get_qty_product_in_batches($items['id'], $items['qty']);
 
 
@@ -303,7 +323,6 @@ class CheckoutController extends CI_Controller
                             $this->orderModel->insert_order_batches($data_order_batches);
                         }
                     }
-        
                 }
             }
             // Lưu thông tin thanh toán VNPAY
@@ -348,8 +367,4 @@ class CheckoutController extends CI_Controller
         $this->data['template'] = "thanks/index";
         $this->load->view("pages/layout/index", $this->data);
     }
-
 }
-
-
-
