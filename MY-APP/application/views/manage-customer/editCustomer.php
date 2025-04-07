@@ -1,4 +1,3 @@
-
 <?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 
 <form action="<?php echo base_url('manage-customer/update/' . $customers->UserID) ?>" method="post" class="box"
@@ -45,7 +44,7 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="Address" class="form-label">Địa chỉ</label>
-                                        <input name="Address" type="text" class="form-control" id="address" 
+                                        <input name="Address" type="text" class="form-control" id="address"
                                             value="<?php echo $customers->Address ?>">
                                     </div>
                                 </div>
@@ -54,7 +53,7 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="Phone" class="form-label">Số điện thoại</label>
-                                        <input name="Phone" type="text" class="form-control" id="phone" 
+                                        <input name="Phone" type="text" class="form-control" id="phone"
                                             value="<?php echo $customers->Phone ?>">
                                     </div>
                                 </div>
@@ -66,7 +65,7 @@
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="Avatar" class="form-label">Ảnh đại diện</label>
-                                        <input name="Avatar" type="file" class="form-control-file" id="image" >
+                                        <input name="Avatar" type="file" class="form-control-file" id="image">
                                         <div class="mt-2">
                                             <img src="<?php echo base_url('uploads/user/' . $customers->Avatar) ?>"
                                                 alt="Avatar" width="150" height="150">
@@ -77,7 +76,7 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <label for="status" class="form-label">Trạng thái tài khoản</label>
-                                    <select name="Status" class="form-control setupSelect2" id="=" >
+                                    <select name="Status" class="form-control setupSelect2" id="=">
                                         <option value="1" <?php echo ($customers->Status == 1) ? 'selected' : ''; ?>>Kích
                                             hoạt</option>
                                         <option value="0" <?php echo ($customers->Status == 0) ? 'selected' : ''; ?>>Khóa
@@ -85,16 +84,37 @@
                                         </option>
                                     </select>
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <hr>
-
-            <div class="text-right mb15">
-                <button type="submit" name="send" value="send" class="btn btn-primary">Lưu lại</button>
+        </div>
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="panel-head">
+                    <div class="panel-title">Phân quyền người dùng</div>
+                </div>
             </div>
+            <div class="col-lg-7">
+                <div class="ibox">
+                    <div class="ibox-content">
+                        <div class="row mb15">
+                            <div class="col-lg-6">
+                                <div class="form-row">
+                                    <label for="role_id" class="form-label">Vai trò của người dùng</label>
+                                    <select name="Role_ID" class="form-control setupSelect2" id="=">
+                                        <option value="1" <?php echo ($customers->Role_ID == 1) ? 'selected' : ''; ?>>Admin</option>
+                                        <option value="2" <?php echo ($customers->Role_ID == 2) ? 'selected' : ''; ?>>Khách hàng</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-right mb15">
+            <button type="submit" name="send" value="send" class="btn btn-primary">Lưu lại</button>
         </div>
 </form>

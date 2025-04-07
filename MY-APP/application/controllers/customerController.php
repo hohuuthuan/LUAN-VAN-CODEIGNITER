@@ -23,21 +23,87 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class customerController extends CI_Controller
 {
 
+	public function __construct()
+	{
+		parent::__construct();
+
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+		$this->checkLogin();
+	}
 	public function checkLogin()
 	{
-		if (!$this->session->userdata('logged_in-admin')) {
+		if (!$this->session->userdata('logged_in_admin')) {
 			redirect(base_url('dang-nhap'));
 		}
 	}
-
 	public function index()
 	{
 		$this->config->config['pageTitle'] = 'List Customers';
 		$this->load->model('customerModel');
 		$data['customers'] = $this->customerModel->selectCustomer();
-		$data['template'] = "manage-customer/index";
 		$data['title'] = "Danh sách người dùng";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách người dùng']
+		];
+		$data['template'] = "manage-customer/index";
 		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+	public function manageRoleUser()
+	{
+		$this->config->config['pageTitle'] = 'Manage Role';
+
+		$this->load->model('customerModel');
+		$data['roles'] = $this->customerModel->getAllRole();
+		// echo '<pre>';
+		// print_r($data['roles']);
+		// echo '</pre>';
+		$data['title'] = "Quản lý nhóm người dùng";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách vai trò'],
+		];
+		$data['template'] = "manage-customer/listRole";
+		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+	public function editRole($Role_ID)
+	{
+		$this->config->config['pageTitle'] = 'Edit Role';
+		$this->load->model('customerModel');
+		$data['role'] = $this->customerModel->selectRoleById($Role_ID);
+		$data['title'] = "Chỉnh sửa vai trò";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách vai trò', 'url' => 'manage-role'],
+			['label' => 'Chỉnh sửa vai trò']
+		];
+		$data['template'] = "manage-customer/editRole";
+		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+	public function updateRole($Role_ID)
+	{
+		$this->form_validation->set_rules('Role_name', 'Role_name', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Description', 'Email', 'trim|required', ['required' => 'Bạn cần điền %s']);
+
+		if ($this->form_validation->run()) {
+
+			$data = [
+				'Role_name' => $this->input->post('Role_name'),
+				'Description' => $this->input->post('Description'),
+			];
+
+			$this->load->model('customerModel');
+			$this->customerModel->updateRole($Role_ID, $data);
+			$this->session->set_flashdata('success', 'Đã chỉnh sửa thông tin vai trò thành công');
+			redirect(base_url('manage-role'));
+		} else {
+			$this->editRole($Role_ID);
+		}
 	}
 
 
@@ -46,8 +112,13 @@ class customerController extends CI_Controller
 		$this->config->config['pageTitle'] = 'Edit Customer';
 		$this->load->model('customerModel');
 		$data['customers'] = $this->customerModel->selectCustomerById($UserID);
-		$data['template'] = "manage-customer/editCustomer";
 		$data['title'] = "Chỉnh sửa người dùng";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách người dùng', 'url' => 'manage-customer/list'],
+			['label' => 'Chỉnh sửa']
+		];
+		$data['template'] = "manage-customer/editCustomer";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
@@ -66,7 +137,7 @@ class customerController extends CI_Controller
 
 				$ori_filename = $_FILES['Avatar']['name'];
 				$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
-			
+
 				$config = [
 					'upload_path' => './uploads/user',
 					'allowed_types' => 'gif|jpg|png|jpeg',
@@ -88,6 +159,7 @@ class customerController extends CI_Controller
 						'Address' => $this->input->post('Address'),
 						'Avatar' => $avatar_filename,
 						'Status' => $this->input->post('Status'),
+						'Role_ID' => $this->input->post('Role_ID')
 					];
 				}
 			} else {
@@ -97,23 +169,24 @@ class customerController extends CI_Controller
 					'Phone' => $this->input->post('Phone'),
 					'Address' => $this->input->post('Address'),
 					'Status' => $this->input->post('Status'),
+					'Role_ID' => $this->input->post('Role_ID')
 				];
 			}
 			$this->load->model('customerModel');
 			$this->customerModel->updateCustomer($UserID, $data);
 			$this->session->set_flashdata('success', 'Đã chỉnh sửa trạng thái khách hàng thành công');
-			redirect(base_url('customer/list'));
+			redirect(base_url('manage-customer/list'));
 		} else {
 			$this->editCustomer($UserID);
 		}
 	}
 
-	public function deleteCustomer($UserID)
-	{
-		$this->load->model('customerModel');
-		$this->customerModel->deleteCustomer($UserID);
-		$this->session->set_flashdata('success', 'Đã xoá người dùng thành công');
-		redirect(base_url('category/list'));
-	}
+	// public function deleteCustomer($UserID)
+	// {
+	// 	$this->load->model('customerModel');
+	// 	$this->customerModel->deleteCustomer($UserID);
+	// 	$this->session->set_flashdata('success', 'Đã xoá người dùng thành công');
+	// 	redirect(base_url('category/list'));
+	// }
 
 }

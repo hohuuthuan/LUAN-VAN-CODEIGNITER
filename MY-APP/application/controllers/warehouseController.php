@@ -86,9 +86,12 @@ class warehouseController extends CI_Controller
 		// echo '</pre>';
 
 		$data['title'] = "Danh sách sản phẩm trong kho";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách sản phẩm trong kho']
+		];
 		$data['template'] = "warehouse/index";
 		$this->load->view("admin-layout/admin-layout", $data);
-
 	}
 
 
@@ -102,8 +105,19 @@ class warehouseController extends CI_Controller
 			'receipt_number' => $this->warehouseModel->getLatestReceiptNumber(),
 			'pageTitle' => 'Phiếu nhập hàng',
 			'template' => "warehouse/receive-goods",
-			'title' => "Phiếu nhập kho"
+			'title' => "Phiếu nhập kho",
+			'errors' => $this->session->flashdata('errors'),
+			'input' => $this->session->flashdata('input')
 		];
+		
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Phiếu nhập kho']
+		];
+
+		// echo "<pre>";
+		// print_r($data);
+		// echo "</pre>";
 
 		// Gộp thêm dữ liệu nếu có
 		$data = array_merge($data, $extraData);
@@ -157,13 +171,12 @@ class warehouseController extends CI_Controller
 		}
 
 		if ($this->form_validation->run() == FALSE) {
-			$errors = $this->form_validation->error_array();
-			$this->_loadReceiveGoodsPage([
-				'errors' => $errors,
-				'input' => $this->input->post()
-			]);
+			$this->session->set_flashdata('errors', $this->form_validation->error_array());
+			$this->session->set_flashdata('input', $this->input->post());
+			redirect('warehouse/receive-goods');
 			return;
 		}
+		
 
 		$data_warehouse_receipt = [
 			'tax_identification_number' => $this->input->post('tax_identification_number'),
@@ -196,39 +209,47 @@ class warehouseController extends CI_Controller
 		redirect('warehouse/receive-goods');
 	}
 
-	public function updateQuantityProduct($id)
+
+
+	public function receipt_goods_history()
 	{
-		$this->config->config['pageTitle'] = 'Update Quantity Product';
-		$this->load->model('productModel');
-		$data['product'] = $this->productModel->selectProductById($id);
 
-		echo "<pre>";
-		print_r($data);
-		echo "</pre>";
 
-		$data['template'] = "warehouse/plusQuantityInWarehouse";
-		$data['title'] = "Cập nhật số lượng sản phẩm trong kho";
+		$this->load->model('warehouseModel');
+
+		$data['receive_history'] = $this->warehouseModel->get_warehouse_receipts();
+
+		// echo "<pre>";
+		// print_r($data['receive_history']);
+		// echo "</pre>";
+
+		$this->config->config['pageTitle'] = 'Lịch sử nhập hàng';
+		$data['title'] = "Lịch sử nhập hàng";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Lịch sử nhập hàng']
+		];
+		$data['template'] = "warehouse/receive-goods-list";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
-	public function plusQuantityWarehouses($id)
+	public function receipt_detail($id)
 	{
-		$data = [
-			'quantity' => $this->input->post('quantity_warehouses'),
-			'import_price_one_product' => $this->input->post('import_price_warehouses'),
+		$this->load->model('warehouseModel');
+		$data['receipt_detail'] = $this->warehouseModel->get_warehouse_receipt_by_id($id);
+
+		// echo "<pre>";
+		// print_r($data['receipt_detail']);
+		// echo "</pre>"; die();
+
+
+		$data['title'] = "Chi tiết phiếu nhập kho";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Lịch sử nhập hàng', 'url' => 'warehouse/receive-goods-history'],
+			['label' => 'Chi tiết phiếu nhập']
 		];
-		$total_import_price = ($this->input->post('import_price_warehouses')) * ($this->input->post('quantity_warehouses'));
-		$this->load->model('productModel');
-
-		if ($this->productModel->plusQuantityProduct($id, $data) && $this->productModel->plusTotalPriceProduct($id, $total_import_price)) {
-			$this->session->set_flashdata('success', 'Đã thêm vào kho thành công');
-		} else {
-			$this->session->set_flashdata('error', 'Thêm vào kho thất bại');
-		}
-		redirect(base_url('quantity/update/' . $id));
+		$data['template'] = "warehouse/receipt-detail";
+		$this->load->view("admin-layout/admin-layout", $data);
 	}
-
-	
-
-
 }

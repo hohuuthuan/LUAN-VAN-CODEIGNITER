@@ -65,7 +65,7 @@
                                 <div class="col-lg-6">
                                     <div class="form-row">
                                         <label for="Status">Trạng thái</label>
-                                        <select name="Status" class="form-control">
+                                        <select name="Status" class="form-control setupSelect2">
                                             <option value="1" <?php echo ($category->Status == 1) ? 'selected' : '' ?>>Active
                                         </option>
                                         <option value="0" <?php echo ($category->Status == 0) ? 'selected' : '' ?>>Inactive

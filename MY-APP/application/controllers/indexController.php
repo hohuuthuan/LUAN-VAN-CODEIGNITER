@@ -734,8 +734,8 @@ class indexController extends CI_Controller
 
 	public function dang_ky()
 	{
-		// Tạo quy tắc ràng buộc cho các trường
-		$this->form_validation->set_rules('username', 'Username', 'trim|required|min_length[3]', [
+		
+		$this->form_validation->set_rules('fullname', 'Fullname', 'trim|required|min_length[3]', [
 			'required' => 'Bạn cần cung cấp %s',
 			'min_length' => 'Tên người dùng phải có ít nhất 3 ký tự',
 		]);
@@ -758,19 +758,18 @@ class indexController extends CI_Controller
 		]);
 
 		if ($this->form_validation->run()) {
-			// Lấy giá trị email từ form
 			$email = $this->input->post('email');
 
 			$this->load->model('loginModel');
 			$email_exists = $this->loginModel->checkEmailExists($email);
-			// echo $email_exists;
+	
 			if ($email_exists) {
 				$this->session->set_flashdata('error', 'Email đã được sử dụng. Vui lòng sử dụng email khác.');
 				redirect(base_url('dang-nhap'));
 			}
 
 
-			$username = $this->input->post('username');
+			$username = $this->input->post('fullname');
 			$password = password_hash($this->input->post('password'), PASSWORD_BCRYPT);
 			$phone = $this->input->post('phone');
 			$address = $this->input->post('address');
@@ -781,17 +780,18 @@ class indexController extends CI_Controller
 			$token = $letters . $numbers;
 			$date_created = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->addMinutes(10);
 
-			// Dữ liệu để lưu vào cơ sở dữ liệu
+
 			$data = [
-				'username' => $username,
-				'email' => $email,
-				'password' => $password,
-				'phone' => $phone,
-				'address' => $address,
-				'avatar' => 'User-avatar.png',
-				'token' => $token,
-				'role_id' => 2,
-				'date_created' => $date_created
+				'Email' => $email,
+				'Password' => $password,
+				'Role_ID' => 2,
+				'Name' => $username,
+				'Phone' => $phone,
+				'Address' => $address,
+				'Status' => 0,
+				'Token_Code' => $token,
+				'Avatar' => 'User-avatar.png',
+				'Date_created' => $date_created
 			];
 
 			// Lưu dữ liệu vào cơ sở dữ liệu
@@ -824,8 +824,7 @@ class indexController extends CI_Controller
 	{
 		if (isset($_GET['email'])) {
 			$email = $_GET['email'];
-			$data['email'] = $email;
-
+			$this->data['email'] = $email;
 			$this->data['template'] = "pages/auth/verify_token";
 			$this->load->view("pages/layout/index", $this->data);
 		} else {
@@ -841,17 +840,23 @@ class indexController extends CI_Controller
 		$this->load->model('indexModel');
 		$customer = $this->indexModel->getCustomerToken($email);
 
+		// echo "<pre>";
+		// print_r($customer);
+		// echo "</pre>";
+		// die();
+
+
 		$is_valid = false;
 		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 
-		if ($customer && $token == $customer->token && $customer->date_created > $time_now) {
+		if ($customer && $token == $customer->Token_Code && $customer->Date_created > $time_now) {
 			$letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
 			$numbers = sprintf("%06d", rand(0, 999999));
 			$new_token = $letters . $numbers;
 
 			$data_customer = [
-				'status' => 1,
-				'token' => $new_token
+				'Status' => 1,
+				'Token_Code' => $new_token
 			];
 
 			$this->indexModel->activeCustomerAndUpdateNewToken($email, $data_customer);
@@ -976,7 +981,7 @@ class indexController extends CI_Controller
 			$this->session->set_userdata('reset_token', $new_token);
 
 			$update_data = [
-				'Token_code' => $new_token
+				'Token_Code' => $new_token
 			];
 			$this->load->model('customerModel');
 			$this->customerModel->updateTokenCustomer($update_data, $email, $phone);
@@ -1331,69 +1336,11 @@ class indexController extends CI_Controller
 	}
 
 	// AI
-	public function AI()
+	public function predict()
 	{
-		// Cấu hình tiêu đề trang
-		$this->config->config['pageTitle'] = 'AI Chẩn đoán bệnh';
-
-		// Cấu hình CORS (nên thực hiện ở middleware)
-		header('Access-Control-Allow-Origin: *');
-		header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-		header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-		// Kiểm tra phương thức request
-		$disease_name = $this->input->post('disease_name') ?: null;
-
-		// Tải model sản phẩm và tìm sản phẩm theo tên bệnh
-		$this->load->model('productModel');
-		$products = $disease_name ? $this->productModel->getProductsByDisease($disease_name) : [];
-
-		if ($this->input->is_ajax_request()) {
-			// AJAX request: trả về danh sách sản phẩm dưới dạng HTML
-			if (!empty($products)) {
-				echo '<h2 class="title text-center">Bạn có thể sử dụng các loại thuốc này để điều trị bệnh: ' . htmlspecialchars($disease_name) . '</h2>';
-				foreach ($products as $product) {
-					?>
-					<form action="<?= base_url('add-to-cart') ?>" method="POST">
-						<input type="hidden" value="<?php echo $product->id ?>" name="product_id">
-						<input type="hidden" value="1" name="quantity">
-						<div class="col-sm-4">
-							<div class="product-image-wrapper">
-								<div class="single-products">
-									<div class="productinfo text-center">
-										<img src="<?= base_url('uploads/product/' . htmlspecialchars($product->image)) ?>"
-											alt="<?= htmlspecialchars($product->title) ?>" />
-										<h2><?= number_format($product->selling_price, 0, ',', '.') ?> VND</h2>
-										<p><?= htmlspecialchars($product->title) ?></p>
-										<a href="<?= base_url('san-pham/' . $product->id . '/' . $product->slug) ?>"
-											class="btn btn-default add-to-cart">
-											<i class="fa fa-eye"></i> Details
-										</a>
-										<button type="submit" class="btn btn-fefault cart">
-											<i class="fa fa-shopping-cart"></i>
-											Add to cart
-										</button>
-									</div>
-								</div>
-							</div>
-						</div>
-					</form>
-					<?php
-				}
-			} else {
-				echo '<p class="text-center">Không tìm thấy sản phẩm nào liên quan đến bệnh này.</p>';
-			}
-			return;
-		}
-
-
-		$this->data['disease_name'] = $disease_name;
-		$this->data['products_by_disease'] = $products;
-
-		// Load các view
-		$this->load->view('pages/component/header', $this->data);
-		$this->load->view('AI/AI_page', $this->data);
-		$this->load->view('pages/component/footer');
+		$this->config->config['pageTitle'] = 'Chẩn đoán bệnh';
+		$this->data['template'] = "pages/AI/predict";
+		$this->load->view("pages/layout/index", $this->data);
 	}
 
 

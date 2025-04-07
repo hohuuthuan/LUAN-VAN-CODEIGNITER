@@ -24,6 +24,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class sliderController extends CI_Controller
 {
+	public function __construct()
+	{
+		parent::__construct();
+
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		$this->checkLogin();
+	}
 
 	public function checkLogin()
 	{
@@ -41,15 +51,23 @@ class sliderController extends CI_Controller
 		// echo '<pre>';
 		// print_r($data['slider']);
 		// echo '</pre>';
-		$data['template'] = "slider/index";
 		$data['title'] = "Danh sách banner";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách banner']
+		];
+		$data['template'] = "slider/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
 	public function createSlider()
 	{
-		$data['template'] = "slider/storeSlider";
 		$data['title'] = "Thêm mới Banner";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Thêm mới banner']
+		];
+		$data['template'] = "slider/storeSlider";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
@@ -96,8 +114,13 @@ class sliderController extends CI_Controller
 		$this->config->config['pageTitle'] = 'Update Banner';
 		$this->load->model('sliderModel');
 		$data['slider'] = $this->sliderModel->selectSliderById($id);
-		$data['template'] = "slider/editSlider";
 		$data['title'] = "Chỉnh sửa banner";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách baner', 'url' => 'slider/list'],
+			['label' => 'Chỉnh sửa banner']
+		];
+		$data['template'] = "slider/editSlider";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 

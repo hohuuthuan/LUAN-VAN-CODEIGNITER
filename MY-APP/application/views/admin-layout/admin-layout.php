@@ -15,7 +15,7 @@
             <?php $this->load->view($template); ?>
             <?php $this->load->view('admin-layout/component-admin/footer'); ?>
         </div>
-        
+
     </div>
 
     <?php $this->load->view('admin-layout/component-admin/script'); ?>

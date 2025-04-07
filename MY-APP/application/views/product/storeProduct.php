@@ -49,13 +49,12 @@
                         <div class="row mb15">
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="Selling_price">Giá bán</label>
-                                        <input name="Selling_price" type="number" class="form-control"
-                                            placeholder="Nhập giá bán">
-                                        <?php echo '<span class="text-danger">' . form_error('selling_price') . '</span>' ?>
-                                    </div>
+                                    <label for="Promotion">Mã sản phẩm</label>
+                                    <input name="Product_Code" type="text" class="form-control" min="0" max="100"
+                                        placeholder="Nhập mã sản phẩm">
+                                    <?php echo '<span class="text-danger">' . form_error('Product_Code') . '</span>' ?>
                                 </div>
+
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-row">
@@ -87,13 +86,23 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="Selling_price">Giá bán</label>
+                                        <input name="Selling_price" type="number" class="form-control"
+                                            placeholder="Nhập giá bán">
+                                        <?php echo '<span class="text-danger">' . form_error('selling_price') . '</span>' ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb15">
+                            <div class="col-lg-6">
+                                <div class="form-row">
                                     <label for="Promotion">Khuyến mãi</label>
                                     <input name="Promotion" type="number" class="form-control" min="0" max="100"
                                         placeholder="Giảm giá (%)">
                                     <?php echo '<span class="text-danger">' . form_error('discount') . '</span>' ?>
-
                                 </div>
-
                             </div>
                         </div>
                     </div>

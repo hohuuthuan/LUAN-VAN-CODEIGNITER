@@ -23,8 +23,8 @@
 					<div class="signup-form"><!--sign up form-->
 						<h2>New User Signup!</h2>
 						<form action="<?php echo base_url('dang-ky')?>" method="POST">
-							<input type="text" name="username" placeholder="Name"/>
-							<?php echo form_error('username'); ?>
+							<input type="text" name="fullname" placeholder="Name"/>
+							<?php echo form_error('fullname'); ?>
 							<input type="text" name="phone" placeholder="Phone"/>
 							<?php echo form_error('phone'); ?>
 							<input type="text" name="address" placeholder="Address"/>

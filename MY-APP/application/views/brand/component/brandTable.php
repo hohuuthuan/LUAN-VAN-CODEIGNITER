@@ -39,7 +39,7 @@
                     </span>
                 </td>
                 <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('brand/edit/' . $bra->BrandID); ?>" class="btn btn-success"><i
+                    <a href="<?php echo base_url('brand/list/edit/' . $bra->BrandID); ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
                     <a href="<?php echo base_url('brand/delete/' . $bra->BrandID); ?>"
                         onclick="return confirm('Bạn chắc chắn muốn xóa?');" class="btn btn-danger"><i

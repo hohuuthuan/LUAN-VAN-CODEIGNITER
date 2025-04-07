@@ -95,3 +95,6 @@ vnp_BankTranNo=VNP14842511
 
 
 # Còn lỗi upload hình ảnh của user
+
+
+chỉnh lại phần dữ liệu default của các bảng

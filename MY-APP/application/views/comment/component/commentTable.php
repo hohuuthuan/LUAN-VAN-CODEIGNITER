@@ -36,7 +36,7 @@
                     </span>
                 </td>
                 <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('comment/edit/'.$cmt->id) ?>" class="btn btn-success"><i
+                    <a href="<?php echo base_url('comment/list/edit/'.$cmt->id) ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
                     <a onclick="return confirm('Bạn chắc chắn muốn xóa bình luận này chứ?')" href="<?php echo base_url('comment/delete/'.$cmt->id) ?>" class="btn btn-danger"><i
                             class="fa fa-trash"></i></a>

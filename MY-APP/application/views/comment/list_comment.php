@@ -39,7 +39,7 @@
                         }     
                     ?></td>
                     <td>
-                        <a  class="btn btn-danger"><i class="fa-solid fa-trash"></i>Delete</a>
+                        <!-- <a  class="btn btn-danger"><i class="fa-solid fa-trash"></i>Delete</a> -->
                         <a  class="btn btn-warning"><i class="fa-solid fa-wrench"></i>Edit</a>
                     </td>
                 </tr>

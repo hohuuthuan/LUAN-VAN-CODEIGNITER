@@ -16,7 +16,7 @@
 									<input type="hidden" value="1" name="Quantity">
 									<div class="single-products">
 										<div class="productinfo text-center">
-											<img src="<?php echo base_url('uploads/product/' . $braPro->image) ?>"
+											<img src="<?php echo base_url('uploads/product/' . $braPro->Image) ?>"
 												alt="<?php echo $braPro->Name ?>" />
 											<h2><?php echo number_format($braPro->Selling_price, 0, ',', '.') ?> VND</h2>
 											<p><?php echo $braPro->Name ?></p>

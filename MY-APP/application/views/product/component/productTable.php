@@ -87,11 +87,11 @@
                     <?php endif; ?>
                 </td>
                 <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('product/edit/' . $pro->ProductID); ?>" class="btn btn-success"><i
+                    <a href="<?php echo base_url('product/list/edit/' . $pro->ProductID); ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
-                    <a href="<?php echo base_url('product/delete/' . $pro->ProductID); ?>"
+                    <!-- <a href="<?php echo base_url('product/delete/' . $pro->ProductID); ?>"
                         onclick="return confirm('Bạn chắc chắn muốn xóa?');" class="btn btn-danger"><i
-                            class="fa fa-trash"></i></a>
+                            class="fa fa-trash"></i></a> -->
                 </td>
 
             </tr>

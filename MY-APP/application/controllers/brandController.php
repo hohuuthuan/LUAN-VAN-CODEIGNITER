@@ -22,6 +22,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class brandController extends CI_Controller
 {
 
+	public function __construct()
+	{
+		parent::__construct();
+
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		$this->checkLogin();
+	}
 
 	private function checkLogin()
 	{
@@ -33,25 +43,30 @@ class brandController extends CI_Controller
 
 	public function index()
 	{
-
-
-		// $this->output->delete_cache('order_admin/listOrder');
-		$this->checkLogin();
 		$this->config->config['pageTitle'] = 'List Brand';
 		$this->load->model('brandModel');
 		$data['brand'] = $this->brandModel->selectBrand();
-		$data['template'] = "brand/index";
 		$data['title'] = "Danh sách thương hiệu";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách thương hiệu']
+		];
+		$data['template'] = "brand/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
+
 
 	public function createBrand()
 	{
 		$this->config->config['pageTitle'] = 'Create Brand';
 		$this->load->model('brandModel');
 		$data['brand'] = $this->brandModel->selectBrand();
-		$data['template'] = "brand/storeBrand";
 		$data['title'] = "Thêm mới thương hiệu";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Thêm mới thương hiệu']
+		];
+		$data['template'] = "brand/storeBrand";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
@@ -105,8 +120,13 @@ class brandController extends CI_Controller
 		$this->config->config['pageTitle'] = 'Edit Brand';
 		$this->load->model('brandModel');
 		$data['brand'] = $this->brandModel->selectBrandById($BrandID);
-		$data['template'] = "brand/editBrand";
 		$data['title'] = "Chỉnh sửa thương hiệu";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách thương hiệu', 'url' => 'brand/list'],
+			['label' => 'Chỉnh sửa thương hiệu']
+		];
+		$data['template'] = "brand/editBrand";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 

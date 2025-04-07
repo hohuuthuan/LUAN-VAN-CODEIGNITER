@@ -101,7 +101,7 @@
 								</li>
 								<li><a href="404.html">404</a></li>
 								<li><a href="contact-us.html">Contact</a></li> -->
-								<!-- <li><a href="<?php echo base_url('getlayoutAI')?>">Dự đoán bệnh sầu riêng</a></li> -->
+								<li><a href="<?php echo base_url('predict')?>">Chẩn đoán bệnh</a></li>
 							</ul>
 						</div>
 					</div>

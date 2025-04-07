@@ -1,3 +1,4 @@
+<?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 <div class="mt20 animated fadeInRight">
 	<div class="ibox">
 		<div class="ibox-content">
@@ -71,79 +72,87 @@
 						</div>
 					</div>
 				</div>
-			</div>
-			<div class="container-fluid mt-4">
-				<!-- Tabs -->
-				<ul class="nav nav-tabs" id="myTabs">
-					<li class="active">
-						<a href="#tab1" data-toggle="tab">Tổng quan</a>
-					</li>
-					<li>
-						<a href="#tab2" data-toggle="tab">Chi tiết</a>
-					</li>
-				</ul>
-				<!-- Nội dung của Tabs -->
-				<div class="tab-content mt-3">
-					<!-- Tab 1: Báo cáo doanh thu -->
-					<div id="tab1" class="tab-pane fade in active">
-						<?php if ($timeType === 'day' && !empty($profits['dailyTotals'])): ?>
-							<canvas id="revenueChart" width="300" height="200"></canvas>
-						<?php elseif ($timeType === 'month' && !empty($profits['monthlyTotals'])): ?>
-							<canvas id="revenueChart" width="300" height="200"></canvas>
-						<?php elseif ($timeType === 'year' && !empty($profits['yearlyTotals'])): ?>
-							<canvas id="revenueChart" width="300" height="200"></canvas>
-						<?php else: ?>
-							<p class="text-center text-danger font-weight-bold mt20">Không có dữ liệu</p>
-						<?php endif; ?>
-					</div>
+				<div class="container-fluid mt-4">
+					<!-- Tabs -->
+					<ul class="nav nav-tabs" id="myTabs">
+						<li class="active">
+							<a href="#tab1" data-toggle="tab">Tổng quan</a>
+						</li>
+						<li>
+							<a href="#tab2" data-toggle="tab">Chi tiết</a>
+						</li>
+					</ul>
+					<!-- Nội dung của Tabs -->
+					<div class="tab-content mt-3">
+						<!-- Tab 1: Báo cáo doanh thu -->
+						<div id="tab1" class="tab-pane fade in active">
+							<?php if ($timeType === 'day' && !empty($profits['dailyTotals'])): ?>
+								<div id="chart-container">
+									<canvas id="revenueChart" width="300" height="200"></canvas>
+								</div>
 
-					<!-- Tab 2: Danh sách sản phẩm -->
-					<div id="tab2" class="tab-pane fade">
-						<h3 class="text-success">Danh sách sản phẩm</h3>
-						<p>Đây là nội dung danh sách sản phẩm.</p>
-						<div class=" row mb-3">
-							<div class="col-md-6">
-								<input type="text" id="searchInput" class="form-control width300 mb10" placeholder="Tìm kiếm mã đơn hàng...">
-							</div>
+							<?php elseif ($timeType === 'month' && !empty($profits['monthlyTotals'])): ?>
+								<div id="chart-container">
+									<canvas id="revenueChart" width="300" height="200"></canvas>
+								</div>
+
+							<?php elseif ($timeType === 'year' && !empty($profits['yearlyTotals'])): ?>
+								<div id="chart-container">
+									<canvas id="revenueChart" width="300" height="200"></canvas>
+								</div>
+
+							<?php else: ?>
+								<p class="text-center text-danger font-weight-bold mt20">Không có dữ liệu</p>
+							<?php endif; ?>
 						</div>
-						<script>
-							document.getElementById('searchInput').addEventListener('keyup', function() {
-								const filter = this.value.toUpperCase();
-								const rows = document.querySelectorAll('#tab2 tbody tr');
-								rows.forEach(row => {
-									const orderCode = row.cells[0].textContent || row.cells[0].innerText;
-									row.style.display = orderCode.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+
+						<!-- Tab 2: Danh sách sản phẩm -->
+						<div id="tab2" class="tab-pane fade">
+							<h3 class="text-success">Danh sách đơn hàng</h3>
+							<div class=" row mb-3">
+								<div class="col-md-6">
+									<input type="text" id="searchInput" class="form-control width300 mb10" placeholder="Tìm kiếm mã đơn hàng...">
+								</div>
+							</div>
+							<script>
+								document.getElementById('searchInput').addEventListener('keyup', function() {
+									const filter = this.value.toUpperCase();
+									const rows = document.querySelectorAll('#tab2 tbody tr');
+									rows.forEach(row => {
+										const orderCode = row.cells[0].textContent || row.cells[0].innerText;
+										row.style.display = orderCode.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+									});
 								});
-							});
-						</script>
-						<table class="table table-bordered table-striped">
-							<thead>
-								<tr>
-									<th>Mã đơn hàng</th>
-									<th>Ngày thanh toán</th>
-									<th>Doanh thu</th>
-									<th>Chi phí</th>
-									<th>Lợi nhuận</th>
-								</tr>
-							</thead>
-							<tbody>
-								<?php if (!empty($profits['orderProfits'])): ?>
-									<?php foreach ($profits['orderProfits'] as $order): ?>
-										<tr>
-											<td><?= htmlspecialchars($order->Order_Code) ?></td>
-											<td><?= htmlspecialchars($order->Payment_Date) ?></td>
-											<td><?= number_format($order->Total_Revenue) ?> VND</td>
-											<td><?= number_format($order->Total_Cost) ?> VND</td>
-											<td><?= number_format($order->Total_Profit) ?> VND</td>
-										</tr>
-									<?php endforeach; ?>
-								<?php else: ?>
+							</script>
+							<table class="table table-bordered table-striped">
+								<thead>
 									<tr>
-										<td colspan="5" class="text-center">Không có dữ liệu</td>
+										<th>Mã đơn hàng</th>
+										<th>Ngày thanh toán</th>
+										<th>Doanh thu</th>
+										<th>Chi phí</th>
+										<th>Lợi nhuận</th>
 									</tr>
-								<?php endif; ?>
-							</tbody>
-						</table>
+								</thead>
+								<tbody>
+									<?php if (!empty($profits['orderProfits'])): ?>
+										<?php foreach ($profits['orderProfits'] as $order): ?>
+											<tr>
+												<td><?= htmlspecialchars($order->Order_Code) ?></td>
+												<td><?= htmlspecialchars($order->Payment_Date) ?></td>
+												<td><?= number_format($order->Total_Revenue) ?> VND</td>
+												<td><?= number_format($order->Total_Cost) ?> VND</td>
+												<td><?= number_format($order->Total_Profit) ?> VND</td>
+											</tr>
+										<?php endforeach; ?>
+									<?php else: ?>
+										<tr>
+											<td colspan="5" class="text-center text-danger font-weight-bold mt20">Không có dữ liệu</td>
+										</tr>
+									<?php endif; ?>
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -194,7 +203,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 	// Dữ liệu từ PHP
-	const timeType = "<?= isset($timeType) ? $timeType : 'day' ?>"; // Loại thời gian (day, month, year)
+	const timeType = "<?= isset($timeType) ? $timeType : 'day' ?>";
 	const chartData = {
 		labels: [],
 		revenue: [],

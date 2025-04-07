@@ -20,6 +20,17 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class categoryController extends CI_Controller
 {
 
+	public function __construct()
+	{
+		parent::__construct();
+
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		$this->checkLogin();
+	}
+
 	public function checkLogin()
 	{
 		if (!$this->session->userdata('logged_in_admin')) {
@@ -31,8 +42,12 @@ class categoryController extends CI_Controller
 		$this->config->config['pageTitle'] = 'List Categories';
 		$this->load->model('categoryModel');
 		$data['category'] = $this->categoryModel->selectCategory();
-		$data['template'] = "category/index";
 		$data['title'] = "Danh sách danh mục";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách danh mục']
+		];
+		$data['template'] = "category/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
@@ -41,8 +56,12 @@ class categoryController extends CI_Controller
 		$this->config->config['pageTitle'] = 'Create Category';
 		$this->load->model('categoryModel');
 		$data['category'] = $this->categoryModel->selectCategory();
-		$data['template'] = "category/storeCategory";
 		$data['title'] = "Thêm mới danh mục";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Thêm mới danh mục', 'url' => 'category/create'],
+		];
+		$data['template'] = "category/storeCategory";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
@@ -93,8 +112,13 @@ class categoryController extends CI_Controller
 		$this->config->config['pageTitle'] = 'Edit Category';
 		$this->load->model('categoryModel');
 		$data['category'] = $this->categoryModel->selectcategoryById($id);
-		$data['template'] = "category/editcategory";
 		$data['title'] = "Chỉnh sửa danh mục";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách danh mục', 'url' => 'category/list'],
+			['label' => 'Chỉnh sửa danh mục']
+		];
+		$data['template'] = "category/editcategory";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 

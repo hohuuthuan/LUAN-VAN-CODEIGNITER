@@ -8,6 +8,152 @@ class warehouseModel extends CI_Model
         return isset($result['id']) ? $result['id'] + 1 : 1;
     }
     
+    public function get_warehouse_receipts() {
+        $this->db->select('
+            wr.tax_identification_number,
+            wr.id AS warehouse_receipt_id,
+            wr.created_at,
+            wr.name_of_delivery_person,
+            wr.delivery_unit,
+            wr.address,
+            wr.delivery_note_number,
+            wr.warehouse_from,
+            wr.supplier_id,
+            s.Name AS supplier_name,
+            wr.sub_total,
+            p.Name AS product_name,
+            p.Product_Code AS product_code,
+            wri.Unit AS product_unit,
+            wri.Import_price AS unit_import_price,
+            wri.Exp_date AS expiry_date,
+            wri.Quantity_doc AS quantity_document,
+            wri.Quantity_actual AS quantity_actual,
+            wri.Notes AS notes');
+        $this->db->from('warehouse_receipt wr');
+        $this->db->join('suppliers s', 'wr.supplier_id = s.SupplierID', 'left');
+        $this->db->join('warehouse_receipt_items wri', 'wr.id = wri.Receipt_id', 'left');
+        $this->db->join('product p', 'wri.ProductID = p.ProductID', 'left');
+        $this->db->order_by('wr.id, p.Name');
+
+        $query = $this->db->get();
+        $raw_data = $query->result_array();
+
+        // Gộp dữ liệu theo warehouse_receipt_id
+        $grouped_data = [];
+
+        foreach ($raw_data as $row) {
+            $receipt_id = $row['warehouse_receipt_id'];
+
+            if (!isset($grouped_data[$receipt_id])) {
+                // Lưu thông tin phiếu nhập
+                $grouped_data[$receipt_id] = [
+                    'warehouse_receipt_id' => $row['warehouse_receipt_id'],
+                    'tax_identification_number' => $row['tax_identification_number'],
+                    'created_at' => $row['created_at'],
+                    'name_of_delivery_person' => $row['name_of_delivery_person'],
+                    'delivery_unit' => $row['delivery_unit'],
+                    'address' => $row['address'],
+                    'delivery_note_number' => $row['delivery_note_number'],
+                    'warehouse_from' => $row['warehouse_from'],
+                    'supplier_id' => $row['supplier_id'],
+                    'supplier_name' => $row['supplier_name'],
+                    'sub_total' => $row['sub_total'],
+                    'product_items' => []
+                ];
+            }
+
+            // Nếu có thông tin sản phẩm, thêm vào danh sách sản phẩm
+            if (!empty($row['product_name'])) {
+                $grouped_data[$receipt_id]['product_items'][] = [
+                    'product_name' => $row['product_name'],
+                    'product_code' => $row['product_code'],
+                    'product_unit' => $row['product_unit'],
+                    'unit_import_price' => $row['unit_import_price'],
+                    'expiry_date' => $row['expiry_date'],
+                    'quantity_document' => $row['quantity_document'],
+                    'quantity_actual' => $row['quantity_actual'],
+                    'notes' => $row['notes']
+                ];
+            }
+        }
+
+
+        return array_values($grouped_data);
+    }
+
+
+
+    public function get_warehouse_receipt_by_id($id) {
+        $this->db->select('
+            wr.tax_identification_number,
+            wr.id AS warehouse_receipt_id,
+            wr.created_at,
+            wr.name_of_delivery_person,
+            wr.delivery_unit,
+            wr.address,
+            wr.delivery_note_number,
+            wr.warehouse_from,
+            wr.supplier_id,
+            s.Name AS supplier_name,
+            wr.sub_total,
+            p.Name AS product_name,
+            p.Product_Code AS product_code,
+            wri.Unit AS product_unit,
+            wri.Import_price AS unit_import_price,
+            wri.Exp_date AS expiry_date,
+            wri.Quantity_doc AS quantity_document,
+            wri.Quantity_actual AS quantity_actual,
+            wri.Notes AS notes
+        ');
+        $this->db->from('warehouse_receipt wr');
+        $this->db->join('suppliers s', 'wr.supplier_id = s.SupplierID', 'left');
+        $this->db->join('warehouse_receipt_items wri', 'wr.id = wri.Receipt_id', 'left');
+        $this->db->join('product p', 'wri.ProductID = p.ProductID', 'left');
+        $this->db->where('wr.id', $id);
+        $this->db->order_by('p.Name');
+    
+        $query = $this->db->get();
+        $raw_data = $query->result_array();
+    
+        if (empty($raw_data)) {
+            return null; // Không tìm thấy phiếu
+        }
+    
+        $receipt_data = [
+            'warehouse_receipt_id' => $raw_data[0]['warehouse_receipt_id'],
+            'tax_identification_number' => $raw_data[0]['tax_identification_number'],
+            'created_at' => $raw_data[0]['created_at'],
+            'name_of_delivery_person' => $raw_data[0]['name_of_delivery_person'],
+            'delivery_unit' => $raw_data[0]['delivery_unit'],
+            'address' => $raw_data[0]['address'],
+            'delivery_note_number' => $raw_data[0]['delivery_note_number'],
+            'warehouse_from' => $raw_data[0]['warehouse_from'],
+            'supplier_id' => $raw_data[0]['supplier_id'],
+            'supplier_name' => $raw_data[0]['supplier_name'],
+            'sub_total' => $raw_data[0]['sub_total'],
+            'product_items' => []
+        ];
+    
+        foreach ($raw_data as $row) {
+            if (!empty($row['product_name'])) {
+                $receipt_data['product_items'][] = [
+                    'product_name' => $row['product_name'],
+                    'product_code' => $row['product_code'],
+                    'product_unit' => $row['product_unit'],
+                    'unit_import_price' => $row['unit_import_price'],
+                    'expiry_date' => $row['expiry_date'],
+                    'quantity_document' => $row['quantity_document'],
+                    'quantity_actual' => $row['quantity_actual'],
+                    'notes' => $row['notes']
+                ];
+            }
+        }
+    
+        return $receipt_data;
+    }
+    
+
+
     public function insertWarehouseReceiptWithItems($data_warehouse_receipt, $products)
     {
         $this->db->trans_start();
@@ -52,9 +198,6 @@ class warehouseModel extends CI_Model
             return $warehouse_receipt_id;
         }
     }
-
-
-
 
 
     public function insertWarehouseReceipt($data_warehouse_receipt)
@@ -149,8 +292,7 @@ class warehouseModel extends CI_Model
                 ELSE ? - (AccumulatedQuantity - remaining_quantity)
             END AS QuantityToTake
         FROM SelectedBatches
-        WHERE AccumulatedQuantity - remaining_quantity < ?
-    ";
+        WHERE AccumulatedQuantity - remaining_quantity < ? ";
 
         $query = $this->db->query($sql, [$product_id, $quantity, $quantity, $quantity]);
 
@@ -190,15 +332,6 @@ class warehouseModel extends CI_Model
         return $this->db->insert('order_batches', $data_order_batches);
     }
 
-    // public function selectOrder()
-    // {
-    //     $query = $this->db->select('orders.*, shipping.*')
-    //         ->from('orders')
-    //         ->join('shipping', 'orders.ShippingID= shipping.id')
-    //         ->get();
-
-    //     return $query->result();
-    // }
 
     public function selectOrder()
     {

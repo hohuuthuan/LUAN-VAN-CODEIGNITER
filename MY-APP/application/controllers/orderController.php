@@ -25,6 +25,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
 class orderController extends CI_Controller
 {
 
+	public function __construct()
+	{
+		parent::__construct();
+
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		$this->checkLogin();
+	}
 	public function checkLogin()
 	{
 		if (!$this->session->userdata('logged_in_admin')) {
@@ -43,8 +53,12 @@ class orderController extends CI_Controller
 		// print_r($data['order']);
 		// echo '</pre>';
 
-		$data['template'] = "order_admin/index";
 		$data['title'] = "Danh sách đơn hàng";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách đơn hàng']
+		];
+		$data['template'] = "order_admin/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 
 	}
@@ -62,8 +76,13 @@ class orderController extends CI_Controller
 				$order_detail->product_qty_in_batches = $this->orderModel->get_qty_product_in_batches($order_detail->ProductID, $order_detail->qty);
 			}
 
-			$data['template'] = "order_admin/viewOrder";
 			$data['title'] = "Chi tiết đơn hàng";
+			$data['breadcrumb'] = [
+				['label' => 'Dashboard', 'url' => 'dashboard'],
+				['label' => 'Danh sách đơn hàng', 'url' => 'order_admin/listOrder'],
+				['label' => 'Chi tiết đơn hàng']
+			];
+			$data['template'] = "order_admin/viewOrder";
 			$this->load->view("admin-layout/admin-layout", $data);
 
 		} else {

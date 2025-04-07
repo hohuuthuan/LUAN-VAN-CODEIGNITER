@@ -1,4 +1,5 @@
-﻿<form action="<?php echo base_url('warehouse/enter-into-warehouse') ?>" method="POST" class="box"
+﻿<?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
+<form action="<?php echo base_url('warehouse/receive-goods/enter-into-warehouse') ?>" method="POST" class="box"
     enctype="multipart/form-data">
     <div class="wrapper wrapper-content-receive-goods animated fadeInRight">
         <div class="col-lg-12">
@@ -57,9 +58,6 @@
                                 </div>
 
                             </div>
-
-
-
 
                             <div class="row receive-goods-input">
                                 <div class="col-lg-6">
@@ -202,11 +200,12 @@
                                                     <div>
                                                         <select name="products[<?php echo $key; ?>][ProductID]"
                                                             class="form-control product-select setupSelect2"
-                                                            onchange="updateUnit(this)">
+                                                            onchange="updateUnit(this); updateProductCode(this);">
                                                             <option value="">Chọn sản phẩm</option>
                                                             <?php foreach ($allproducts as $prod): ?>
                                                                 <option <?= ($product['ProductID'] == $prod->ProductID) ? 'selected' : ''; ?> value="<?= $prod->ProductID; ?>"
-                                                                    data-unit="<?= $prod->Unit; ?>">
+                                                                    data-unit="<?= $prod->Unit; ?>"
+                                                                    data-code="<?= $prod->Product_Code; ?>">
                                                                     <?= $prod->Name; ?>
                                                                 </option>
                                                             <?php endforeach; ?>
@@ -216,26 +215,29 @@
                                                         class="error-message-table-product"><?php echo isset($errors["products[$key][ProductID]"]) ? $errors["products[$key][ProductID]"] : ''; ?></span>
                                                 </td>
                                                 <td>
-                                                    <input type="text" name="products[<?php echo $key; ?>][code]"
+                                                    <div>
+                                                        <span class="display-product-code">
+                                                            <?php echo !empty($product['code']) ? htmlspecialchars($product['code']) : '...'; ?>
+                                                        </span>
+                                                    </div>
+                                                    <input type="hidden" name="products[<?php echo $key; ?>][code]"
                                                         class="form-control"
-                                                        value="<?php echo set_value("products[$key][code]", $product['code']); ?>">
+                                                        value="<?php echo set_value("products[$key][code]", $product['code']); ?>" readonly>
                                                     <span
-                                                        class="error-message-table-product"><?php echo isset($errors["products[$key][code]"]) ? $errors["products[$key][code]"] : ''; ?></span>
+                                                        class="error-message-table-product error-product-code"><?php echo isset($errors["products[$key][code]"]) ? $errors["products[$key][code]"] : ''; ?></span>
                                                 </td>
                                                 <td>
                                                     <div>
-                                                        <select name="products[<?php echo $key; ?>][unit]"
-                                                            class="form-control unit-select setupSelect2">
-                                                            <option value="">Đơn vị...</option>
-                                                            <?php foreach ($allproducts as $prod): ?>
-                                                                <option value="<?= $prod->Unit; ?>" <?= ($unitValue == $prod->Unit) ? 'selected' : ''; ?>>
-                                                                    <?= $prod->Unit; ?>
-                                                                </option>
-                                                            <?php endforeach; ?>
-                                                        </select>
+                                                        <span class="display-product-unit">
+                                                            <?php echo !empty($unitValue) ? htmlspecialchars($unitValue) : '...'; ?>
+                                                        </span>
                                                     </div>
+                                                    <input type="hidden" name="products[<?php echo $key; ?>][unit]"
+                                                        class="form-control"
+                                                        value="<?php echo htmlspecialchars($unitValue); ?>"
+                                                        readonly>
                                                     <span
-                                                        class="error-message-table-product"><?php echo isset($errors["products[$key][unit]"]) ? $errors["products[$key][unit]"] : ''; ?></span>
+                                                        class="error-message-table-product error-unit"><?php echo isset($errors["products[$key][unit]"]) ? $errors["products[$key][unit]"] : ''; ?></span>
                                                 </td>
                                                 <td>
                                                     <input type="text"
@@ -301,31 +303,25 @@
                                             <td>
                                                 <select name="products[0][ProductID]"
                                                     class="form-control setupSelect2 product-select"
-                                                    onchange="updateUnit(this)">
+                                                    onchange="updateUnit(this); updateProductCode(this);">
                                                     <option value="">Chọn sản phẩm</option>
                                                     <?php foreach ($allproducts as $product): ?>
                                                         <option value="<?php echo $product->ProductID; ?>"
-                                                            data-unit="<?php echo $product->Unit; ?>">
+                                                            data-unit="<?php echo $product->Unit; ?>"
+                                                            data-code="<?= $product->Product_Code; ?>">
                                                             <?php echo $product->Name; ?>
                                                         </option>
                                                     <?php endforeach; ?>
                                                 </select>
 
                                             </td>
-                                            <td><input type="text" name="products[0][code]" class="form-control" value="">
-
-                                            </td>
-
                                             <td>
-                                                <select name="products[0][unit]"
-                                                    class="form-control unit-select setupSelect2">
-                                                    <option value="">Đơn vị...</option>
-                                                    <?php foreach ($allproducts as $product): ?>
-                                                        <option value="<?php echo $product->Unit; ?>">
-                                                            <?php echo $product->Unit; ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
+                                                <span class="display-product-code">...</span>
+                                                <input type="hidden" name="products[0][code]" value="">
+                                            </td>
+                                            <td>
+                                                <span class="display-product-unit">...</span>
+                                                <input type="hidden" name="products[0][unit]" value="">
                                             </td>
                                             <td>
                                                 <input type="text" class="form-control format-money" placeholder="VNĐ"
@@ -434,10 +430,10 @@
         newRow.innerHTML = `
         <td></td>
         <td>
-            <select name="products[${rowIndex}][ProductID]" class="form-control product-select setupSelect2" onchange="updateUnit(this)">
+            <select name="products[${rowIndex}][ProductID]" class="form-control product-select setupSelect2" onchange="updateUnit(this); updateProductCode(this);">
                 <option value="">Chọn sản phẩm</option>
                 <?php foreach ($allproducts as $prod): ?>                    
-                    <option value="<?php echo $prod->ProductID ?>" data-unit="<?= $prod->Unit; ?>">
+                    <option value="<?php echo $prod->ProductID ?>" data-unit="<?= $prod->Unit; ?>" data-code="<?= $prod->Product_Code; ?>">
                         <?php echo $prod->Name ?>
                     </option>
                 <?php endforeach; ?>
@@ -445,19 +441,14 @@
             
         </td>
         <td>
-            <input type="text" name="products[${rowIndex}][code]" class="form-control">
             
+            <span class="display-product-code">...</span>
+            <input type="hidden" name="products[${rowIndex}][code]" value="">
         </td>
         <td>
-            <select name="products[${rowIndex}][unit]" class="form-control unit-select setupSelect2">
-                <option value="">Đơn vị...</option>
-                <?php foreach ($allproducts as $prod): ?>
-                    <option value="<?php echo $prod->Unit; ?>">
-                        <?php echo $prod->Unit; ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
             
+            <span class="display-product-unit">...</span>
+            <input type="hidden" name="products[${rowIndex}][unit]" value="">
         </td>
         <td>
             <input type="text" name="products[${rowIndex}][Import_price]"
@@ -491,9 +482,9 @@
         currentRow.parentNode.insertBefore(newRow, currentRow.nextSibling);
         rowIndex++;
         updateRowNumbers();
-        HHT.select2(); // Nếu dùng Select2
+        HHT.select2();
 
-        // ✅ Gọi updateUnit() cho dòng mới để cập nhật unit nếu sản phẩm đã được chọn
+
         let productSelect = newRow.querySelector(".product-select");
         if (productSelect) {
             updateUnit(productSelect);
@@ -532,20 +523,56 @@
         });
     });
 
+    function updateProductCode(selectElement) {
+        let selectedOption = selectElement.options[selectElement.selectedIndex];
+        let productCode = selectedOption.getAttribute("data-code");
+        let row = selectElement.closest("tr");
+
+        let codeInput = row.querySelector("[name*='[code]']");
+        let codeDisplay = row.querySelector(".display-product-code");
+
+        if (codeInput) codeInput.value = productCode || "";
+        if (codeDisplay) codeDisplay.textContent = productCode ? productCode : "...";
+    }
+
     function updateUnit(selectElement) {
         let selectedOption = selectElement.options[selectElement.selectedIndex];
-        let unitValue = selectedOption.getAttribute("data-unit") || "";
+        let unitValue = selectedOption.getAttribute("data-unit");
         let row = selectElement.closest("tr");
-        let unitSelect = row.querySelector(".unit-select");
 
-        if (unitSelect) {
-            unitSelect.value = unitValue;
-            unitSelect.dispatchEvent(new Event("change", {
-                bubbles: true
-            }));
-            $(unitSelect).val(unitValue).trigger("change");
-        }
+        let unitInput = row.querySelector("[name*='[unit]']");
+        let unitDisplay = row.querySelector(".display-product-unit");
+
+        if (unitInput) unitInput.value = unitValue || "";
+        if (unitDisplay) unitDisplay.textContent = unitValue ? unitValue : "...";
     }
+
+
+
+    // function updateUnit(selectElement) {
+    //     let selectedOption = selectElement.options[selectElement.selectedIndex];
+    //     let unitValue = selectedOption.getAttribute("data-unit") || ""; // Lấy đơn vị từ data-unit
+    //     let row = selectElement.closest("tr");
+
+    //     // Nếu sử dụng input readonly
+    //     let unitInput = row.querySelector("[name*='[unit]']");
+    //     if (unitInput) {
+    //         unitInput.value = unitValue; // Gán giá trị vào input readonly
+    //     }
+    // }
+
+    // function updateProductCode(selectElement) {
+    //     let selectedOption = selectElement.options[selectElement.selectedIndex];
+    //     let productCode = selectedOption.getAttribute("data-code") || "";
+    //     // console.log("Selected Product Code:", productCode);
+    //     let row = selectElement.closest("tr");
+    //     let codeInput = row.querySelector("[name*='[code]']");
+
+    //     if (codeInput) {
+    //         codeInput.value = productCode;
+    //         // console.log("Updated Code Input:", codeInput.value);
+    //     }
+    // }
 
     function getNumberFromFormatted(value) {
         return Number(value.replace(/\./g, "")) || 0;
@@ -562,13 +589,8 @@
 
             total += price * quantity;
         });
-
         let formattedTotal = total.toLocaleString("vi-VN") + " VNĐ";
-
-
         document.getElementById("totalAmount").value = formattedTotal;
-
-
         document.getElementById("totalAmountHidden").value = total;
     }
 
@@ -583,23 +605,20 @@
 
 
 
-
-
-
     function formatMoney(input) {
-        let value = input.value.replace(/\D/g, ""); // Loại bỏ ký tự không phải số
+        let value = input.value.replace(/\D/g, "");
         if (!value) {
             input.value = "";
             return;
         }
 
-        let formatted = parseInt(value, 10).toLocaleString("vi-VN"); // Định dạng có dấu `.`
+        let formatted = parseInt(value, 10).toLocaleString("vi-VN");
         input.value = formatted;
 
-        // Cập nhật giá trị thực vào input hidden
-        let hiddenInput = input.nextElementSibling; // Lấy input hidden ngay sau nó
+
+        let hiddenInput = input.nextElementSibling;
         if (hiddenInput && hiddenInput.classList.contains("real-value")) {
-            hiddenInput.value = value; // Lưu giá trị thực (không dấu `.`)
+            hiddenInput.value = value;
         }
     }
 

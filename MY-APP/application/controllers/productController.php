@@ -25,6 +25,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class productController extends CI_Controller
 {
+	public function __construct()
+	{
+		parent::__construct();
+
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
+
+		$this->checkLogin();
+	}
 
 	public function checkLogin()
 	{
@@ -82,8 +92,12 @@ class productController extends CI_Controller
 		// print_r($data);
 		// echo '</pre>';
 		
-		$data['template'] = "product/index";
 		$data['title'] = "Danh sách sản phẩm";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách sản phẩm']
+		];
+		$data['template'] = "product/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 
 	}
@@ -105,8 +119,12 @@ class productController extends CI_Controller
 		// echo '<pre>';
 		// print_r($data);
 		// echo '</pre>';
-		$data['template'] = "product/storeProduct";
 		$data['title'] = "Thêm mới sản phẩm";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Thêm mới sản phẩm']
+		];
+		$data['template'] = "product/storeProduct";
 		$this->load->view("admin-layout/admin-layout", $data);
 
 		
@@ -116,6 +134,7 @@ class productController extends CI_Controller
 	{
 		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
 		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Product_Code', 'Product_Code', 'trim|required', ['required' => 'Bạn cần diền %s']);
 		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
 		$this->form_validation->set_rules('Selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần diền %s']);
 		$this->form_validation->set_rules('Product_uses', 'Product_uses', 'trim|required', ['required' => 'Bạn cần diền %s']);
@@ -142,6 +161,7 @@ class productController extends CI_Controller
 				$data = [
 					'Name' => $this->input->post('Name'),
 					'Description' => $this->input->post('Description'),
+					'Product_Code' => $this->input->post('Product_Code'),
 					'Product_uses' => $this->input->post('Product_uses'),
 					'Slug' => $this->input->post('Slug'),
 					'Selling_price' => $this->input->post('Selling_price'),
@@ -182,8 +202,13 @@ class productController extends CI_Controller
 		// print_r($data['product'] );
 		// echo '</pre>';
 
-		$data['template'] = "product/editProduct";
 		$data['title'] = "Chỉnh sửa sản phẩm";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách sản phẩm', 'url' => 'product/list'],
+			['label' => 'Chỉnh sửa sản phẩm']
+		];
+		$data['template'] = "product/editProduct";
 		$this->load->view("admin-layout/admin-layout", $data);
 
 

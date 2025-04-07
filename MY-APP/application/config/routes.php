@@ -93,10 +93,16 @@ $route['logout_admin']['GET'] = 'dashboardController/logout';
 
 
 /* MANAGE CUSTOMER ACCOUNT */
-$route['customer/list']['GET'] = 'customerController/index';
-$route['manage-customer/edit/(:any)']['GET'] = 'customerController/editCustomer/$1';
+$route['manage-customer/list']['GET'] = 'customerController/index';
+$route['manage-customer/list/edit/(:any)']['GET'] = 'customerController/editCustomer/$1';
 $route['manage-customer/update/(:any)']['POST'] = 'customerController/updateCustomer/$1';
 $route['manage-customer/delete/(:any)']['GET'] = 'customerController/deleteCustomer/$1';
+
+
+/* MANAGE ROLE */
+$route['manage-role']['GET'] = 'customerController/manageRoleUser';
+$route['manage-role/edit/(:any)']['GET'] = 'customerController/editRole/$1';
+$route['manage-role/update/(:any)']['POST'] = 'customerController/updateRole/$1';
 
 /* REGISTER ADMIN ACCCOUNT */
 // $route['login-admin']['POST'] = 'loginController/loginAdmin';
@@ -105,24 +111,24 @@ $route['manage-customer/delete/(:any)']['GET'] = 'customerController/deleteCusto
 
 /* MANAGE BRAND */
 $route['brand/list']['GET'] = 'brandController/index';
+$route['brand/list/edit/(:any)']['GET'] = 'brandController/editBrand/$1';
 $route['brand/create']['GET'] = 'brandController/createBrand';
-$route['brand/edit/(:any)']['GET'] = 'brandController/editBrand/$1';
 $route['brand/store']['POST'] = 'brandController/storeBrand';
 $route['brand/update/(:any)']['POST'] = 'brandController/updateBrand/$1';
-$route['brand/delete/(:any)']['GET'] = 'brandController/deleteBrand/$1';
+// $route['brand/delete/(:any)']['GET'] = 'brandController/deleteBrand/$1';
 
 /* MANAGE CATEGORY */
 $route['category/list']['GET'] = 'categoryController/index';
+$route['category/list/edit/(:any)']['GET'] = 'categoryController/editCategory/$1';
 $route['category/create']['GET'] = 'categoryController/createCategory';
-$route['category/edit/(:any)']['GET'] = 'categoryController/editCategory/$1';
 $route['category/store']['POST'] = 'categoryController/storeCategory';
 $route['category/update/(:any)']['POST'] = 'categoryController/updateCategory/$1';
 $route['category/delete/(:any)']['GET'] = 'categoryController/deleteCategory/$1';
 
 /* MANAGE SLIDER */
 $route['slider/list']['GET'] = 'sliderController/index';
+$route['slider/list/edit/(:any)']['GET'] = 'sliderController/editSlider/$1';
 $route['slider/create']['GET'] = 'sliderController/createSlider';
-$route['slider/edit/(:any)']['GET'] = 'sliderController/editSlider/$1';
 $route['slider/store']['POST'] = 'sliderController/storeSlider';
 $route['slider/update/(:any)']['POST'] = 'sliderController/updateSlider/$1';
 $route['slider/delete/(:any)']['GET'] = 'sliderController/deleteSlider/$1';
@@ -130,23 +136,23 @@ $route['slider/delete/(:any)']['GET'] = 'sliderController/deleteSlider/$1';
 /* MANAGE PRODUCT */
 $route['product/list/(:num)']['GET'] = 'productController/index/$1';
 $route['product/list']['GET'] = 'productController/index';
+$route['product/list/edit/(:any)']['GET'] = 'productController/editProduct/$1';
 $route['product/create']['GET'] = 'productController/createProduct';
 $route['product/store']['POST'] = 'productController/storeProduct';
-$route['product/edit/(:any)']['GET'] = 'productController/editProduct/$1';
 $route['product/update/(:any)']['POST'] = 'productController/updateProduct/$1';
 $route['product/delete/(:any)']['GET'] = 'productController/deleteProduct/$1';
 
 /* MANAGE WAREHOUSE */
 $route['warehouse/list']['GET'] = 'warehouseController/index';
 $route['warehouse/receive-goods']['GET'] = 'warehouseController/receive_goods';
-$route['warehouse/enter-into-warehouse']['POST'] = 'warehouseController/enter_into_warehouse';
+$route['warehouse/receive-goods/enter-into-warehouse']['POST'] = 'warehouseController/enter_into_warehouse';
+$route['warehouse/receive-goods-history']['GET'] = 'warehouseController/receipt_goods_history';
+$route['warehouse/receive-goods-history/receipt_detail/(:any)']['GET'] = 'warehouseController/receipt_detail/$1';
 
 
-
-
-$route['quantity/update/(:any)']['GET'] = 'warehouseController/updateQuantityProduct/$1';
-$route['product-in-warehouse/delete/(:any)']['GET'] = 'warehouseController/deleteProduct/$1';
-$route['warehouse/plusquantity-importpriceinwwarehouses/(:any)']['POST'] = 'warehouseController/plusQuantityWarehouses/$1';
+// $route['quantity/update/(:any)']['GET'] = 'warehouseController/updateQuantityProduct/$1';
+// $route['product-in-warehouse/delete/(:any)']['GET'] = 'warehouseController/deleteProduct/$1';
+// $route['warehouse/plusquantity-importpriceinwwarehouses/(:any)']['POST'] = 'warehouseController/plusQuantityWarehouses/$1';
 
 
 
@@ -160,7 +166,7 @@ $route['order_admin/printOrder/(:any)']['GET'] = 'orderController/printOrder/$1'
 /* MANAGE COMMENT */
 $route['comment/send']['POST'] = 'dashboardController/comment_send';
 $route['comment']['GET'] = 'dashboardController/list_comment';
-$route['comment/edit/(:any)']['GET'] = 'dashboardController/editComment/$1';
+$route['comment/list/edit/(:any)']['GET'] = 'dashboardController/editComment/$1';
 $route['comment/update/(:any)']['POST'] = 'dashboardController/updateComment/$1';
 $route['comment/delete/(:any)']['GET'] = 'dashboardController/deleteComment/$1';
 
@@ -170,11 +176,13 @@ $route['revenue-custom']['POST'] = 'revenueController/customRevenue';
 $route['revenuee']['GET'] = 'revenueController/revenuee';
 $route['revenueee']['POST'] = 'revenueController/revenueee';
 
-$route['revenueReport']['GET'] = 'revenueController/index';
-$route['revenueBatches']['GET'] = 'revenueController/batches';
+$route['revenueReport']['GET'] = 'revenueController/revenueReportPage';
+$route['revenueBatches']['GET'] = 'revenueController/revenueBatchesPage';
 
 
-// Phần xử lý AI
-// $route['getlayoutAI']['GET'] = 'indexController/AI';
-// $route['search-by-disease']['POST'] = 'indexController/AI';
-// $route['getlayoutAItest']['GET'] = 'predictionController/index';
+
+
+
+/* AI CHẨN ĐOÁN BỆNH */
+
+$route['predict']['GET'] = 'predictController/yolo_predict_page';

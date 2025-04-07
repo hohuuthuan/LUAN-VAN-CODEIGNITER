@@ -2,7 +2,6 @@
 
 defined('BASEPATH') or exit('No direct script access allowed');
 
-
 /**
  * @property session $session
  * @property config $config
@@ -31,9 +30,9 @@ class dashboardController extends CI_Controller
         if (session_status() == PHP_SESSION_NONE) {
             session_start();
         }
-
         $this->checkLogin();
     }
+
 
     private function checkLogin()
     {
@@ -62,21 +61,28 @@ class dashboardController extends CI_Controller
 
     public function index()
     {
-        // $this->checkLogin();
         $this->config->config['pageTitle'] = 'Dashboard';
-        $data['template'] = "admin-layout/component-admin/pageHome";
+
+        // Load model
+        $this->load->model('revenueModel');
+        $currentYear = Carbon\Carbon::now()->year;
+        $startMonth = Carbon\Carbon::create($currentYear, 1, 1)->format('Y-m'); 
+        $endMonth = Carbon\Carbon::create($currentYear, 12, 1)->format('Y-m');
+        $data['profits'] = $this->revenueModel->getProfitByMonthRange($startMonth, $endMonth);
+        $data['timeType'] = 'month';
+        $data['todayRevenue'] = $this->revenueModel->getTodayRevenue();
+        $data['todayProfit'] = $this->revenueModel->getTodayProfit();
+        $data['todayNewOrders'] = $this->revenueModel->getTodayNewOrders();
+        $data['todayNewUsers'] = $this->revenueModel->getTodayNewUsers();
+
+        
+
+
+        // Load view
+        $data['template'] = "dashboard/adminHomePage";
         $this->load->view("admin-layout/admin-layout", $data);
     }
 
-    public function revenue()
-    {
-        $this->config->config['pageTitle'] = 'Revenue';
-        $this->load->model('revenueModel');
-        $data['daily_revenue'] = $this->revenueModel->getRevenueByDay();
-        $data['monthly_revenue'] = $this->revenueModel->getRevenueByMonth();
-        // $data['yearly_revenue'] = $this->revenueModel->getRevenueByYear();
-        $this->load->view('revenue_view', $data);
-    }
 
 
     public function list_comment()
@@ -87,8 +93,12 @@ class dashboardController extends CI_Controller
         // echo '</pre>';
         // print_r($data['comments']);
         // echo '</pre>';
-        $data["template"] = "comment/index";
         $data["title"] = "Danh sách bình luận";
+        $data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách bình luận']
+		];
+        $data["template"] = "comment/index";
         $this->load->view("admin-layout/admin-layout", $data);
     }
 
@@ -111,8 +121,13 @@ class dashboardController extends CI_Controller
         $this->config->config['pageTitle'] = 'Edit Customer';
         $this->load->model('indexModel');
         $data['comments'] = $this->indexModel->selectCommentById($cmt_id);
-        $data["template"] = "comment/editComment";
         $data["title"] = "Chỉnh sửa bình luận";
+        $data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Danh sách bình luận', 'url' => 'comment'],
+            ['label' => 'Cập nhật trạng thái bình luận']
+		];
+        $data["template"] = "comment/editComment";
         $this->load->view("admin-layout/admin-layout", $data);
     }
 

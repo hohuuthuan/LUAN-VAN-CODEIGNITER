@@ -39,7 +39,7 @@
                     </span>
                 </td>
                 <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('category/edit/' . $cate->CategoryID); ?>" class="btn btn-success"><i
+                    <a href="<?php echo base_url('category/list/edit/' . $cate->CategoryID); ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
                     <a href="<?php echo base_url('category/delete/' . $cate->CategoryID); ?>"
                         onclick="return confirm('Bạn chắc chắn muốn xóa?');" class="btn btn-danger"><i

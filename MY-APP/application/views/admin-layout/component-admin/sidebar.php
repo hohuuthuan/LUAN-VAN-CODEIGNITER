@@ -1,146 +1,161 @@
+<?php
+$current_page = $this->uri->segment(1);
+$sub_page = $this->uri->segment(2);
+
+$sidebar_menu = [
+    'dashboard' => [
+        'label' => 'Dashboard',
+        'icon' => 'fa-home',
+        'url' => 'dashboard',
+    ],
+    'revenue' => [
+        'label' => 'Báo cáo',
+        'icon' => 'fa-bar-chart',
+        'children' => [
+            ['label' => 'Doanh thu', 'url' => 'revenueReport', 'current' => 'revenueReport'],
+            ['label' => 'Lô hàng', 'url' => 'revenueBatches', 'current' => 'revenueBatches'],
+        ]
+    ],
+    'brand' => [
+        'label' => 'Quản lý thương hiệu',
+        'icon' => 'fa-tags',
+        'children' => [
+            ['label' => 'Thêm thương hiệu', 'url' => 'brand/create', 'sub' => 'create'],
+            ['label' => 'Danh sách thương hiệu', 'url' => 'brand/list', 'sub' => 'list'],
+        ]
+    ],
+    'category' => [
+        'label' => 'Quản lý danh mục',
+        'icon' => 'fa-folder',
+        'children' => [
+            ['label' => 'Thêm danh mục', 'url' => 'category/create', 'sub' => 'create'],
+            ['label' => 'Danh sách danh mục', 'url' => 'category/list', 'sub' => 'list'],
+        ]
+    ],
+    'product' => [
+        'label' => 'Quản lý sản phẩm',
+        'icon' => 'fa-box',
+        'children' => [
+            ['label' => 'Thêm sản phẩm', 'url' => 'product/create', 'sub' => 'create'],
+            ['label' => 'Danh sách sản phẩm', 'url' => 'product/list', 'sub' => 'list'],
+        ]
+    ],
+    'order_admin' => [
+        'label' => 'Quản lý đơn hàng',
+        'icon' => 'fa-shopping-cart',
+        'children' => [
+            ['label' => 'Danh sách đơn hàng', 'url' => 'order_admin/listOrder', 'sub' => 'listOrder'],
+        ]
+    ],
+    'slider' => [
+        'label' => 'Quản lý banner',
+        'icon' => 'fa-image',
+        'children' => [
+            ['label' => 'Thêm Banner mới', 'url' => 'slider/create', 'sub' => 'create'],
+            ['label' => 'Danh sách Banner', 'url' => 'slider/list', 'sub' => 'list'],
+        ]
+    ],
+    'customer' => [
+        'label' => 'Quản lý tài khoản   ',
+        'icon' => 'fa-users',
+        'children' => [
+            ['label' => 'Quản lý nhóm tài khoản', 'url' => 'manage-role', 'current' => 'manage-role'],
+            ['label' => 'Danh sách người dùng', 'url' => 'manage-customer/list', 'sub' => 'list'],
+        ]
+    ],
+    'warehouse' => [
+        'label' => 'Quản lý kho hàng',
+        'icon' => 'fa-warehouse',
+        'children' => [
+            ['label' => 'Nhập kho', 'url' => 'warehouse/receive-goods', 'sub' => 'receive-goods'],
+            ['label' => 'Lịch sử nhập hàng', 'url' => 'warehouse/receive-goods-history', 'sub' => 'receive-goods-history'],
+            ['label' => 'DS sản phẩm trong kho', 'url' => 'warehouse/list', 'sub' => 'list'],
+        ]
+    ],
+    'comment' => [
+        'label' => 'Quản lý bình luận',
+        'icon' => 'fa-comments',
+        'children' => [
+            ['label' => 'Danh sách bình luận', 'url' => 'comment', 'current' => 'comment'],
+        ]
+    ],
+];
+?>
+
 <nav class="navbar-default navbar-static-side" role="navigation">
-	<div class="sidebar-collapse">
-		<ul class="nav metismenu" id="side-menu">
-			<li class="nav-header">
-				<div class="dropdown profile-element">
-					<span>
-						<img
-							width="50"
-							height="50"
-							alt="image"
-							class="img-circle"
-							src="<?php echo base_url('uploads/user/1743060974cabybara.jpg')?>" />
-					</span>
-					<a data-toggle="dropdown" class="dropdown-toggle" href="#">
-						<span class="clear">
-							<span class="block m-t-xs">
-								<strong class="font-bold">Huu Thuan</strong>
-							</span>
-							<span class="text-muted text-xs block">Art Director <b class="caret"></b></span>
-						</span>
-					</a>
-					<ul class="dropdown-menu animated fadeInRight m-t-xs">
-						<li><a href="#">Profile</a></li>
-						<li><a href="#">Contacts</a></li>
-						<li><a href="#">Mailbox</a></li>
-						<li class="divider"></li>
-						<li><a href="<?php echo base_url('logout_admin'); ?>">Logout</a></li>
-					</ul>
-				</div>
-				<div class="logo-element">IN+</div>
-			</li>
-			<li class="">
-				<a href="<?php echo base_url('dashboard'); ?>"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Dashboard</span>
-				</a>
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+                    <span>
+                        <img width="50" height="50" class="img-circle"
+                            src="<?php echo base_url('uploads/user/1743060974cabybara.jpg') ?>" />
+                    </span>
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        <span class="clear">
+                            <span class="block m-t-xs"><strong class="font-bold">Huu Thuan</strong></span>
+                            <span class="text-muted text-xs block">Art Director <b class="caret"></b></span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        <li><a href="#">Profile</a></li>
+                        <li><a href="#">Contacts</a></li>
+                        <li><a href="#">Mailbox</a></li>
+                        <li class="divider"></li>
+                        <li><a href="<?php echo base_url('logout_admin'); ?>">Logout</a></li>
+                    </ul>
+                </div>
+                <div class="logo-element">IN+</div>
+            </li>
 
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Báo cáo</span>
-					<span class="fa arrow"></span></a>
+            <?php foreach ($sidebar_menu as $key => $menu): ?>
+                <?php
+                $is_active = false;
+                if (!empty($menu['children'])) {
+                    foreach ($menu['children'] as $child) {
+                        $child_segments = explode('/', $child['url']);
+                        $child_page = $child_segments[0] ?? '';
+                        $child_sub = $child_segments[1] ?? '';
 
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('revenueReport'); ?>">Doanh thu</a></li>
-					<li><a href="<?php echo base_url('revenueBatches'); ?>">Lô hàng</a></li>
+                        if ($current_page === $child_page && ($sub_page === $child_sub || empty($child_sub))) {
+                            $is_active = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $is_active = $current_page === $key;
+                }
 
-					
-				</ul>
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý thương hiệu</span>
-					<span class="fa arrow"></span></a>
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('brand/create'); ?>">Thêm thương hiệu</a></li>
-					<li class="">
-						<a href="<?php echo base_url('brand/list'); ?>">Danh sách thương hiệu</a>
-					</li>
-				</ul>
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý danh mục</span>
-					<span class="fa arrow"></span></a>
+                ?>
 
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('category/create'); ?>">Thêm danh mục</a></li>
-					<li class="">
-						<a href="<?php echo base_url('category/list'); ?>">Danh sách danh mục</a>
-					</li>
-				</ul>
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý sản phẩm</span>
-					<span class="fa arrow"></span></a>
+                <li class="<?php echo $is_active ? 'active' : ''; ?>">
+                    <a href="<?php echo isset($menu['url']) ? base_url($menu['url']) : '#'; ?>">
+                        <i class="fa <?php echo $menu['icon']; ?>"></i>
+                        <span class="nav-label"><?php echo $menu['label']; ?></span>
+                        <?php if (!empty($menu['children'])): ?>
+                            <span class="fa arrow"></span>
+                        <?php endif; ?>
+                    </a>
 
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('product/create'); ?>">Thêm sản phẩm</a></li>
-					<li class="">
-						<a href="<?php echo base_url('product/list'); ?>">Danh sách sản phẩm</a>
-					</li>
-				</ul>
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý đơn hàng</span>
-					<span class="fa arrow"></span></a>
+                    <?php if (!empty($menu['children'])): ?>
+                        <ul class="nav nav-second-level <?php echo $is_active ? 'in' : ''; ?>">
+                            <?php foreach ($menu['children'] as $child): ?>
+                                <?php
+                                $child_segments = explode('/', $child['url']);
+                                $child_page = $child_segments[0] ?? '';
+                                $child_sub = $child_segments[1] ?? '';
 
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('order_admin/listOrder'); ?>">Danh sách đơn hàng</a></li>
+                                $child_active = $current_page === $child_page && ($sub_page === $child_sub || empty($child_sub));
+                                ?>
 
-				</ul>
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý banner</span>
-					<span class="fa arrow"></span></a>
-
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('slider/create'); ?>">Thêm Banner mới</a></li>
-					<li class="">
-						<a href="<?php echo base_url('slider/list'); ?>">Danh sách Banner</a>
-					</li>
-				</ul>
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý người dùng</span>
-					<span class="fa arrow"></span></a>
-
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('customer/create'); ?>">Thêm người dùng mới</a></li>
-					<li class="">
-						<a href="<?php echo base_url('customer/list'); ?>">Danh sách người dùng</a>
-					</li>
-				</ul>
-			</li>
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý kho hàng</span>
-					<span class="fa arrow"></span></a>
-
-				<ul class="nav nav-second-level">
-					<li class="">
-						<a href="<?php echo base_url('warehouse/receive-goods'); ?>">Nhập kho</a>
-						<a href="<?php echo base_url('warehouse/receive-goods-list'); ?>">Danh sách phiếu nhập</a>
-						<a href="<?php echo base_url('warehouse/list'); ?>">DS sản phẩm trong kho</a>
-					</li>
-				</ul>
-			</li>
-
-			<li class="">
-				<a href="#"><i class="fa fa-th-large"></i>
-					<span class="nav-label">Quản lý bình luận</span>
-					<span class="fa arrow"></span></a>
-
-				<ul class="nav nav-second-level">
-					<li><a href="<?php echo base_url('comment'); ?>">Danh sách bình luận</a></li>
-
-				</ul>
-			</li>
-
-		</ul>
-	</div>
+                                <li class="<?php echo $child_active ? 'active' : ''; ?>">
+                                    <a href="<?php echo base_url($child['url']); ?>"><?php echo $child['label']; ?></a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
 </nav>
