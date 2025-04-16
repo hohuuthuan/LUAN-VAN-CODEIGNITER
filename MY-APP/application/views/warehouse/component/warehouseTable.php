@@ -1,38 +1,28 @@
+
 <table class="table table-striped table-bordered mt20 mb20">
     <thead>
         <tr>
-            <th>
-                <input type="checkbox" id="checkAll" class="input-checkbox">
-            </th>
             <th scope="text-center">STT</th>
 
-            <th scope="text-center">Tên sản phẩm</th>
-
+            <th scope="text-center">Tên SP</th>
+            <th>Mã SP</th>
             <th scope="text-center">Giá bán</th>
             <th scope="text-center">Đơn vị tính</th>
 
-
             <th scope="text-center">Tồn kho</th>
             <th scope="text-center">Hạn sử dụng theo lô</th>
-            <th scope="text-center">Trạng thái</th>
 
-            <!-- Thêm các thông tin về ngày nhập -->
-            <!-- <th scope="text-center">Nhập hàng</th> -->
+            <th scope="text-center">Trạng thái</th>
+          
         </tr>
     </thead>
 
     <tbody>
         <?php foreach ($products as $key => $pro): ?>
             <tr>
-                <td>
-                    <input type="checkbox" value="" class="input-checkbox checkBoxItem">
-                </td>
-                <th scope="row"><?php echo $key + 1; ?></th>
-
+                <th scope="row"><?php echo ($start + $key + 1); ?></th>
                 <td><?php echo $pro->Name; ?></td>
-
-
-
+                <td><?php echo $pro->Product_Code; ?></td>
                 <td>
                     <?php if ($pro->Selling_price > 0): ?>
                         <?php if ($pro->Promotion > 0): ?>
@@ -55,8 +45,6 @@
                 </td>
                 <td><?php echo htmlspecialchars($pro->Unit); ?></td>
 
-
-
                 <td><?php echo $pro->total_remaining; ?></td>
                 <td>
                     <?php if (!empty($pro->batches)): ?>
@@ -73,10 +61,6 @@
                         <span class="text-muted">Không có lô hàng</span>
                     <?php endif; ?>
                 </td>
-
-
-
-
                 <td>
                     <?php if ($pro->Status == 1): ?>
                         <span class="badge badge-success">Active</span>
@@ -84,15 +68,6 @@
                         <span class="badge badge-danger">Inactive</span>
                     <?php endif; ?>
                 </td>
-
-                <!-- Thêm chức năng xem chi tiết sản phẩm -->
-                <!-- <td style="width: 100px" class="text-center">
-                    <a href="<?php echo base_url('warehouse/receive-goods/' . $pro->ProductID); ?>" class="btn btn-success">
-                    <i style="width: 40px; font-size: 20px;" class="fa-solid fa-square-plus"></i>
-                    </a>
-                </td> -->
-                
-
             </tr>
         <?php endforeach; ?>
     </tbody>

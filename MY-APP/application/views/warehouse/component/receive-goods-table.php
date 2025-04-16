@@ -23,7 +23,7 @@
             }
             ?>
             <tr>
-                <th scope="row"><?php echo $key + 1; ?></th>
+                <th scope="row"><?php echo ($start + $key + 1); ?></th>
                 <td><?php echo $receive['warehouse_receipt_id']; ?></td>
                 <td><?php echo date('d/m/Y', strtotime($receive['created_at'])); ?></td>
                 <td><?php echo $receive['name_of_delivery_person']; ?></td>
@@ -41,3 +41,6 @@
         <?php endforeach; ?>
     </tbody>
 </table>
+<div class="text-center">
+    <?php echo $links; ?>
+</div>

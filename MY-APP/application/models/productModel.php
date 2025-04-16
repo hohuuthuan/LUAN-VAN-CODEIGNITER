@@ -60,74 +60,27 @@ class productModel extends CI_Model
 
 
 
-    public function deleteProduct($id)
-    {
-        // Lấy danh sách các order code liên quan đến sản phẩm
-        $orders = $this->getOrdersByProductId($id);
+    // public function deleteProduct($id)
+    // {
+    //     // Lấy danh sách các order code liên quan đến sản phẩm
+    //     $orders = $this->getOrdersByProductId($id);
 
-        if (!empty($orders)) {
-            $order_codes = array_column($orders, 'order_code');
-            return [
-                'status' => false,
-                'message' => 'Không thể xóa sản phẩm vì đang được sử dụng trong các đơn hàng: ' . implode(', ', $order_codes)
-            ];
-        }
+    //     if (!empty($orders)) {
+    //         $order_codes = array_column($orders, 'order_code');
+    //         return [
+    //             'status' => false,
+    //             'message' => 'Không thể xóa sản phẩm vì đang được sử dụng trong các đơn hàng: ' . implode(', ', $order_codes)
+    //         ];
+    //     }
 
-        // Xóa các bản ghi liên quan trong bảng warehouses
-        $this->db->delete('warehouses', ['product_id' => $id]);
+    //     // Xóa các bản ghi liên quan trong bảng warehouses
+    //     $this->db->delete('warehouses', ['product_id' => $id]);
 
-        // Sau đó, xóa sản phẩm trong bảng products
-        $this->db->delete('products', ['id' => $id]);
+    //     // Sau đó, xóa sản phẩm trong bảng products
+    //     $this->db->delete('products', ['id' => $id]);
 
-        return ['status' => true, 'message' => 'Đã xóa sản phẩm thành công.'];
-    }
-
-
-
-    public function plusQuantityProduct($id, $data)
-    {
-        // Lấy số lượng hiện tại của sản phẩm
-        $this->db->select('quantity');
-        $this->db->from('warehouses');
-        $this->db->where('product_id', $id);
-        $query = $this->db->get();
-        $result = $query->row();
-
-        if ($result) {
-            // Cập nhật số lượng mới bằng cách cộng số lượng hiện tại với số lượng mới
-            $new_quantity = $result->quantity + $data['quantity'];
-            $new_import_price_one_product = $data['import_price_one_product'];
-            // Cập nhật số lượng trong bảng warehouses
-            $this->db->set('quantity', $new_quantity);
-            $this->db->set('import_price_one_product', $new_import_price_one_product);
-            $this->db->where('product_id', $id);
-            return $this->db->update('warehouses'); // Trả về true nếu cập nhật thành công
-        } else {
-            return false; // Trả về false nếu không tìm thấy sản phẩm
-        }
-    }
-    public function plusTotalPriceProduct($id, $total_import_price)
-    {
-        // Lấy tổng giá hiện tại của sản phẩm
-        $this->db->select('total_import_price');
-        $this->db->from('warehouses');
-        $this->db->where('product_id', $id);
-        $query = $this->db->get();
-        $result = $query->row();
-
-        if ($result) {
-            // Cập nhật tổng giá mới bằng cách cộng tổng giá với giá mới được tính vào
-            $new_total_import_price = $result->total_import_price + $total_import_price;
-
-            // Cập nhật tổng giá trong bảng warehouses
-            $this->db->set('total_import_price', $new_total_import_price);
-            $this->db->where('product_id', $id);
-            return $this->db->update('warehouses'); // Trả về true nếu cập nhật thành công
-        } else {
-            return false; // Trả về false nếu không tìm thấy sản phẩm
-        }
-    }
-
+    //     return ['status' => true, 'message' => 'Đã xóa sản phẩm thành công.'];
+    // }
 
 
 
@@ -155,8 +108,6 @@ class productModel extends CI_Model
     {
         return $this->db->where(['status' => 1])->count_all_results('products');
     }
-
-
 
 
 }

@@ -4,7 +4,7 @@
             <?php $this->load->view('pages/component/sidebar'); ?>
             <!-- Hiển thị ra tất cả sản phẩm, phân trang -->
             <div class="col-sm-9 padding-right">
-                <div class="features_items"><!--features_items-->
+                <div class="features_items">
                     <h2 class="title text-center">Features Items</h2>
                     <?php
                     foreach ($allproduct_pagination as $key => $allPro) {
@@ -58,9 +58,9 @@
                             </div>
                         </form>
                     <?php } ?>
-                </div><!--features_items-->
+                </div>
 
-                <?php echo $links; ?> <!-- Phân trang -->
+                <?php echo $links; ?>
             </div>
         </div>
     </div>

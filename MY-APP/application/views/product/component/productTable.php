@@ -1,9 +1,6 @@
 <table class="table table-striped table-bordered mt20 mb20">
     <thead>
         <tr>
-            <th>
-                <input type="checkbox" id="checkAll" class="input-checkbox">
-            </th>
             <th scope="text-center">STT</th>
 
             <th scope="text-center">Tên SP</th>
@@ -23,11 +20,7 @@
     <tbody>
         <?php foreach ($products as $key => $pro): ?>
             <tr>
-                <td>
-                    <input type="checkbox" value="" class="input-checkbox checkBoxItem">
-                </td>
-                <th scope="row"><?php echo $key + 1; ?></th>
-
+                <th scope="row"><?php echo ($start + $key + 1); ?></th>
                 <td><?php echo $pro->Name; ?></td>
                 <td><?php echo $pro->Product_Code; ?></td>
                 <!-- <td style="max-width: 300px; word-wrap: break-word; overflow: hidden; text-overflow: ellipsis;">

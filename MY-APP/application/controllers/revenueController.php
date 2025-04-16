@@ -47,7 +47,6 @@
             return preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $month);
         }
 
-        // Hàm kiểm tra định dạng năm
         private function _isValidYear($year)
         {
             return preg_match('/^\d{4}$/', $year);
@@ -62,7 +61,6 @@
 
         private function _loadRevenueReportPage($extraData = [])
         {
-            // Dữ liệu mặc định
             $data = [
                 "template" => "revenue/revenueReport",
                 "title" => "Thống kê doanh thu"
@@ -81,17 +79,17 @@
             $this->config->config['pageTitle'] = 'Revenue';
             $data = [];
 
-            // Lấy loại thời gian từ form
+
             $timeType = $this->input->get('time_type');
             $data['timeType'] = $timeType;
-            // Lấy giá trị input dựa trên loại thời gian
+
             if ($timeType === 'day') {
                 $startDate = htmlspecialchars($this->input->get('start_date', true));
                 $endDate = htmlspecialchars($this->input->get('end_date', true));
                 if ($startDate && $endDate) {
                     if ($this->_isValidDate($startDate) && $this->_isValidDate($endDate)) {
                         $data['profits'] = $this->revenueModel->getProfitByDateRange($startDate, $endDate);
-                        $data['timeType'] = 'day'; // Gửi loại thời gian sang view
+                        $data['timeType'] = 'day';
                     } else {
                         $data['profits'] = ['error' => 'Invalid date format. Please use YYYY-MM-DD.'];
                     }
@@ -102,7 +100,7 @@
                 if ($startMonth && $endMonth) {
                     if ($this->_isValidMonth($startMonth) && $this->_isValidMonth($endMonth)) {
                         $data['profits'] = $this->revenueModel->getProfitByMonthRange($startMonth, $endMonth);
-                        $data['timeType'] = 'month'; // Gửi loại thời gian sang view
+                        $data['timeType'] = 'month';
                     } else {
                         $data['profits'] = ['error' => 'Invalid month format. Please use YYYY-MM.'];
                     }

@@ -51,12 +51,9 @@
                                             <i class="bi bi-calendar-date"></i>
                                         </span>
                                         <input type="date" name="date" id="date-picker"
-                                            value="<?= set_value('date'); ?>">
-
+                                            value="<?php echo set_value('date', isset($input['date']) ? $input['date'] : ''); ?>">
                                     </div>
-
                                 </div>
-
                             </div>
 
                             <div class="row receive-goods-input">
@@ -65,7 +62,7 @@
                                         <label class="form-label">Họ và tên người giao <span
                                                 class="text-danger">(*)</span>:</label>
                                         <input name="ho_ten_nguoi_giao" type="text" class="input-dots"
-                                            value="<?php echo set_value('ho_ten_nguoi_giao', isset($input['daho_ten_nguoi_giaote']) ? $input['ho_ten_nguoi_giao'] : ''); ?>">
+                                            value="<?php echo set_value('ho_ten_nguoi_giao', isset($input['ho_ten_nguoi_giao']) ? $input['ho_ten_nguoi_giao'] : ''); ?>">
                                         <span
                                             class="error-message"><?php echo isset($errors['ho_ten_nguoi_giao']) ? $errors['ho_ten_nguoi_giao'] : ''; ?></span>
                                     </div>
@@ -389,7 +386,6 @@
     </div>
 </form>
 
-
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         let datePicker = document.getElementById("date-picker");
@@ -546,33 +542,6 @@
         if (unitInput) unitInput.value = unitValue || "";
         if (unitDisplay) unitDisplay.textContent = unitValue ? unitValue : "...";
     }
-
-
-
-    // function updateUnit(selectElement) {
-    //     let selectedOption = selectElement.options[selectElement.selectedIndex];
-    //     let unitValue = selectedOption.getAttribute("data-unit") || ""; // Lấy đơn vị từ data-unit
-    //     let row = selectElement.closest("tr");
-
-    //     // Nếu sử dụng input readonly
-    //     let unitInput = row.querySelector("[name*='[unit]']");
-    //     if (unitInput) {
-    //         unitInput.value = unitValue; // Gán giá trị vào input readonly
-    //     }
-    // }
-
-    // function updateProductCode(selectElement) {
-    //     let selectedOption = selectElement.options[selectElement.selectedIndex];
-    //     let productCode = selectedOption.getAttribute("data-code") || "";
-    //     // console.log("Selected Product Code:", productCode);
-    //     let row = selectElement.closest("tr");
-    //     let codeInput = row.querySelector("[name*='[code]']");
-
-    //     if (codeInput) {
-    //         codeInput.value = productCode;
-    //         // console.log("Updated Code Input:", codeInput.value);
-    //     }
-    // }
 
     function getNumberFromFormatted(value) {
         return Number(value.replace(/\./g, "")) || 0;

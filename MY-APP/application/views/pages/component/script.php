@@ -10,6 +10,7 @@
 	crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://code.jquery.com/ui/1.14.0/jquery-ui.js"></script>
+
 <script>
 	$(document).ready(function () {
 		var active = location.search;
@@ -87,7 +88,7 @@
 	});
 </script>
 
-<!-- Check ô nhập mật khẩu thứ 2 có giống với ô 1 hay không -->
+<!-- Check 2 ô nhập lại mật khẩu -->
 <script>
 	document.getElementById('password2').addEventListener('input', checkPasswordMatch);
 
@@ -112,7 +113,6 @@
 
 
 <script>
-	// Hiển thị vòng xoay khi trang được tải lại
 	window.addEventListener('beforeunload', function () {
 		document.getElementById('loader').style.display = 'block';
 	});
@@ -154,13 +154,19 @@
 
 		var successMessage = "<?php echo $this->session->flashdata('success'); ?>";
 		var errorMessage = "<?php echo $this->session->flashdata('error'); ?>";
-		
+		var infoMessage = "<?php echo $this->session->flashdata('info'); ?>";
+
 		if (successMessage) {
-			toastr.success(successMessage, 'Thành công', { timeOut: 5000000000 });
+			toastr.success(successMessage, '', { timeOut: 5000 });
 		}
 
 		if (errorMessage) {
-			toastr.error(errorMessage, 'Lỗi', { timeOut: 5000 });
+			toastr.error(errorMessage, '', { timeOut: 5000 });
+		}
+
+		if (infoMessage) {
+			toastr.info(infoMessage, '', { timeOut: 5000 });
 		}
 	});
 </script>
+

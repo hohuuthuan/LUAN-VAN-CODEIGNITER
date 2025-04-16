@@ -12,6 +12,6 @@
     <?php $this->load->view('pages/component/footer'); ?>
 
 </body>
-    <?php $this->load->view('pages/component/script'); ?>
+<?php $this->load->view('pages/component/script'); ?>
 
 </html>

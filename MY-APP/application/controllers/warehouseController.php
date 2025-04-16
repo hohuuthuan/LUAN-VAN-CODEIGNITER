@@ -38,64 +38,106 @@ class warehouseController extends CI_Controller
 		}
 	}
 
-	public function index()
+	// public function index()
+	// {
+	// 	// $this->checkLogin();
+	// 	$this->config->config['pageTitle'] = 'List Products';
+	// 	$this->load->model('indexModel');
+
+	// 	$total_products = $this->indexModel->countAllProduct();
+
+	// 	$this->load->library('pagination');
+
+	// 	$config = array();
+	// 	$config["base_url"] = base_url() . 'product/list';
+	// 	$config['total_rows'] = $total_products;
+	// 	$config["per_page"] = 10;
+	// 	$config["uri_segment"] = 3;
+	// 	$config['use_page_numbers'] = TRUE;
+	// 	$config['full_tag_open'] = '<ul class="pagination">';
+	// 	$config['full_tag_close'] = '</ul>';
+	// 	$config['first_link'] = 'First';
+	// 	$config['first_tag_open'] = '<li>';
+	// 	$config['first_tag_close'] = '</li>';
+	// 	$config['last_link'] = 'Last';
+	// 	$config['last_tag_open'] = '<li>';
+	// 	$config['last_tag_close'] = '</li>';
+	// 	$config['cur_tag_open'] = '<li class="active"><a>';
+	// 	$config['cur_tag_close'] = '</a></li>';
+	// 	$config['num_tag_open'] = '<li>';
+	// 	$config['num_tag_close'] = '</li>';
+	// 	$config['next_tag_open'] = '<li>';
+	// 	$config['next_tag_close'] = '</li>';
+	// 	$config['prev_tag_open'] = '<li>';
+	// 	$config['prev_tag_close'] = '</li>';
+
+	// 	// Khởi tạo phân trang
+	// 	$this->pagination->initialize($config);
+
+	// 	// Xác định trang hiện tại
+	// 	$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 1;
+	// 	$start = ($page - 1) * $config['per_page'];
+
+	// 	// Lấy dữ liệu sản phẩm theo phân trang
+	// 	$data['products'] = $this->indexModel->getIndexPagination($config['per_page'], $start);
+	// 	$data['links'] = $this->pagination->create_links();
+	// 	// echo '<pre>';
+	// 	// print_r($data);
+	// 	// echo '</pre>';
+
+
+	// 	$data['breadcrumb'] = [
+	// 		['label' => 'Dashboard', 'url' => 'dashboard'],
+	// 		['label' => 'Danh sách sản phẩm trong kho']
+	// 	];
+	// 	$data['template'] = "warehouse/index";
+	// 	$this->load->view("admin-layout/admin-layout", $data);
+	// }
+
+	public function index($page = 1)
 	{
-		// $this->checkLogin();
 		$this->config->config['pageTitle'] = 'List Products';
 		$this->load->model('indexModel');
-
-		$total_products = $this->indexModel->countAllProduct();
-
 		$this->load->library('pagination');
 
-		$config = array();
-		$config["base_url"] = base_url() . 'product/list';
-		$config['total_rows'] = $total_products; // Sử dụng số lượng sản phẩm đã được đếm
-		$config["per_page"] = 10; // Số lượng sản phẩm trên mỗi trang
-		$config["uri_segment"] = 3; // Vị trí của số trang trong URI
-		$config['use_page_numbers'] = TRUE; // Sử dụng số trang thay vì offset
-		$config['full_tag_open'] = '<ul class="pagination">';
-		$config['full_tag_close'] = '</ul>';
-		$config['first_link'] = 'First';
-		$config['first_tag_open'] = '<li>';
-		$config['first_tag_close'] = '</li>';
-		$config['last_link'] = 'Last';
-		$config['last_tag_open'] = '<li>';
-		$config['last_tag_close'] = '</li>';
-		$config['cur_tag_open'] = '<li class="active"><a>';
-		$config['cur_tag_close'] = '</a></li>';
-		$config['num_tag_open'] = '<li>';
-		$config['num_tag_close'] = '</li>';
-		$config['next_tag_open'] = '<li>';
-		$config['next_tag_close'] = '</li>';
-		$config['prev_tag_open'] = '<li>';
-		$config['prev_tag_close'] = '</li>';
+		$keyword  = $this->input->get('keyword', true);
+		$status   = $this->input->get('status', true);
+		$perpage  = (int) $this->input->get('perpage');
+		$perpage  = $perpage > 0 ? $perpage : 10;
 
-		// Khởi tạo phân trang
-		$this->pagination->initialize($config);
+		$total_products = $this->indexModel->countAllProduct($keyword, $status);
 
-		// Xác định trang hiện tại
-		$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 1;
-		$start = ($page - 1) * $config['per_page'];
+		$page  = (int)$page;
+		$page  = ($page > 0) ? $page : 1;
+		$max_page = ceil($total_products / $perpage);
+		if ($page > $max_page && $total_products > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('warehouse/list') . ($query ? '?' . $query : ''));
+		}
 
-		// Lấy dữ liệu sản phẩm theo phân trang
-		$data['products'] = $this->indexModel->getIndexPagination($config['per_page'], $start);
-		$data['links'] = $this->pagination->create_links();
-		// echo '<pre>';
-		// print_r($data);
-		// echo '</pre>';
+		$start = ($page - 1) * $perpage;
 
+
+		$data['products'] = $this->indexModel->getProductPagination($perpage, $start, $keyword, $status);
+		$data['links'] = init_pagination(base_url('warehouse/list'), $total_products, $perpage, 3);
+
+
+		$data['keyword'] = $keyword;
+		$data['status'] = $status;
+		$data['perpage'] = $perpage;
 		$data['title'] = "Danh sách sản phẩm trong kho";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Danh sách sản phẩm trong kho']
 		];
+		$data['start'] = $start;
 		$data['template'] = "warehouse/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
 
-	private function _loadReceiveGoodsPage($extraData = [])
+
+	public function receive_goods_page($extraData = [])
 	{
 		$this->load->model('indexModel');
 		$this->load->model('warehouseModel');
@@ -109,7 +151,7 @@ class warehouseController extends CI_Controller
 			'errors' => $this->session->flashdata('errors'),
 			'input' => $this->session->flashdata('input')
 		];
-		
+
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Phiếu nhập kho']
@@ -119,18 +161,11 @@ class warehouseController extends CI_Controller
 		// print_r($data);
 		// echo "</pre>";
 
-		// Gộp thêm dữ liệu nếu có
 		$data = array_merge($data, $extraData);
 
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
-
-
-	public function receive_goods()
-	{
-		$this->_loadReceiveGoodsPage();
-	}
 
 	public function enter_into_warehouse()
 	{
@@ -176,7 +211,7 @@ class warehouseController extends CI_Controller
 			redirect('warehouse/receive-goods');
 			return;
 		}
-		
+
 
 		$data_warehouse_receipt = [
 			'tax_identification_number' => $this->input->post('tax_identification_number'),
@@ -210,28 +245,125 @@ class warehouseController extends CI_Controller
 	}
 
 
-
-	public function receipt_goods_history()
+	public function receipt_goods_history($page = 1)
 	{
-
-
-		$this->load->model('warehouseModel');
-
-		$data['receive_history'] = $this->warehouseModel->get_warehouse_receipts();
-
-		// echo "<pre>";
-		// print_r($data['receive_history']);
-		// echo "</pre>";
-
 		$this->config->config['pageTitle'] = 'Lịch sử nhập hàng';
+		$this->load->model('warehouseModel');
+		$this->load->model('indexModel');
+
+		$filter = [
+			'perpage'       => (int)$this->input->get('perpage'),
+			'keyword'       => $this->input->get('keyword', TRUE),
+			'supplier_id'   => $this->input->get('supplier_id', TRUE),
+			'start_date'    => $this->input->get('start_date', TRUE),
+			'start_date'      => $this->input->get('start_date', TRUE),
+			'sort_by'       => $this->input->get('sort_by', TRUE)
+		];
+		$filter['perpage'] = ($filter['perpage'] > 0 && $filter['perpage'] <= 100) ? $filter['perpage'] : 10;
+
+		// Tổng số dòng
+		$total = $this->warehouseModel->count_filtered_receipts($filter);
+
+		// Xử lý trang hiện tại
+		$page = (int)$this->uri->segment(3);
+		if ($page < 1) $page = 1;
+		$max_page = ceil($total / $filter['perpage']);
+		if ($page > $max_page && $total > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('warehouse/receive-goods-history') . ($query ? '?' . $query : ''));
+		}
+
+		// Phân trang
+		$limit  = $filter['perpage'];
+		$offset = ($page - 1) * $limit;
+
+		// Lấy danh sách phiếu nhập
+		$receipts = $this->warehouseModel->get_filtered_receipts($limit, $offset, $filter);
+		$receipt_ids = array_column($receipts, 'warehouse_receipt_id');
+
+		// Lấy danh sách sản phẩm theo phiếu
+		$items = $this->warehouseModel->get_items_by_receipt_ids($receipt_ids);
+		foreach ($receipts as &$receipt) {
+			$receipt['product_items'] = isset($items[$receipt['warehouse_receipt_id']]) ? $items[$receipt['warehouse_receipt_id']] : [];
+		}
+
+		// Đổ dữ liệu ra view
+		$data['receive_history'] = $receipts;
+		$data['suppliers'] = $this->indexModel->getAllSupplier();
+		$data['links'] = init_pagination(base_url('warehouse/receive-goods-history'), $total, $limit, 3);
+
 		$data['title'] = "Lịch sử nhập hàng";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Lịch sử nhập hàng']
 		];
 		$data['template'] = "warehouse/receive-goods-list";
+		$data['start'] = $offset;
+		$data['perpage'] = $limit;
+
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
+
+
+
+
+
+	public function receipt_goods_history_gốc($page = 1)
+	{
+		$this->config->config['pageTitle'] = 'Lịch sử nhập hàng';
+		$this->load->model('warehouseModel');
+
+		$perpage = (int)$this->input->get('perpage');
+		$perpage = $perpage > 0 ? $perpage : 10;
+
+		$total = $this->warehouseModel->count_warehouse_receipts();
+
+		$page = (int)$this->uri->segment(3);
+		if ($page < 1) $page = 1;
+		$max_page = ceil($total / $perpage);
+		if ($page > $max_page && $total > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('warehouse/receive-goods-history') . ($query ? '?' . $query : ''));
+		}
+
+		$start = ($page - 1) * $perpage;
+
+		$data['receive_history'] = $this->warehouseModel->get_warehouse_receipts_v1($perpage, $start);
+		$data['suppliers'] = $this->indexModel->getAllSupplier();
+		$data['links'] = init_pagination(base_url('warehouse/receive-goods-history'), $total, $perpage, 3);
+
+
+		$data['title'] = "Lịch sử nhập hàng";
+		$data['breadcrumb'] = [
+			['label' => 'Dashboard', 'url' => 'dashboard'],
+			['label' => 'Lịch sử nhập hàng']
+		];
+		$data['template'] = "warehouse/receive-goods-list";
+		$data['start'] = $start;
+		$data['perpage'] = $perpage;
+		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+
+	// public function receipt_goods_history()
+	// {
+	// 	$this->load->model('warehouseModel');
+
+	// 	$data['receive_history'] = $this->warehouseModel->get_warehouse_receipts();
+
+	// 	// echo "<pre>";
+	// 	// print_r($data['receive_history']);
+	// 	// echo "</pre>";
+
+	// 	$this->config->config['pageTitle'] = 'Lịch sử nhập hàng';
+	// 	$data['title'] = "Lịch sử nhập hàng";
+	// 	$data['breadcrumb'] = [
+	// 		['label' => 'Dashboard', 'url' => 'dashboard'],
+	// 		['label' => 'Lịch sử nhập hàng']
+	// 	];
+	// 	$data['template'] = "warehouse/receive-goods-list";
+	// 	$this->load->view("admin-layout/admin-layout", $data);
+	// }
 
 	public function receipt_detail($id)
 	{

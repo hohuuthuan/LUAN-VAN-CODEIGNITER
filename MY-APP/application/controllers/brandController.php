@@ -41,17 +41,47 @@ class brandController extends CI_Controller
 		}
 	}
 
-	public function index()
+
+
+
+	public function index($page = 1)
 	{
 		$this->config->config['pageTitle'] = 'List Brand';
 		$this->load->model('brandModel');
-		$data['brand'] = $this->brandModel->selectBrand();
-		$data['title'] = "Danh sách thương hiệu";
+		$this->load->helper('pagination');
+
+		$keyword  = $this->input->get('keyword', true);
+		$status   = $this->input->get('status', true);
+		$perpage  = (int) $this->input->get('perpage');
+		$perpage  = $perpage > 0 ? $perpage : 10;
+
+		$total = $this->brandModel->countBrand($keyword, $status);
+
+		$page = (int) $page;
+		$page = $page > 0 ? $page : 1;
+		$max_page = ceil($total / $perpage);
+
+		if ($page > $max_page && $total > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('brand/list') . ($query ? '?' . $query : ''));
+		}
+
+		$start = ($page - 1) * $perpage;
+
+		$data['brand'] = $this->brandModel->selectBrand($keyword, $status, $perpage, $start);
+		$data['links'] = init_pagination(base_url('brand/list'), $total, $perpage, 3);
+
+		$data['status']     = $status;
+		$data['keyword']    = $keyword;
+		$data['perpage']    = $perpage;
+		$data['start']      = $start;
+		$data['title']      = "Danh sách thương hiệu";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Danh sách thương hiệu']
 		];
 		$data['template'] = "brand/index";
+
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
@@ -60,6 +90,8 @@ class brandController extends CI_Controller
 	{
 		$this->config->config['pageTitle'] = 'Create Brand';
 		$this->load->model('brandModel');
+		$data['errors'] = $this->session->flashdata('errors');
+		$data['input'] = $this->session->flashdata('input');
 		$data['brand'] = $this->brandModel->selectBrand();
 		$data['title'] = "Thêm mới thương hiệu";
 		$data['breadcrumb'] = [
@@ -72,15 +104,20 @@ class brandController extends CI_Controller
 
 
 
-	public function storeBrand()
+	public function storageBrand()
 	{
-		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
+		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần điền tên thương hiệu']);
 		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
 		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
 
 
 		if ($this->form_validation->run()) {
-
+			if (empty($_FILES['Image']['name'])) {
+				$this->session->set_flashdata('errors', ['Image' => 'Bạn cần chọn hình ảnh']);
+				$this->session->set_flashdata('input', $this->input->post());
+				redirect(base_url('brand/create'));
+				return;
+			}
 			$ori_filename = $_FILES['Image']['name'];
 			$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
 			$config = [
@@ -110,8 +147,9 @@ class brandController extends CI_Controller
 				redirect(base_url('brand/list'));
 			}
 		} else {
-			$this->session->set_flashdata('error', 'Vui lòng nhập đầy đủ thông tin');
-			$this->createBrand();
+			$this->session->set_flashdata('errors', $this->form_validation->error_array());
+			$this->session->set_flashdata('input', $this->input->post());
+			redirect(base_url('brand/create'));
 		}
 	}
 
@@ -130,64 +168,143 @@ class brandController extends CI_Controller
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
+	// public function updateBrand($BrandID)
+	// {
+	// 	$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
+	// 	$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
+	// 	$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+
+
+	// 	if ($this->form_validation->run()) {
+
+	// 		if (!empty($_FILES['Image']['name'])) {
+	// 			// Upload Image
+	// 			$ori_filename = $_FILES['image']['name'];
+	// 			$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
+	// 			$config = [
+	// 				'upload_path' => './uploads/brand',
+	// 				'allowed_types' => 'gif|jpg|png|jpeg',
+	// 				'file_name' => $new_name
+	// 			];
+	// 			$this->load->library('upload', $config);
+
+	// 			if (!$this->upload->do_upload('Image')) {
+	// 				$error = array('error' => $this->upload->display_errors());
+	// 				$data['template'] = "brand/createBrand";
+	// 				$data['title'] = "Thêm mới thương hiệu";
+	// 				$this->load->view("admin-layout/admin-layout", $data);
+	// 			} else {
+	// 				$brand_filename = $this->upload->data('file_name');
+	// 				$data = [
+	// 					'Name' => $this->input->post('Name'),
+	// 					'Slug' => $this->input->post('Slug'),
+	// 					'Description' => $this->input->post('Description'),
+	// 					'Image' => $brand_filename,
+	// 					'Status' => $this->input->post('Status'),
+	// 				];
+	// 			}
+	// 		} else {
+	// 			$data = [
+	// 				'Name' => $this->input->post('Name'),
+	// 				'Slug' => $this->input->post('Slug'),
+	// 				'Description' => $this->input->post('Description'),
+	// 				'Status' => $this->input->post('Status'),
+	// 			];
+	// 		}
+	// 		$this->load->model('brandModel');
+	// 		$result = $this->brandModel->updateBrand($BrandID, $data);
+	// 		if ($result) {
+	// 			$this->session->set_flashdata('success', 'Đã chỉnh sửa thương hiệu thành công');
+	// 		} else {
+	// 			$this->session->set_flashdata('error', 'Có lỗi xảy ra');
+	// 		}
+
+
+	// 		redirect(base_url('brand/list'));
+	// 	} else {
+	// 		$this->editBrand($BrandID);
+	// 	}
+	// }
+
+
+
 	public function updateBrand($BrandID)
 	{
-		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+		$this->load->model('brandModel');
+		$this->load->library(['form_validation', 'upload']);
 
+		// Validate dữ liệu nhập vào
+		$this->form_validation->set_rules('Name', 'Tên thương hiệu', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Description', 'Mô tả', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Chưa có Slug']);
 
-		if ($this->form_validation->run()) {
-
-			if (!empty($_FILES['Image']['name'])) {
-				// Upload Image
-				$ori_filename = $_FILES['image']['name'];
-				$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
-				$config = [
-					'upload_path' => './uploads/brand',
-					'allowed_types' => 'gif|jpg|png|jpeg',
-					'file_name' => $new_name
-				];
-				$this->load->library('upload', $config);
-
-				if (!$this->upload->do_upload('Image')) {
-					$error = array('error' => $this->upload->display_errors());
-					$data['template'] = "brand/createBrand";
-					$data['title'] = "Thêm mới thương hiệu";
-					$this->load->view("admin-layout/admin-layout", $data);
-				} else {
-					$brand_filename = $this->upload->data('file_name');
-					$data = [
-						'Name' => $this->input->post('Name'),
-						'Slug' => $this->input->post('Slug'),
-						'Description' => $this->input->post('Description'),
-						'Image' => $brand_filename,
-						'Status' => $this->input->post('Status'),
-					];
-				}
-			} else {
-				$data = [
-					'Name' => $this->input->post('Name'),
-					'Slug' => $this->input->post('Slug'),
-					'Description' => $this->input->post('Description'),
-					'Status' => $this->input->post('Status'),
-				];
-			}
-			$this->load->model('brandModel');
-			$result = $this->brandModel->updateBrand($BrandID, $data);
-			if ($result) {
-				$this->session->set_flashdata('success', 'Đã chỉnh sửa thương hiệu thành công');
-			} else {
-				$this->session->set_flashdata('error', 'Có lỗi xảy ra');
-			}
-
-
-			redirect(base_url('brand/list'));
-		} else {
-			$this->editBrand($BrandID);
+		if (!$this->form_validation->run()) {
+			return $this->editBrand($BrandID);
 		}
+
+		$old_data = $this->brandModel->selectBrandById($BrandID);
+
+		$new_data = [
+			'Name' => $this->input->post('Name'),
+			'Slug' => $this->input->post('Slug'),
+			'Description' => $this->input->post('Description'),
+			'Status' => $this->input->post('Status'),
+		];
+
+		if (!empty($_FILES['Image']['name'])) {
+			$ori_filename = $_FILES['Image']['name'];
+			$new_name = time() . '-' . url_title($ori_filename);
+			$config = [
+				'upload_path'   => './uploads/brand/',
+				'allowed_types' => 'gif|jpg|png|jpeg',
+				'file_name'     => $new_name,
+				'overwrite'     => true,
+			];
+			$this->upload->initialize($config);
+
+			if (!$this->upload->do_upload('Image')) {
+				$data = [
+					'brand' => $old_data,
+					'error' => $this->upload->display_errors(),
+					'template' => "brand/editBrand",
+					'title' => "Chỉnh sửa thương hiệu",
+					'breadcrumb' => [
+						['label' => 'Dashboard', 'url' => 'dashboard'],
+						['label' => 'Danh sách thương hiệu', 'url' => 'brand/list'],
+						['label' => 'Chỉnh sửa thương hiệu']
+					]
+				];
+				return $this->load->view("admin-layout/admin-layout", $data);
+			} else {
+				$upload_data = $this->upload->data();
+				$new_data['Image'] = $upload_data['file_name'];
+			}
+		}
+
+		if ($this->_is_same_data($old_data, $new_data)) {
+			$this->session->set_flashdata('info', 'Không có thay đổi nào để lưu.');
+			return $this->editBrand($BrandID);
+		} else {
+			$result = $this->brandModel->updateBrand($BrandID, $new_data);
+			if ($result) {
+				$this->session->set_flashdata('success', 'Đã chỉnh sửa thương hiệu thành công.');
+			} else {
+				$this->session->set_flashdata('error', 'Có lỗi xảy ra khi cập nhật.');
+			}
+		}
+
+		redirect(base_url('brand/list'));
 	}
 
+	private function _is_same_data($old, $new)
+	{
+		foreach ($new as $key => $val) {
+			if (!isset($old->$key) || $old->$key != $val) {
+				return false;
+			}
+		}
+		return true;
+	}
 	public function deleteBrand($BrandID)
 	{
 		$this->load->model('brandModel');

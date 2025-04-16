@@ -6,11 +6,61 @@ class brandModel extends CI_Model
         return $this->db->insert('brand', $data);
     }
 
-    public function selectBrand()
+   
+
+    // public function selectBrand($keyword = null, $status = null, $limit = 20)
+    // {
+    //     if (!empty($keyword)) {
+    //         $this->db->like('Name', $keyword);
+    //     }
+
+    //     if ($status !== null && $status !== '') {
+    //         $this->db->where('Status', (int)$status);
+    //     }
+
+    //     $this->db->order_by('Status', 'DESC');
+    //     $this->db->order_by('Name', 'ASC');
+
+    //     // Giới hạn số bản ghi hiển thị
+    //     $this->db->limit((int)$limit);
+
+    //     $query = $this->db->get('brand');
+    //     return $query->result();
+    // }
+
+
+    public function countBrand($keyword = null, $status = null)
     {
-        $query = $this->db->get('brand');
+        if (!empty($keyword)) {
+            $this->db->like('Name', $keyword);
+        }
+
+        if ($status !== null && $status !== '') {
+            $this->db->where('Status', (int)$status);
+        }
+
+        return $this->db->count_all_results('brand');
+    }
+    public function selectBrand($keyword = null, $status = null, $limit = 10, $offset = 0)
+    {
+        if (!empty($keyword)) {
+            $this->db->like('Name', $keyword);
+        }
+
+        if ($status !== null && $status !== '') {
+            $this->db->where('Status', (int)$status);
+        }
+
+        $this->db->order_by('Status', 'DESC');
+        $this->db->order_by('Name', 'ASC');
+
+        $query = $this->db->get('brand', $limit, $offset);
         return $query->result();
     }
+
+
+
+
     public function selectBrandById($BrandID)
     {
         $query = $this->db->get_where('brand', ['BrandID' => $BrandID]);
@@ -25,24 +75,12 @@ class brandModel extends CI_Model
 
     public function checkBrandInProducts($brand_id)
     {
-        $this->db->select('id');
-        $this->db->from('products');
-        $this->db->where('brand_id', $brand_id);
-        $query = $this->db->get();
-
-        if ($query->num_rows() > 0) {
-            // Nếu có sản phẩm sử dụng thương hiệu này
-            return true;
-        } else {
-            // Nếu không có sản phẩm nào liên kết
-            return false;
-        }
+        return $this->db->where('brand_id', $brand_id)->count_all_results('products') > 0;
     }
+
 
     public function deleteBrand($BrandID)
     {
         return $this->db->delete('brand', ['BrandID' => $BrandID]);
     }
 }
-
-?>

@@ -56,7 +56,6 @@
 }
 
 .select2-container--default .select2-selection--single {
-
 	border-radius: 5px !important;
 }
 .select2-container .select2-selection--single {
@@ -88,35 +87,112 @@
 	font-size: 13px;
 }
 
-
-
 .out-of-stock {
-    position: relative;
-    display: inline-block;
+	position: relative;
+	display: inline-block;
 }
 
 .out-of-stock::after {
-    content: "TẠM HẾT HÀNG";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.8);
-    color: #180cb8;
-    font-size: 24px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-transform: uppercase;
+	content: "TẠM HẾT HÀNG";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(255, 255, 255, 0.8);
+	color: #180cb8;
+	font-size: 24px;
+	font-weight: bold;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: uppercase;
 }
-
-
 
 .table-responsive {
-    overflow-x: auto; /* Cho phép cuộn ngang */
-    max-width: 100%; /* Giới hạn chiều rộng tối đa */
+	overflow-x: auto; /* Cho phép cuộn ngang */
+	max-width: 100%; /* Giới hạn chiều rộng tối đa */
+}
+
+.ai-container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 30px;
+	background: #fff;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+	border-radius: 12px;
+}
+
+.ai-container h2 {
+	text-align: center;
+	color: #FE980F;
+}
+
+.ai-container form {
+	text-align: center;
+	
+}
+
+.ai-container input[type="file"] {
+	margin-bottom: 15px;
+}
+
+.ai-container button.upload-image {
+	padding: 8px 20px;
+	border: none;
+	background: #3498db;
+	color: #fff;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.ai-container img {
+	max-width: 100%;
+	margin-top: 20px;
+	border-radius: 8px;
+	box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.ai-result {
+	margin-top: 20px;
+	background: #f4f4f4;
+	padding: 15px;
+	border-radius: 8px;
+}
+
+.ai-error {
+	color: red;
+	text-align: center;
+	font-weight: bold;
+}
+
+.ai-result-title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.productinfo img {
+	width: 100%;
+	height: 170px;
+	object-fit: contain;
+}
+
+.productinfo h2 .sale-label{
+	color: red;
+}
+.productinfo h2 .discounted-price{
+	color: #FE980F;
 }
 
 
+.title{
+	text-align: center;
+	margin-bottom: 30px;
+	color: #FE980F;
+}
+.ai-result-title{
+	text-align: center;
+	margin-bottom: 30px;
+	color: #3498db;
+}

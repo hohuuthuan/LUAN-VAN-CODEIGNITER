@@ -37,16 +37,47 @@ class categoryController extends CI_Controller
 			redirect(base_url('dang-mhap'));
 		}
 	}
-	public function index()
+
+	public function index($page = 1)
 	{
-		$this->config->config['pageTitle'] = 'List Categories';
+		$this->config->config['pageTitle'] = 'List Category';
 		$this->load->model('categoryModel');
-		$data['category'] = $this->categoryModel->selectCategory();
-		$data['title'] = "Danh sách danh mục";
+		// Filter
+		$keyword  = $this->input->get('keyword', true);
+		$status   = $this->input->get('status', true);
+		$perpage  = (int) $this->input->get('perpage');
+		$perpage  = $perpage > 0 ? $perpage : 10;
+
+		// Tổng số bản ghi
+		$total = $this->categoryModel->countCategory($keyword, $status);
+
+		$data['links'] = init_pagination(base_url('category/list'), $total, $perpage, 3);
+
+		// --- Tính offset ---
+		$page  = (int)$page;
+		$page  = ($page > 0) ? $page : 1;
+		$max_page = ceil($total / $perpage);
+		if ($page > $max_page && $total > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('category/list') . ($query ? '?' . $query : ''));
+		}
+
+		$start = ($page - 1) * $perpage;
+
+		// Dữ liệu hiển thị
+		$data['category']    = $this->categoryModel->selectCategory($keyword, $status, $perpage, $start);
+		$data['links']    = $this->pagination->create_links();
+
+		// Trả filter lại view
+		$data['status']   = $status;
+		$data['keyword']  = $keyword;
+		$data['perpage']  = $perpage;
+		$data['title'] 	  = "Danh sách danh mục";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Danh sách danh mục']
 		];
+		$data['start'] = $start;
 		$data['template'] = "category/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
@@ -55,6 +86,8 @@ class categoryController extends CI_Controller
 	{
 		$this->config->config['pageTitle'] = 'Create Category';
 		$this->load->model('categoryModel');
+		$data['errors'] = $this->session->flashdata('errors');
+		$data['input'] = $this->session->flashdata('input');
 		$data['category'] = $this->categoryModel->selectCategory();
 		$data['title'] = "Thêm mới danh mục";
 		$data['breadcrumb'] = [
@@ -65,15 +98,19 @@ class categoryController extends CI_Controller
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
-	public function storeCategory()
+	public function storageCategory()
 	{
-		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần điền tên danh mục']);
+		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền mô tả']);
 		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
 
-
 		if ($this->form_validation->run()) {
-
+			if (empty($_FILES['Image']['name'])) {
+				$this->session->set_flashdata('errors', ['Image' => 'Bạn cần chọn hình ảnh']);
+				$this->session->set_flashdata('input', $this->input->post());
+				redirect(base_url('brand/create'));
+				return;
+			}
 			$ori_filename = $_FILES['Image']['name'];
 			$new_name = time() . "" . str_replace(' ', '-', $ori_filename);
 			$config = [
@@ -103,6 +140,8 @@ class categoryController extends CI_Controller
 				redirect(base_url('category/list'));
 			}
 		} else {
+			$this->session->set_flashdata('errors', $this->form_validation->error_array());
+			$this->session->set_flashdata('input', $this->input->post());
 			$this->createcategory();
 		}
 	}

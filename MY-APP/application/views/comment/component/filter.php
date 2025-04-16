@@ -1,4 +1,4 @@
-<form action="" class="mt20">
+<form id="filterForm" action="" method="get" class="mt20">
     <div class="filter-wapper">
         <div class="uk-flex uk-flex-middle uk-flex-space-between">
             <div class="perpage">

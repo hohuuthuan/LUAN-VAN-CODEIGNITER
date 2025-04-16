@@ -43,25 +43,234 @@ class orderController extends CI_Controller
 		}
 	}
 
-	public function index()
+	// public function index()
+	// {
+	// 	$this->config->config['pageTitle'] = 'List Order';
+	// 	$this->load->model('orderModel');
+	// 	$data['order'] = $this->orderModel->selectOrder();
+	// 	// In dữ liệu để kiểm tra
+	// 	// echo '<pre>';
+	// 	// print_r($data['order']);
+	// 	// echo '</pre>';
+
+	// 	$data['title'] = "Danh sách đơn hàng";
+	// 	$data['breadcrumb'] = [
+	// 		['label' => 'Dashboard', 'url' => 'dashboard'],
+	// 		['label' => 'Danh sách đơn hàng']
+	// 	];
+	// 	$data['template'] = "order_admin/index";
+	// 	$this->load->view("admin-layout/admin-layout", $data);
+
+	// }
+
+
+
+	// public function index($page = 1)
+	// {
+	// 	$this->config->config['pageTitle'] = 'List Order';
+	// 	$this->load->model('orderModel');
+
+	// 	// Lấy filter từ GET
+	// 	$keyword = $this->input->get('keyword', TRUE);
+	// 	$status  = $this->input->get('status', TRUE);
+	// 	$perpage = (int) $this->input->get('perpage');
+	// 	$perpage = ($perpage > 0) ? $perpage : 1;
+
+	// 	$filter = [
+	// 		'keyword' => $keyword,
+	// 		'status'  => $status
+	// 	];
+
+	// 	// Tổng số đơn hàng
+	// 	$total = $this->orderModel->countOrder($filter);
+
+	// 	// Cấu hình phân trang
+	// 	$this->load->library('pagination');
+	// 	// Cấu hình phân trang
+	// 	$config['base_url'] = base_url('order_admin/listOrder');
+	// 	$config['total_rows'] = $total;
+	// 	$config['per_page'] = $perpage;
+	// 	$config['uri_segment'] = 3;
+	// 	$config['use_page_numbers'] = TRUE;
+	// 	$config['reuse_query_string'] = TRUE;
+
+	// 	// Bootstrap UI
+	// 	$config['full_tag_open'] = '<ul class="pagination">';
+	// 	$config['full_tag_close'] = '</ul>';
+	// 	$config['first_tag_open'] = '<li>';
+	// 	$config['first_tag_close'] = '</li>';
+	// 	$config['last_tag_open'] = '<li>';
+	// 	$config['last_tag_close'] = '</li>';
+	// 	$config['next_tag_open'] = '<li>';
+	// 	$config['next_tag_close'] = '</li>';
+	// 	$config['prev_tag_open'] = '<li>';
+	// 	$config['prev_tag_close'] = '</li>';
+	// 	$config['cur_tag_open'] = '<li class="active"><a>';
+	// 	$config['cur_tag_close'] = '</a></li>';
+	// 	$config['num_tag_open'] = '<li>';
+	// 	$config['num_tag_close'] = '</li>';
+
+	// 	$this->pagination->initialize($config);
+
+	// 	$page  = max(1, (int)$page);
+	// 	$start = ($page - 1) * $perpage;
+
+	// 	$data['order'] = $this->orderModel->selectOrder($perpage, $start, $filter);
+	// 	$data['links'] = $this->pagination->create_links();
+
+	// 	// Truyền filter về lại view
+	// 	$data['keyword'] = $keyword;
+	// 	$data['status']  = $status;
+	// 	$data['perpage'] = $perpage;
+
+	// 	$data['title'] = "Danh sách đơn hàng";
+	// 	$data['breadcrumb'] = [
+	// 		['label' => 'Dashboard', 'url' => 'dashboard'],
+	// 		['label' => 'Danh sách đơn hàng']
+	// 	];
+	// 	$data['template'] = "order_admin/index";
+	// 	$this->load->view("admin-layout/admin-layout", $data);
+	// }
+
+
+	// public function index($page = 1)
+	// {
+	// 	$this->config->config['pageTitle'] = 'List Order';
+	// 	$this->load->model('orderModel');
+
+	// 	// --- Lấy filter từ GET ---
+	// 	$keyword = $this->input->get('keyword', TRUE);
+	// 	$status  = $this->input->get('status', TRUE);
+	// 	$perpage = (int)$this->input->get('perpage');
+	// 	$perpage = ($perpage > 0) ? $perpage : 2;
+
+	// 	$filter = [
+	// 		'keyword' => $keyword,
+	// 		'status'  => $status
+	// 	];
+
+	// 	// --- Tổng số đơn hàng ---
+	// 	$total = $this->orderModel->countOrder($filter);
+
+	// 	// --- Tính offset ---
+	// 	$page = (int)$page;
+	// 	$page = ($page > 0) ? $page : 1;
+	// 	$max_page = ceil($total / $perpage);
+
+	// 	if ($page > $max_page && $total > 0) {
+	// 		$query = http_build_query($this->input->get());
+	// 		redirect(base_url('order_admin/listOrder') . ($query ? '?' . $query : ''));
+	// 	}
+
+	// 	$start = ($page - 1) * $perpage;
+
+	// 	// --- Cấu hình phân trang ---
+	// 	$this->load->library('pagination');
+	// 	$config['base_url']           = base_url('order_admin/listOrder');
+	// 	$config['total_rows']         = $total;
+	// 	$config['per_page']           = $perpage;
+	// 	$config['uri_segment']        = 3;
+	// 	$config['use_page_numbers']   = true;
+	// 	$config['reuse_query_string'] = true;
+
+	// 	// --- Bootstrap UI ---
+	// 	$config['full_tag_open']   = '<ul class="pagination">';
+	// 	$config['full_tag_close']  = '</ul>';
+	// 	$config['first_tag_open']  = '<li>';
+	// 	$config['first_tag_close'] = '</li>';
+	// 	$config['last_tag_open']   = '<li>';
+	// 	$config['last_tag_close']  = '</li>';
+	// 	$config['next_tag_open']   = '<li>';
+	// 	$config['next_tag_close']  = '</li>';
+	// 	$config['prev_tag_open']   = '<li>';
+	// 	$config['prev_tag_close']  = '</li>';
+	// 	$config['cur_tag_open']    = '<li class="active"><a>';
+	// 	$config['cur_tag_close']   = '</a></li>';
+	// 	$config['num_tag_open']    = '<li>';
+	// 	$config['num_tag_close']   = '</li>';
+
+	// 	$this->pagination->initialize($config);
+
+	// 	// --- Lấy danh sách đơn hàng ---
+	// 	$data['order']   = $this->orderModel->selectOrder($perpage, $start, $filter);
+	// 	$data['links']   = $this->pagination->create_links();
+
+	// 	// --- Truyền filter lại cho view ---
+	// 	$data['keyword'] = $keyword;
+	// 	$data['status']  = $status;
+	// 	$data['perpage'] = $perpage;
+	// 	$data['start']   = $start;
+
+	// 	// --- Thông tin hiển thị ---
+	// 	$data['title'] = "Danh sách đơn hàng";
+	// 	$data['breadcrumb'] = [
+	// 		['label' => 'Dashboard', 'url' => 'dashboard'],
+	// 		['label' => 'Danh sách đơn hàng']
+	// 	];
+	// 	$data['template'] = "order_admin/index";
+	// 	$this->load->view("admin-layout/admin-layout", $data);
+	// }
+
+
+	public function index($page = 1)
 	{
 		$this->config->config['pageTitle'] = 'List Order';
 		$this->load->model('orderModel');
-		$data['order'] = $this->orderModel->selectOrder();
-		// In dữ liệu để kiểm tra
-		// echo '<pre>';
-		// print_r($data['order']);
-		// echo '</pre>';
+
+		// --- Lấy filter từ GET ---
+		$date_from = $this->input->get('date_from', TRUE);
+		$date_to   = $this->input->get('date_to', TRUE);
+		$keyword         = $this->input->get('keyword', TRUE);
+		$status          = $this->input->get('status', TRUE);
+		$checkout_method = $this->input->get('checkout_method', TRUE);
+		$perpage         = (int)$this->input->get('perpage');
+		$perpage         = ($perpage > 0) ? $perpage : 10;
+
+		$filter = [
+			'keyword'         => $keyword,
+			'status'          => $status,
+			'checkout_method' => $checkout_method,
+			'date_from'       => $date_from,
+			'date_to'         => $date_to,
+		];
+
+		$total = $this->orderModel->countOrder($filter);
+
+		// --- Tính offset ---
+		$page = (int)$page;
+		$page = ($page > 0) ? $page : 1;
+		$max_page = ceil($total / $perpage);
+
+		if ($page > $max_page && $total > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('order_admin/listOrder') . ($query ? '?' . $query : ''));
+		}
+
+		$start = ($page - 1) * $perpage;
+
+		$data['order'] = $this->orderModel->selectOrder($perpage, $start, $filter);
+		$data['links'] = init_pagination(base_url('order_admin/listOrder'), $total, $perpage, 3);
+
+		$data['keyword']         = $keyword;
+		$data['status']          = $status;
+		$data['checkout_method'] = $checkout_method;
+		$data['perpage']         = $perpage;
+		$data['start']           = $start;
 
 		$data['title'] = "Danh sách đơn hàng";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Danh sách đơn hàng']
 		];
+		$data['start'] = $start;
+		$data['date_from'] = $date_from;
+		$data['date_to']   = $date_to;
+
 		$data['template'] = "order_admin/index";
 		$this->load->view("admin-layout/admin-layout", $data);
-
 	}
+
+
 
 	public function viewOrder($order_code)
 	{
@@ -84,11 +293,9 @@ class orderController extends CI_Controller
 			];
 			$data['template'] = "order_admin/viewOrder";
 			$this->load->view("admin-layout/admin-layout", $data);
-
 		} else {
 			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
 			redirect(base_url('dashboard'));
-
 		}
 
 		// echo '<pre>';
@@ -171,7 +378,6 @@ class orderController extends CI_Controller
 				'Order_Status' => $value
 			);
 			$this->orderModel->updateOrder($data_order, $order_code);
-
 		}
 	}
 
@@ -262,12 +468,5 @@ class orderController extends CI_Controller
 		$pdf->SetFont('dejavusans', '', 10);
 		$pdf->writeHTML($html, true, false, true, false, '');
 		$pdf->Output('Order_' . $order_code . '.pdf', 'I');
-
 	}
-
-
-
-	
-
 }
-?>

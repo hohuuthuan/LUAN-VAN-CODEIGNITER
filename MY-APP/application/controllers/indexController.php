@@ -67,10 +67,7 @@ class indexController extends CI_Controller
 	}
 	public function index()
 	{
-
-
 		$this->load->library('pagination');
-		// Lấy số lượng sản phẩm từ model
 		$total_products = $this->indexModel->countAllProduct();
 		$config["total_rows"] = !empty($total_products) ? (int) $total_products : 0;
 
@@ -78,7 +75,7 @@ class indexController extends CI_Controller
 		$config = array();
 		$config["base_url"] = base_url() . '/pagination/index';
 		$config['total_rows'] = $total_products;
-		$config["per_page"] = 6;
+		$config["per_page"] = 10;
 		$config["uri_segment"] = 3;
 		$config['use_page_numbers'] = TRUE;
 		$config['full_tag_open'] = '<ul class="pagination">';
@@ -105,7 +102,7 @@ class indexController extends CI_Controller
 		$start = ($page - 1) * $config["per_page"];
 		$this->data["links"] = $this->pagination->create_links();
 		$this->data['allproduct_pagination'] = $this->indexModel->getIndexPagination($config["per_page"], $start);
-		$this->data['items_category'] = $this->indexModel->getItemsCategoryHome();
+		// $this->data['items_category'] = $this->indexModel->getItemsCategoryHome();
 		$this->data['sliders'] = $this->sliderModel->selectAllSlider();
 		// echo '<pre>';
 		// print_r($this->data);
@@ -145,11 +142,15 @@ class indexController extends CI_Controller
 	public function checkout()
 	{
 		$this->config->config['pageTitle'] = 'Checkout';
-		if ($this->session->userdata('logged_in_customer') && $this->cart->contents()) {
+		if ($this->session->userdata('logged_in_customer')) {
+			if($this->cart->contents()){
+				$this->data['template'] = "pages/checkout/checkout";
+				$this->load->view("pages/layout/index", $this->data);
+			}else{
+				$this->session->set_flashdata('info', 'Bạn chưa có sản phẩm trong giỏ hàng');
+				redirect(base_url() . 'gio-hang');
+			}
 
-
-			$this->data['template'] = "pages/checkout/checkout";
-			$this->load->view("pages/layout/index", $this->data);
 		} else {
 			$this->session->set_flashdata('error', 'Vui lòng đăng nhập để thực hiện đặt hàng');
 			redirect(base_url() . 'gio-hang');
@@ -215,7 +216,7 @@ class indexController extends CI_Controller
 		$config = array();
 		$config["base_url"] = base_url() . '/pagination/danh-muc/' . '/' . $CategoryID . '/' . $this->data['slug'];
 		$config['total_rows'] = ceil($this->indexModel->countAllProductByCate($CategoryID)); //đếm tất cả sản phẩm //8 //hàm ceil làm tròn phân trang 
-		$config["per_page"] = 6; //từng trang 3 sản phẩn
+		$config["per_page"] = 1; //từng trang 3 sản phẩn
 		$config["uri_segment"] = 5; //lấy số trang hiện tại
 		$config['use_page_numbers'] = TRUE; //trang có số
 		$config['full_tag_open'] = '<ul class="pagination">';
@@ -326,7 +327,7 @@ class indexController extends CI_Controller
 		$config["base_url"] = base_url('search-product');
 		$config['reuse_query_string'] = TRUE;
 		$config['total_rows'] = ceil($this->indexModel->countAllProductByKeyword($keyword));
-		$config["per_page"] = 3; // Number of products per page
+		$config["per_page"] = 1; // Number of products per page
 		$config["uri_segment"] = 2;
 		$config['use_page_numbers'] = TRUE;
 		$config['full_tag_open'] = '<ul class="pagination">';

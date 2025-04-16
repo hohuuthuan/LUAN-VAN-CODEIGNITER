@@ -1,14 +1,342 @@
 <?php
 class warehouseModel extends CI_Model
 {
-    public function getLatestReceiptNumber() {
+    public function getLatestReceiptNumber()
+    {
         $this->db->select_max('id');
         $query = $this->db->get('warehouse_receipt');
         $result = $query->row_array();
         return isset($result['id']) ? $result['id'] + 1 : 1;
     }
-    
-    public function get_warehouse_receipts() {
+    // Đếm số lượng phiếu nhập (tính theo distinct ID)
+    public function count_warehouse_receipts()
+    {
+        $this->db->select('COUNT(DISTINCT id) AS total');
+        $this->db->from('warehouse_receipt');
+        $query = $this->db->get();
+        return (int)$query->row()->total;
+    }
+
+
+    // public function count_warehouse_receipts($filters = [])
+    // {
+    //     $this->db->select('wr.id');
+    //     $this->db->from('warehouse_receipt wr');
+    //     $this->db->join('warehouse_receipt_items wri', 'wr.id = wri.Receipt_id', 'left');
+
+    //     // Filter theo ngày tạo
+    //     if (!empty($filters['date_start'])) {
+    //         $this->db->where('DATE(wr.created_at) >=', $filters['date_start']);
+    //     }
+    //     if (!empty($filters['date_end'])) {
+    //         $this->db->where('DATE(wr.created_at) <=', $filters['date_end']);
+    //     }
+
+    //     // Filter theo nhà cung cấp
+    //     if (!empty($filters['supplier_id'])) {
+    //         $this->db->where('wr.supplier_id', $filters['supplier_id']);
+    //     }
+
+    //     // Tìm kiếm theo tên người giao hoặc số phiếu
+    //     if (!empty($filters['keyword'])) {
+    //         $this->db->group_start();
+    //         $this->db->like('wr.name_of_delivery_person', $filters['keyword']);
+    //         $this->db->or_like('wr.delivery_note_number', $filters['keyword']);
+    //         $this->db->group_end();
+    //     }
+
+    //     $this->db->group_by('wr.id');
+
+    //     $sub_sql = $this->db->get_compiled_select();
+    //     $this->db->reset_query();
+
+    //     $query = $this->db->query("SELECT COUNT(*) AS total FROM ({$sub_sql}) AS sub");
+    //     return (int)$query->row()->total;
+    // }
+
+
+    // public function get_warehouse_receipts_v2($limit, $offset, $filters = [])
+    // {
+    //     $this->db->select('
+    //     wr.tax_identification_number,
+    //     wr.id AS warehouse_receipt_id,
+    //     wr.created_at,
+    //     wr.name_of_delivery_person,
+    //     wr.delivery_unit,
+    //     wr.address,
+    //     wr.delivery_note_number,
+    //     wr.warehouse_from,
+    //     wr.supplier_id,
+    //     s.Name AS supplier_name,
+    //     wr.sub_total,
+    //     p.Name AS product_name,
+    //     p.Product_Code AS product_code,
+    //     wri.Unit AS product_unit,
+    //     wri.Import_price AS unit_import_price,
+    //     wri.Exp_date AS expiry_date,
+    //     wri.Quantity_doc AS quantity_document,
+    //     wri.Quantity_actual AS quantity_actual,
+    //     wri.Notes AS notes
+    // ');
+    //     $this->db->from('warehouse_receipt wr');
+    //     $this->db->join('suppliers s', 'wr.supplier_id = s.SupplierID', 'left');
+    //     $this->db->join('warehouse_receipt_items wri', 'wr.id = wri.Receipt_id', 'left');
+    //     $this->db->join('product p', 'wri.ProductID = p.ProductID', 'left');
+
+    //     // --- Filters ---
+    //     if (!empty($filters['date_start'])) {
+    //         $this->db->where('DATE(wr.created_at) >=', $filters['date_start']);
+    //     }
+    //     if (!empty($filters['date_end'])) {
+    //         $this->db->where('DATE(wr.created_at) <=', $filters['date_end']);
+    //     }
+    //     if (!empty($filters['supplier_id'])) {
+    //         $this->db->where('wr.supplier_id', $filters['supplier_id']);
+    //     }
+    //     if (!empty($filters['keyword'])) {
+    //         $this->db->group_start();
+    //         $this->db->like('wr.name_of_delivery_person', $filters['keyword']);
+    //         $this->db->or_like('wr.delivery_note_number', $filters['keyword']);
+    //         $this->db->group_end();
+    //     }
+
+    //     // --- Sort ---
+    //     switch ($filters['sort_by']) {
+    //         case 'sub_total_asc':
+    //             $this->db->order_by('wr.sub_total', 'ASC');
+    //             break;
+    //         case 'sub_total_desc':
+    //             $this->db->order_by('wr.sub_total', 'DESC');
+    //             break;
+    //         case 'total_quantity_asc':
+    //             $this->db->order_by('wri.Quantity_actual', 'ASC');
+    //             break;
+    //         case 'total_quantity_desc':
+    //             $this->db->order_by('wri.Quantity_actual', 'DESC');
+    //             break;
+    //         default:
+    //             $this->db->order_by('wr.id', 'DESC');
+    //     }
+
+    //     $this->db->limit($limit, $offset);
+    //     $query = $this->db->get();
+    //     $raw_data = $query->result_array();
+
+    //     // --- Grouping by receipt_id ---
+    //     $grouped_data = [];
+
+    //     foreach ($raw_data as $row) {
+    //         $receipt_id = $row['warehouse_receipt_id'];
+    //         if (!isset($grouped_data[$receipt_id])) {
+    //             $grouped_data[$receipt_id] = [
+    //                 'warehouse_receipt_id' => $row['warehouse_receipt_id'],
+    //                 'tax_identification_number' => $row['tax_identification_number'],
+    //                 'created_at' => $row['created_at'],
+    //                 'name_of_delivery_person' => $row['name_of_delivery_person'],
+    //                 'delivery_unit' => $row['delivery_unit'],
+    //                 'address' => $row['address'],
+    //                 'delivery_note_number' => $row['delivery_note_number'],
+    //                 'warehouse_from' => $row['warehouse_from'],
+    //                 'supplier_id' => $row['supplier_id'],
+    //                 'supplier_name' => $row['supplier_name'],
+    //                 'sub_total' => $row['sub_total'],
+    //                 'product_items' => [],
+    //             ];
+    //         }
+
+    //         if (!empty($row['product_name'])) {
+    //             $grouped_data[$receipt_id]['product_items'][] = [
+    //                 'product_name' => $row['product_name'],
+    //                 'product_code' => $row['product_code'],
+    //                 'product_unit' => $row['product_unit'],
+    //                 'unit_import_price' => $row['unit_import_price'],
+    //                 'expiry_date' => $row['expiry_date'],
+    //                 'quantity_document' => $row['quantity_document'],
+    //                 'quantity_actual' => $row['quantity_actual'],
+    //                 'notes' => $row['notes']
+    //             ];
+    //         }
+    //     }
+
+    //     return array_values($grouped_data);
+    // }
+
+
+
+
+    public function count_filtered_receipts($filter)
+    {
+        $this->db->from('warehouse_receipt wr');
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start();
+            $this->db->like('wr.name_of_delivery_person', $filter['keyword']);
+            $this->db->or_like('wr.delivery_note_number', $filter['keyword']);
+            $this->db->group_end();
+        }
+        if (!empty($filter['supplier_id'])) {
+            $this->db->where('wr.supplier_id', $filter['supplier_id']);
+        }
+        if (!empty($filter['date_start'])) {
+            $this->db->where('DATE(wr.created_at) >=', $filter['date_start']);
+        }
+        if (!empty($filter['date_end'])) {
+            $this->db->where('DATE(wr.created_at) <=', $filter['date_end']);
+        }
+
+        return $this->db->count_all_results();
+    }
+
+    // public function get_filtered_receipts($filter)
+    // {
+    //     $this->db->select('
+    //     wr.id AS warehouse_receipt_id,
+    //     wr.tax_identification_number,
+    //     wr.created_at,
+    //     wr.name_of_delivery_person,
+    //     wr.delivery_unit,
+    //     wr.address,
+    //     wr.delivery_note_number,
+    //     wr.warehouse_from,
+    //     wr.supplier_id,
+    //     s.Name AS supplier_name,
+    //     wr.sub_total');
+    //     $this->db->from('warehouse_receipt wr');
+    //     $this->db->join('suppliers s', 'wr.supplier_id = s.SupplierID', 'left');
+
+    //     if (!empty($filter['keyword'])) {
+    //         $this->db->group_start();
+    //         $this->db->like('wr.name_of_delivery_person', $filter['keyword']);
+    //         $this->db->or_like('wr.delivery_note_number', $filter['keyword']);
+    //         $this->db->group_end();
+    //     }
+
+    //     if (!empty($filter['supplier_id'])) {
+    //         $this->db->where('wr.supplier_id', $filter['supplier_id']);
+    //     }
+
+    //     if (!empty($filter['date_start'])) {
+    //         $this->db->where('DATE(wr.created_at) >=', $filter['date_start']);
+    //     }
+
+    //     if (!empty($filter['date_end'])) {
+    //         $this->db->where('DATE(wr.created_at) <=', $filter['date_end']);
+    //     }
+
+    //     if ($filter['sort_by'] == 'sub_total_asc') {
+    //         $this->db->order_by('wr.sub_total', 'ASC');
+    //     } elseif ($filter['sort_by'] == 'sub_total_desc') {
+    //         $this->db->order_by('wr.sub_total', 'DESC');
+    //     } elseif ($filter['sort_by'] == 'total_quantity_asc') {
+    //         $this->db->order_by('(SELECT SUM(wri.Quantity_actual) FROM warehouse_receipt_items wri WHERE wri.Receipt_id = wr.id)', 'ASC');
+    //     } elseif ($filter['sort_by'] == 'total_quantity_desc') {
+    //         $this->db->order_by('(SELECT SUM(wri.Quantity_actual) FROM warehouse_receipt_items wri WHERE wri.Receipt_id = wr.id)', 'DESC');
+    //     } else {
+    //         $this->db->order_by('wr.id', 'DESC');
+    //     }
+
+
+    //     $this->db->limit($filter['limit'], $filter['offset']);
+
+    //     return $this->db->get()->result_array();
+    // }
+
+    public function get_filtered_receipts($limit, $offset, $filter)
+    {
+        $this->db->select('
+        wr.id AS warehouse_receipt_id,
+        wr.tax_identification_number,
+        wr.created_at,
+        wr.name_of_delivery_person,
+        wr.delivery_unit,
+        wr.address,
+        wr.delivery_note_number,
+        wr.warehouse_from,
+        wr.supplier_id,
+        s.Name AS supplier_name,
+        wr.sub_total,
+        SUM(wri.Quantity_actual) AS total_quantity');
+        $this->db->from('warehouse_receipt wr');
+        $this->db->join('suppliers s', 'wr.supplier_id = s.SupplierID', 'left');
+        $this->db->join('warehouse_receipt_items wri', 'wri.Receipt_id = wr.id', 'left');
+
+        // FILTER: từ ngày đến ngày
+        if (!empty($filter['start_date'])) {
+            $this->db->where('wr.created_at >=', $filter['start_date'] . ' 00:00:00');
+        }
+        if (!empty($filter['end_date'])) {
+            $this->db->where('wr.created_at <=', $filter['end_date'] . ' 23:59:59');
+        }
+
+        // FILTER: theo nhà cung cấp
+        if (!empty($filter['supplier_id'])) {
+            $this->db->where('wr.supplier_id', $filter['supplier_id']);
+        }
+
+        // FILTER: tìm theo tên người giao hoặc số phiếu
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start();
+            $this->db->like('wr.name_of_delivery_person', $filter['keyword']);
+            $this->db->or_like('wr.delivery_note_number', $filter['keyword']);
+            $this->db->group_end();
+        }
+
+        // GROUP BY để dùng SUM()
+        $this->db->group_by('wr.id');
+
+        // SẮP XẾP (ORDER BY)
+        if ($filter['sort_by'] == 'total_quantity_asc') {
+            $this->db->order_by('total_quantity', 'ASC');
+        } elseif ($filter['sort_by'] == 'total_quantity_desc') {
+            $this->db->order_by('total_quantity', 'DESC');
+        } elseif ($filter['sort_by'] == 'sub_total_asc') {
+            $this->db->order_by('wr.sub_total', 'ASC');
+        } elseif ($filter['sort_by'] == 'sub_total_desc') {
+            $this->db->order_by('wr.sub_total', 'DESC');
+        } else {
+            $this->db->order_by('wr.id', 'DESC'); // mặc định
+        }
+
+        // PHÂN TRANG
+        $this->db->limit($limit, $offset);
+
+        return $this->db->get()->result_array();
+    }
+
+
+    public function get_items_by_receipt_ids($receipt_ids = [])
+    {
+        if (empty($receipt_ids)) return [];
+
+        $this->db->select('
+        wri.Receipt_id,
+        p.Name AS product_name,
+        p.Product_Code AS product_code,
+        wri.Unit AS product_unit,
+        wri.Import_price AS unit_import_price,
+        wri.Exp_date AS expiry_date,
+        wri.Quantity_doc AS quantity_document,
+        wri.Quantity_actual AS quantity_actual,
+        wri.Notes AS notes
+    ');
+        $this->db->from('warehouse_receipt_items wri');
+        $this->db->join('product p', 'wri.ProductID = p.ProductID', 'left');
+        $this->db->where_in('wri.Receipt_id', $receipt_ids);
+        $query = $this->db->get()->result_array();
+
+        $result = [];
+        foreach ($query as $row) {
+            $rid = $row['Receipt_id'];
+            unset($row['Receipt_id']);
+            $result[$rid][] = $row;
+        }
+
+        return $result;
+    }
+
+
+
+    public function get_warehouse_receipts_v1($limit, $offset)
+    {
         $this->db->select('
             wr.tax_identification_number,
             wr.id AS warehouse_receipt_id,
@@ -28,24 +356,24 @@ class warehouseModel extends CI_Model
             wri.Exp_date AS expiry_date,
             wri.Quantity_doc AS quantity_document,
             wri.Quantity_actual AS quantity_actual,
-            wri.Notes AS notes');
+            wri.Notes AS notes
+        ');
         $this->db->from('warehouse_receipt wr');
         $this->db->join('suppliers s', 'wr.supplier_id = s.SupplierID', 'left');
         $this->db->join('warehouse_receipt_items wri', 'wr.id = wri.Receipt_id', 'left');
         $this->db->join('product p', 'wri.ProductID = p.ProductID', 'left');
-        $this->db->order_by('wr.id, p.Name');
+        $this->db->order_by('wr.id DESC');
+        $this->db->limit($limit, $offset);
 
         $query = $this->db->get();
         $raw_data = $query->result_array();
 
-        // Gộp dữ liệu theo warehouse_receipt_id
+        // Gộp dữ liệu như cũ
         $grouped_data = [];
 
         foreach ($raw_data as $row) {
             $receipt_id = $row['warehouse_receipt_id'];
-
             if (!isset($grouped_data[$receipt_id])) {
-                // Lưu thông tin phiếu nhập
                 $grouped_data[$receipt_id] = [
                     'warehouse_receipt_id' => $row['warehouse_receipt_id'],
                     'tax_identification_number' => $row['tax_identification_number'],
@@ -62,7 +390,6 @@ class warehouseModel extends CI_Model
                 ];
             }
 
-            // Nếu có thông tin sản phẩm, thêm vào danh sách sản phẩm
             if (!empty($row['product_name'])) {
                 $grouped_data[$receipt_id]['product_items'][] = [
                     'product_name' => $row['product_name'],
@@ -77,13 +404,87 @@ class warehouseModel extends CI_Model
             }
         }
 
-
         return array_values($grouped_data);
     }
 
 
+    // public function get_warehouse_receipts()
+    // {
+    //     $this->db->select('
+    //         wr.tax_identification_number,
+    //         wr.id AS warehouse_receipt_id,
+    //         wr.created_at,
+    //         wr.name_of_delivery_person,
+    //         wr.delivery_unit,
+    //         wr.address,
+    //         wr.delivery_note_number,
+    //         wr.warehouse_from,
+    //         wr.supplier_id,
+    //         s.Name AS supplier_name,
+    //         wr.sub_total,
+    //         p.Name AS product_name,
+    //         p.Product_Code AS product_code,
+    //         wri.Unit AS product_unit,
+    //         wri.Import_price AS unit_import_price,
+    //         wri.Exp_date AS expiry_date,
+    //         wri.Quantity_doc AS quantity_document,
+    //         wri.Quantity_actual AS quantity_actual,
+    //         wri.Notes AS notes');
+    //     $this->db->from('warehouse_receipt wr');
+    //     $this->db->join('suppliers s', 'wr.supplier_id = s.SupplierID', 'left');
+    //     $this->db->join('warehouse_receipt_items wri', 'wr.id = wri.Receipt_id', 'left');
+    //     $this->db->join('product p', 'wri.ProductID = p.ProductID', 'left');
+    //     $this->db->order_by('wr.id, p.Name');
 
-    public function get_warehouse_receipt_by_id($id) {
+    //     $query = $this->db->get();
+    //     $raw_data = $query->result_array();
+
+    //     // Gộp dữ liệu theo warehouse_receipt_id
+    //     $grouped_data = [];
+
+    //     foreach ($raw_data as $row) {
+    //         $receipt_id = $row['warehouse_receipt_id'];
+
+    //         if (!isset($grouped_data[$receipt_id])) {
+    //             // Lưu thông tin phiếu nhập
+    //             $grouped_data[$receipt_id] = [
+    //                 'warehouse_receipt_id' => $row['warehouse_receipt_id'],
+    //                 'tax_identification_number' => $row['tax_identification_number'],
+    //                 'created_at' => $row['created_at'],
+    //                 'name_of_delivery_person' => $row['name_of_delivery_person'],
+    //                 'delivery_unit' => $row['delivery_unit'],
+    //                 'address' => $row['address'],
+    //                 'delivery_note_number' => $row['delivery_note_number'],
+    //                 'warehouse_from' => $row['warehouse_from'],
+    //                 'supplier_id' => $row['supplier_id'],
+    //                 'supplier_name' => $row['supplier_name'],
+    //                 'sub_total' => $row['sub_total'],
+    //                 'product_items' => []
+    //             ];
+    //         }
+
+    //         if (!empty($row['product_name'])) {
+    //             $grouped_data[$receipt_id]['product_items'][] = [
+    //                 'product_name' => $row['product_name'],
+    //                 'product_code' => $row['product_code'],
+    //                 'product_unit' => $row['product_unit'],
+    //                 'unit_import_price' => $row['unit_import_price'],
+    //                 'expiry_date' => $row['expiry_date'],
+    //                 'quantity_document' => $row['quantity_document'],
+    //                 'quantity_actual' => $row['quantity_actual'],
+    //                 'notes' => $row['notes']
+    //             ];
+    //         }
+    //     }
+
+
+    //     return array_values($grouped_data);
+    // }
+
+
+
+    public function get_warehouse_receipt_by_id($id)
+    {
         $this->db->select('
             wr.tax_identification_number,
             wr.id AS warehouse_receipt_id,
@@ -111,14 +512,14 @@ class warehouseModel extends CI_Model
         $this->db->join('product p', 'wri.ProductID = p.ProductID', 'left');
         $this->db->where('wr.id', $id);
         $this->db->order_by('p.Name');
-    
+
         $query = $this->db->get();
         $raw_data = $query->result_array();
-    
+
         if (empty($raw_data)) {
             return null; // Không tìm thấy phiếu
         }
-    
+
         $receipt_data = [
             'warehouse_receipt_id' => $raw_data[0]['warehouse_receipt_id'],
             'tax_identification_number' => $raw_data[0]['tax_identification_number'],
@@ -133,7 +534,7 @@ class warehouseModel extends CI_Model
             'sub_total' => $raw_data[0]['sub_total'],
             'product_items' => []
         ];
-    
+
         foreach ($raw_data as $row) {
             if (!empty($row['product_name'])) {
                 $receipt_data['product_items'][] = [
@@ -148,10 +549,10 @@ class warehouseModel extends CI_Model
                 ];
             }
         }
-    
+
         return $receipt_data;
     }
-    
+
 
 
     public function insertWarehouseReceiptWithItems($data_warehouse_receipt, $products)
@@ -187,12 +588,11 @@ class warehouseModel extends CI_Model
                 ];
                 $this->db->insert('batches', $data_batches);
             }
-       
         }
-        $this->db->trans_complete(); 
+        $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) {
-            $this->db->trans_rollback(); 
-            return false; 
+            $this->db->trans_rollback();
+            return false;
         } else {
             $this->db->trans_commit();
             return $warehouse_receipt_id;
@@ -203,17 +603,16 @@ class warehouseModel extends CI_Model
     public function insertWarehouseReceipt($data_warehouse_receipt)
     {
         if ($this->db->insert('warehouse_receipt', $data_warehouse_receipt)) {
-            return $this->db->insert_id(); 
+            return $this->db->insert_id();
         }
         return false;
     }
-    
+
 
     public function insert_order_detail($data_order_detail)
     {
         $this->db->insert('order_detail', $data_order_detail);
         return $order_detail_id = $this->db->insert_id();
-
     }
 
     public function get_qty_product_insert_to_order_batches($product_id, $quantity)
@@ -438,12 +837,10 @@ class warehouseModel extends CI_Model
     public function updateOrder($data_order, $Order_Code)
     {
         return $this->db->update('orders', $data_order, ['Order_Code' => $Order_Code]);
-
     }
     public function updateOrderDetails($data_order_details, $Order_Code)
     {
         return $this->db->update('order_detail', $data_order_details, ['Order_Code' => $Order_Code]);
-
     }
 
     public function insertRevenue($data)
@@ -454,8 +851,4 @@ class warehouseModel extends CI_Model
     {
         $this->db->insert('revenue', $data);
     }
-
-
 }
-
-?>

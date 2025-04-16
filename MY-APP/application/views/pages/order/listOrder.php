@@ -1,7 +1,7 @@
 
 <div class="container">
     <div class="card">
-        <h1 style="text-align: center; margin-bottom: 30px; color: #FE980F;">Danh sách đơn hàng</h1>
+        <h1>Danh sách đơn hàng</h1>
 
         <div class="card-body">
             <?php

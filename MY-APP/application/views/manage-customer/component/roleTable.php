@@ -1,7 +1,6 @@
 <table class="table table-striped table-bordered mt20 mb20">
     <thead>
         <tr>
-
             <th scope="text-center">STT</th>
             <th scope="text-center">Tên vai trò</th>
             <th scope="text-center">Mô tả</th>
@@ -13,7 +12,7 @@
     <tbody>
         <?php foreach ($roles as $key => $role): ?>
             <tr>
-                <th scope="row"><?php echo $key + 1; ?></th>
+                <th scope="row"><?php echo ($start + $key + 1); ?></th>
                 <td><?php echo $role->Role_name ?></td>
                 <td><?php echo $role->Description ?></td>
                 <td>
@@ -32,3 +31,6 @@
     </tbody>
 
 </table>
+<div class="text-center">
+    <?php echo $links; ?>
+</div>

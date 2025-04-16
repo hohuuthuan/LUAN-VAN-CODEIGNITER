@@ -84,10 +84,23 @@ class indexModel extends CI_Model
 
 
     // Pagination
-    public function countAllProduct()
+    // public function countAllProduct()
+    // {
+    //     return $this->db->count_all('product');
+    // }
+
+    public function countAllProduct($keyword = null, $status = null)
     {
-        return $this->db->count_all('product');
+        $this->db->from('product');
+        if ($keyword) {
+            $this->db->like('product.Name', $keyword);
+        }
+        if ($status !== null && $status !== '') {
+            $this->db->where('product.Status', $status);
+        }
+        return $this->db->count_all_results();
     }
+
     public function countAllCategory()
     {
         return $this->db->count_all('category');
@@ -122,21 +135,59 @@ class indexModel extends CI_Model
 
 
 
-    public function getProductPagination($limit, $start)
+    // public function getProductPagination($limit, $start)
+    // {
+    //     $query = $this->db->select('category.Name as tendanhmuc, 
+    //                                 product.*, 
+    //                                 brand.Name as tenthuonghieu, 
+    //                                 COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
+    //         ->from('category')
+    //         ->join('product', 'product.CategoryID = category.CategoryID')
+    //         ->join('brand', 'brand.BrandID = product.BrandID')
+    //         ->join('batches', 'batches.ProductID = product.ProductID', 'left')
+    //         ->group_by('product.ProductID')
+    //         ->order_by('total_remaining', 'DESC')
+    //         ->limit($limit, $start)
+    //         ->get();
+
+    //     $products = $query->result();
+
+    //     // Lấy chi tiết số lượng tồn kho theo từng lô
+    //     foreach ($products as $product) {
+    //         $product->batches = $this->get_batches_by_product($product->ProductID);
+    //     }
+
+    //     return $products;
+    // }
+
+
+
+    public function getProductPagination($limit, $start, $keyword = null, $status = null)
     {
-        $query = $this->db->select('category.Name as tendanhmuc, 
-                                    product.*, 
-                                    brand.Name as tenthuonghieu, 
-                                    COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
+        $this->db->select('category.Name as tendanhmuc, 
+                       product.*, 
+                       brand.Name as tenthuonghieu, 
+                       COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
             ->from('category')
             ->join('product', 'product.CategoryID = category.CategoryID')
             ->join('brand', 'brand.BrandID = product.BrandID')
             ->join('batches', 'batches.ProductID = product.ProductID', 'left')
             ->group_by('product.ProductID')
             ->order_by('total_remaining', 'DESC')
-            ->limit($limit, $start)
-            ->get();
+            ->limit($limit, $start);
 
+        if ($keyword) {
+            $this->db->group_start()
+                ->like('product.Name', $keyword)
+                ->or_like('product.Product_Code', $keyword)
+                ->group_end();
+        }
+
+        if ($status !== null && $status !== '') {
+            $this->db->where('product.Status', $status);
+        }
+
+        $query = $this->db->get();
         $products = $query->result();
 
         // Lấy chi tiết số lượng tồn kho theo từng lô
@@ -146,6 +197,7 @@ class indexModel extends CI_Model
 
         return $products;
     }
+
 
 
     public function getIndexPagination($limit, $start)
@@ -174,6 +226,67 @@ class indexModel extends CI_Model
         return $products;
     }
 
+
+    // public function getProductsByDiseaseType($disease_type)
+    // {
+    //     $this->db->select('product.*, category.Name as tendanhmuc, brand.Name as tenthuonghieu');
+    //     $this->db->from('product');
+    //     $this->db->join('category', 'category.CategoryID = product.CategoryID');
+    //     $this->db->join('brand', 'brand.BrandID = product.BrandID');
+    //     $this->db->where('product.Status', 1);
+
+    //     $this->db->like('product.Product_uses', $disease_type, 'both', false);
+
+    //     $query = $this->db->get();
+    //     return $query->result();
+    // }
+
+
+    // public function countProductsByDiseaseType($disease_type)
+    // {
+    //     $this->db->from('product');
+    //     $this->db->like('Product_uses', $disease_type, 'both', false);
+    //     $this->db->where('Status', 1);
+    //     return $this->db->count_all_results();
+    // }
+
+    // public function getProductsByDiseaseType($disease_type, $limit = 6, $offset = 0)
+    // {
+    //     $this->db->select('product.*, category.Name as tendanhmuc, brand.Name as tenthuonghieu');
+    //     $this->db->from('product');
+    //     $this->db->join('category', 'category.CategoryID = product.CategoryID');
+    //     $this->db->join('brand', 'brand.BrandID = product.BrandID');
+    //     $this->db->where('product.Status', 1);
+    //     $this->db->like('product.Product_uses', $disease_type, 'both', false);
+    //     $this->db->limit($limit, $offset);
+
+    //     return $this->db->get()->result();
+    // }
+
+
+
+
+
+    public function getProductsByDiseaseType($disease_type, $limit = 10, $offset = 0)
+    {
+        $this->db->select('product.*, category.Name as tendanhmuc, brand.Name as tenthuonghieu');
+        $this->db->from('product');
+        $this->db->join('category', 'category.CategoryID = product.CategoryID');
+        $this->db->join('brand', 'brand.BrandID = product.BrandID');
+        $this->db->where('product.Status', 1);
+        $this->db->like('product.Product_uses', $disease_type, 'both', false);
+
+        $query = $this->db->get('', $limit, $offset);
+        return $query->result();
+    }
+
+    public function countProductsByDiseaseType($disease_type)
+    {
+        $this->db->from('product');
+        $this->db->where('Status', 1);
+        $this->db->like('Product_uses', $disease_type, 'both', false);
+        return $this->db->count_all_results();
+    }
 
 
     public function get_batches_by_product($product_id)

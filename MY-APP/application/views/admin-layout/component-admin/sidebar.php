@@ -59,7 +59,7 @@ $sidebar_menu = [
         'label' => 'Quản lý tài khoản   ',
         'icon' => 'fa-users',
         'children' => [
-            ['label' => 'Quản lý nhóm tài khoản', 'url' => 'manage-role', 'current' => 'manage-role'],
+            ['label' => 'Nhóm tài khoản', 'url' => 'manage-role', 'current' => 'manage-role'],
             ['label' => 'Danh sách người dùng', 'url' => 'manage-customer/list', 'sub' => 'list'],
         ]
     ],

@@ -6,20 +6,17 @@ class orderModel extends CI_Model
     {
         $this->db->insert('shipping', $data);
         return $form_of_payment_id = $this->db->insert_id();
-
     }
     public function insert_order($data_order)
     {
         $this->db->insert('orders', $data_order);
         return $order_id = $this->db->insert_id();
-
     }
 
     public function insert_order_detail($data_order_detail)
     {
         $this->db->insert('order_detail', $data_order_detail);
         return $order_detail_id = $this->db->insert_id();
-
     }
 
     public function get_qty_product_insert_to_order_batches($product_id, $quantity)
@@ -139,28 +136,132 @@ class orderModel extends CI_Model
         return $this->db->insert('order_batches', $data_order_batches);
     }
 
-    // public function selectOrder()
-    // {
-    //     $query = $this->db->select('orders.*, shipping.*')
-    //         ->from('orders')
-    //         ->join('shipping', 'orders.ShippingID= shipping.id')
-    //         ->get();
 
-    //     return $query->result();
+    // public function selectOrder($limit, $start, $filter = [])
+    // {
+    //     $this->db->select('orders.*, shipping.*')
+    //         ->from('orders')
+    //         ->join('shipping', 'orders.ShippingID = shipping.id')
+    //         ->order_by('(CASE WHEN orders.Order_Status = -1 THEN 0 ELSE 1 END)', 'ASC')
+    //         ->order_by('orders.Order_Status', 'ASC')
+    //         ->order_by('orders.Date_Order', 'DESC');
+
+    //     if (!empty($filter['keyword'])) {
+    //         $this->db->group_start()
+    //             ->like('shipping.Name', $filter['keyword'])
+    //             ->or_like('shipping.Phone', $filter['keyword'])
+    //             ->or_like('shipping.Email', $filter['keyword'])
+    //             ->or_like('shipping.Address', $filter['keyword'])
+    //             ->group_end();
+    //     }
+
+    //     if ($filter['status'] !== '' && $filter['status'] !== null) {
+    //         $this->db->where('orders.Order_Status', $filter['status']);
+    //     }
+
+    //     $this->db->limit($limit, $start);
+
+    //     return $this->db->get()->result();
     // }
 
-    public function selectOrder()
+
+    // public function countOrder($filter = [])
+    // {
+    //     $this->db->from('orders')
+    //         ->join('shipping', 'orders.ShippingID = shipping.id');
+
+    //     if (!empty($filter['keyword'])) {
+    //         $this->db->group_start()
+    //             ->like('shipping.Name', $filter['keyword'])
+    //             ->or_like('shipping.Phone', $filter['keyword'])
+    //             ->or_like('shipping.Email', $filter['keyword'])
+    //             ->or_like('shipping.Address', $filter['keyword'])
+    //             ->group_end();
+    //     }
+
+    //     if ($filter['status'] !== '' && $filter['status'] !== null) {
+    //         $this->db->where('orders.Order_Status', $filter['status']);
+    //     }
+
+    //     return $this->db->count_all_results();
+    // }
+
+
+
+    public function selectOrder($limit, $start, $filter = [])
     {
-        $query = $this->db->select('orders.*, shipping.*')
+        $this->db->select('orders.*, shipping.*')
             ->from('orders')
             ->join('shipping', 'orders.ShippingID = shipping.id')
             ->order_by('(CASE WHEN orders.Order_Status = -1 THEN 0 ELSE 1 END)', 'ASC')
             ->order_by('orders.Order_Status', 'ASC')
-            ->order_by('orders.Date_Order', 'DESC')
-            ->get();
+            ->order_by('orders.Date_Order', 'DESC');
 
-        return $query->result();
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start()
+                ->like('orders.Order_code', $filter['keyword'])
+                ->or_like('shipping.Name', $filter['keyword'])
+                ->or_like('shipping.Phone', $filter['keyword'])
+                ->or_like('shipping.Email', $filter['keyword'])
+                ->or_like('shipping.Address', $filter['keyword'])
+                ->group_end();
+        }
+
+        if ($filter['status'] !== '' && $filter['status'] !== null) {
+            $this->db->where('orders.Order_Status', $filter['status']);
+        }
+
+        if (!empty($filter['checkout_method'])) {
+            $this->db->where('shipping.checkout_method', $filter['checkout_method']);
+        }
+        if (!empty($filter['date_from'])) {
+            $this->db->where('orders.Date_Order >=', $filter['date_from'] . ' 00:00:00');
+        }
+
+        if (!empty($filter['date_to'])) {
+            $this->db->where('orders.Date_Order <=', $filter['date_to'] . ' 23:59:59');
+        }
+
+
+        $this->db->limit($limit, $start);
+
+        return $this->db->get()->result();
     }
+
+    public function countOrder($filter = [])
+    {
+        $this->db->from('orders')
+            ->join('shipping', 'orders.ShippingID = shipping.id');
+
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start()
+                ->like('shipping.Name', $filter['keyword'])
+                ->or_like('shipping.Phone', $filter['keyword'])
+                ->or_like('shipping.Email', $filter['keyword'])
+                ->or_like('shipping.Address', $filter['keyword'])
+                ->group_end();
+        }
+
+        if ($filter['status'] !== '' && $filter['status'] !== null) {
+            $this->db->where('orders.Order_Status', $filter['status']);
+        }
+
+        if (!empty($filter['checkout_method'])) {
+            $this->db->where('shipping.checkout_method', $filter['checkout_method']);
+        }
+        if (!empty($filter['date_from'])) {
+            $this->db->where('orders.Date_Order >=', $filter['date_from'] . ' 00:00:00');
+        }
+
+        if (!empty($filter['date_to'])) {
+            $this->db->where('orders.Date_Order <=', $filter['date_to'] . ' 23:59:59');
+        }
+
+
+        return $this->db->count_all_results();
+    }
+
+
 
     public function getOrderByUserId($user_id)
     {
@@ -258,12 +359,10 @@ class orderModel extends CI_Model
     public function updateOrder($data_order, $Order_Code)
     {
         return $this->db->update('orders', $data_order, ['Order_Code' => $Order_Code]);
-
     }
     public function updateOrderDetails($data_order_details, $Order_Code)
     {
         return $this->db->update('order_detail', $data_order_details, ['Order_Code' => $Order_Code]);
-
     }
 
     public function insertRevenue($data)
@@ -274,8 +373,4 @@ class orderModel extends CI_Model
     {
         $this->db->insert('revenue', $data);
     }
-
-
 }
-
-?>

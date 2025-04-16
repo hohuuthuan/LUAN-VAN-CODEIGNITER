@@ -20,13 +20,30 @@
 
 
 <script>
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+        const inputs = this.querySelectorAll('input[name], select[name]');
+        inputs.forEach(input => {
+            const value = input.value;
+            if (value === '') {
+                input.removeAttribute('name');
+            }
+        });
+    });
+</script>
+
+
+
+
+
+
+<script>
 	$(document).ready(function () {
 		toastr.options = {
 			"closeButton": true,
 			"progressBar": true, 
 			"positionClass": "toast-top-right",
-			"timeOut": 3000,
-			"extendedTimeOut": 1000,
+			"timeOut": 5000,
+			"extendedTimeOut": 3000,
 			"showEasing": "swing", 
 			"hideEasing": "linear",
 			"showMethod": "fadeIn", 
@@ -35,16 +52,22 @@
 
 		var successMessage = "<?php echo $this->session->flashdata('success'); ?>";
 		var errorMessage = "<?php echo $this->session->flashdata('error'); ?>";
-		
+		var infoMessage = "<?php echo $this->session->flashdata('info'); ?>";
+
 		if (successMessage) {
-			toastr.success(successMessage, 'Thành công', { timeOut: 3000 });
+			toastr.success(successMessage, '', { timeOut: 5000 });
 		}
 
 		if (errorMessage) {
-			toastr.error(errorMessage, 'Lỗi', { timeOut: 3000 });
+			toastr.error(errorMessage, '', { timeOut: 5000 });
+		}
+
+		if (infoMessage) {
+			toastr.info(infoMessage, '', { timeOut: 5000 });
 		}
 	});
 </script>
+
 
 
 

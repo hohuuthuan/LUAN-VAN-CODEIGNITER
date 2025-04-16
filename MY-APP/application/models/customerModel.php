@@ -1,13 +1,62 @@
 <?php
 class customerModel extends CI_Model
 {
-    public function selectCustomer()
+
+    public function countCustomer($filter = [])
     {
-        // $this->db->where('role_id', 2);
-        $query = $this->db->get('users');
-        return $query->result();
+        $this->db->from('users')
+            ->where('users.Deleted_at IS NULL');
+
+        if (isset($filter['status']) && $filter['status'] !== '') {
+            $this->db->where('users.Status', $filter['status']);
+        }
+
+        if (isset($filter['role_id']) && $filter['role_id'] !== '') {
+            $this->db->where('users.Role_ID', $filter['role_id']);
+        }
+
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start()
+                ->like('users.Name', $filter['keyword'])
+                ->or_like('users.Email', $filter['keyword'])
+                ->or_like('users.Phone', $filter['keyword'])
+                ->group_end();
+        }
+
+        return $this->db->count_all_results();
     }
-    public function getAllRole()
+
+
+    public function getCustomers($limit, $offset, $filter = [])
+    {
+        $this->db->select('users.*, role.Role_name')
+            ->from('users')
+            ->join('role', 'users.Role_ID = role.Role_ID')
+            ->where('users.Deleted_at IS NULL');
+
+        if (isset($filter['status']) && $filter['status'] !== '') {
+            $this->db->where('users.Status', $filter['status']);
+        }
+
+        if (isset($filter['role_id']) && $filter['role_id'] !== '') {
+            $this->db->where('users.Role_ID', $filter['role_id']);
+        }
+
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start()
+                ->like('users.Name', $filter['keyword'])
+                ->or_like('users.Email', $filter['keyword'])
+                ->or_like('users.Phone', $filter['keyword'])
+                ->group_end();
+        }
+
+        $this->db->order_by('users.UserID', 'DESC');
+        $this->db->limit($limit, $offset);
+
+        return $this->db->get()->result();
+    }
+
+    public function getAllRole($limit = null, $offset = null, $filter = [])
     {
         $this->db->select('
             role.Role_ID, 
@@ -19,10 +68,41 @@ class customerModel extends CI_Model
         ');
         $this->db->from('role');
         $this->db->join('users', 'role.Role_ID = users.Role_ID', 'left');
+
+        // --- Filter ---
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start();
+            $this->db->like('role.Role_name', $filter['keyword']);
+            $this->db->or_like('role.Description', $filter['keyword']);
+            $this->db->group_end();
+        }
+
         $this->db->group_by('role.Role_ID');
+
+        // --- Limit + Offset ---
+        if (!is_null($limit)) {
+            $this->db->limit($limit, $offset);
+        }
+
         $query = $this->db->get();
         return $query->result();
     }
+
+
+    public function countAllRoles($filter = [])
+    {
+        $this->db->from('role');
+
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start();
+            $this->db->like('Role_name', $filter['keyword']);
+            $this->db->or_like('Description', $filter['keyword']);
+            $this->db->group_end();
+        }
+
+        return $this->db->count_all_results();
+    }
+
 
 
 

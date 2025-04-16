@@ -1,18 +1,10 @@
-
-
-
 <table class="table table-striped table-bordered mt20 mb20">
     <thead>
         <tr>
-            <th>
-                <input type="checkbox" id="checkAll" class="input-checkbox">
-            </th>
             <th scope="text-center">#</th>
             <th scope="text-center">Image</th>
             <th scope="text-center">Name</th>
-
             <th scope="text-center">Description</th>
-
             <th scope="text-center">Status</th>
             <th scope="text-center">Manage</th>
         </tr>
@@ -21,10 +13,7 @@
     <tbody>
         <?php foreach ($brand as $key => $bra): ?>
             <tr>
-                <td>
-                    <input type="checkbox" value="" class="input-checkbox checkBoxItem">
-                </td>
-                <th scope="row"><?php echo $key + 1; ?></th>
+                <th scope="row"><?php echo ($start + $key + 1); ?></th>
                 <td>
                     <img style="height: 20px; width: 20px" src="<?php echo base_url('uploads/brand/' . $bra->Image); ?>"
                         alt="" width="150" height="150">
@@ -41,13 +30,16 @@
                 <td style="width: 100px" class="text-center">
                     <a href="<?php echo base_url('brand/list/edit/' . $bra->BrandID); ?>" class="btn btn-success"><i
                             class="fa fa-edit"></i></a>
-                    <a href="<?php echo base_url('brand/delete/' . $bra->BrandID); ?>"
+                    <!-- <a href="<?php echo base_url('brand/delete/' . $bra->BrandID); ?>"
                         onclick="return confirm('Bạn chắc chắn muốn xóa?');" class="btn btn-danger"><i
-                            class="fa fa-trash"></i></a>
+                            class="fa fa-trash"></i></a> -->
                 </td>
 
             </tr>
         <?php endforeach; ?>
     </tbody>
-    
+
 </table>
+<div class="mt-3 text-center">
+    <?php echo $links; ?>
+</div>

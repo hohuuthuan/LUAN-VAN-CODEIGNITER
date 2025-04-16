@@ -1,63 +1,69 @@
-<form action="" class="mt20">
+<form id="filterForm" action="" method="get" class="mt20">
     <div class="filter-wapper">
         <div class="uk-flex uk-flex-middle uk-flex-space-between">
+
+            <!-- Bộ lọc số bản ghi -->
             <div class="perpage">
-                <div class="uk-flex uk-flex-middle uk-flex-space-between">
-                    <?php 
-                   
-                        $perpage = isset($_GET['perpage']) ? $_GET['perpage'] : '';
-                    ?>
-                    <div class="uk-flex uk-flex-middle uk-flex-space-between">
-                        <select name="perpage" class="form-control input-sm perpage filter mr10 setupSelect2">
-                            <?php for($i = 20; $i <= 200; $i += 20) { ?>
-                                <option <?php echo ($perpage == $i) ? 'selected' : ''; ?> value="<?php echo $i; ?>">
-                                    <?php echo $i; ?> bản ghi
-                                </option>
-                            <?php } ?>
-                        </select>
-                    </div>
-                </div>
+                <?php $perpage = isset($_GET['perpage']) ? (int)$_GET['perpage'] : 10; ?>
+                <select name="perpage" class="form-control input-sm perpage filter mr10 setupSelect2">
+                    <?php for ($i = 10; $i <= 100; $i += 10) { ?>
+                        <option value="<?php echo $i; ?>" <?php echo ($perpage == $i) ? 'selected' : ''; ?>>
+                            <?php echo $i; ?> bản ghi
+                        </option>
+                    <?php } ?>
+                </select>
             </div>
+
             <div class="action">
                 <div class="uk-flex uk-flex-middle">
-                    <div class="mr20">
-                        <?php 
-                            // Lấy giá trị publish từ GET
-                            $publish = isset($_GET['publish']) ? $_GET['publish'] : '';
-                            // Mảng các trạng thái xuất bản
-                            $publishOptions = array(
-                                1 => 'Không xuất bản',
-                                2 => 'Xuất bản'
-                            );
-                        ?>
-                        <select name="publish" class="form-control setupSelect2">
-                            <?php foreach ($publishOptions as $key => $value) { ?>
-                                <option <?php echo ($publish == $key) ? 'selected' : ''; ?> value="<?php echo $key; ?>">
-                                    <?php echo $value; ?>
-                                </option>
-                            <?php } ?>
+                    <div class="mr10 filter-date-order">
+                        <label for="date_from">Chọn ngày bắt đầu</label>
+                        <input type="date" name="date_from" id="date_from" value="<?php echo $date_from; ?>" class="form-control" style="width: 150px;">
+                    </div>
+
+                    <div class="mr10 filter-date-order">
+                        <label for="date_to">Chọn ngày kết thúc</label>
+                        <input type="date" name="date_to" id="date_to" value="<?php echo $date_to; ?>" class="form-control" style="width: 150px;">
+                    </div>
+
+                    <div class="mr10">
+                        <?php $payment = isset($_GET['checkout_method']) ? $_GET['checkout_method'] : ''; ?>
+                        <select name="checkout_method" class="form-control setupSelect2">
+                            <option value="">Tất cả phương thức</option>
+                            <option value="COD" <?php echo ($payment === 'COD') ? 'selected' : ''; ?>>COD</option>
+                            <option value="VNPAY" <?php echo ($payment === 'VNPAY') ? 'selected' : ''; ?>>VNPAY</option>
+                            <!-- <option value="MOMO" <?php echo ($payment === 'MOMO') ? 'selected' : ''; ?>>MOMO</option> -->
                         </select>
                     </div>
-                    <div class="uk-search uk-flex uk-flex-middle mr20">
+
+                    <div class="mr10">
+                        <?php $status = isset($_GET['status']) ? $_GET['status'] : ''; ?>
+                        <select name="status" class="form-control setupSelect2">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="-1" <?php echo ($status === '-1') ? 'selected' : ''; ?>>Đơn hàng mới</option>
+                            <option value="1" <?php echo ($status === '1') ? 'selected' : ''; ?>>Đang xử lý</option>
+                            <option value="2" <?php echo ($status === '2') ? 'selected' : ''; ?>>Chuẩn bị hàng</option>
+                            <option value="3" <?php echo ($status === '3') ? 'selected' : ''; ?>>Đã giao đơn vị vận chuyển</option>
+                            <option value="4" <?php echo ($status === '4') ? 'selected' : ''; ?>>Đã thanh toán</option>
+                            <option value="5" <?php echo ($status === '5') ? 'selected' : ''; ?>>Đã huỷ</option>
+                        </select>
+                    </div>
+
+                    <div class="uk-search uk-flex uk-flex-middle">
                         <div class="input-group">
-                            <?php 
-                                // Lấy giá trị keyword từ GET
-                                $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
-                            ?>
-                            <input style="width: 250px" type="text" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>"
-                                placeholder="Nhập Từ khóa bạn muốn tìm kiếm..." class="form-control ml20">
+                            <?php $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>
+                            <input style="width: 250px" type="text" name="keyword"
+                                value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>"
+                                placeholder="Mã đơn, tên, sđt, địa chỉ,..." class="form-control">
                             <span class="input-group-btn">
-                                <button style="border-radius: 0 5px 5px 0;" type="submit" name="search" value="search" class="btn btn-primary mb0 btn-sm">
-                                    Tìm Kiếm
-                                </button>
+                                <button style="border-radius: 0 5px 5px 0;" type="submit"
+                                    class="btn btn-primary mb0 btn-sm">Tìm kiếm</button>
                             </span>
                         </div>
                     </div>
-                    <a style="border-radius: 5px;" href="<?php echo base_url('brand/create')?>" class="btn btn-danger mb0 btn-sm">
-                        <i class="fa fa-plus mr5"></i>Thêm mới nhãn hàng
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 </form>
+

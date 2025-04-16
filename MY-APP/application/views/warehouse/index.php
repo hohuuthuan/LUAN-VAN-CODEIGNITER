@@ -7,7 +7,7 @@
                 <div class=""><h2><?php echo $title ?></h2></div>
             </div>
             <div class="ibox-content">
-                <?php $this->load->view('warehouse/component/filter'); ?>
+                <?php $this->load->view('warehouse/component/filterProduct'); ?>
                 <?php $this->load->view('warehouse/component/warehouseTable'); ?>
             </div>
         </div>

@@ -38,37 +38,111 @@ class customerController extends CI_Controller
 			redirect(base_url('dang-nhap'));
 		}
 	}
-	public function index()
+
+	public function index($page = 1)
 	{
 		$this->config->config['pageTitle'] = 'List Customers';
 		$this->load->model('customerModel');
-		$data['customers'] = $this->customerModel->selectCustomer();
+
+		// Filter
+		$keyword = $this->input->get('keyword', TRUE);
+		$status = $this->input->get('status', TRUE);
+		$role_id = $this->input->get('role_id', TRUE);
+		$perpage = (int) $this->input->get('perpage');
+		$perpage = ($perpage > 0) ? $perpage : 2;
+
+		$filter = [
+			'keyword' => $keyword,
+			'status' => $status,
+			'role_id' => $role_id,
+		];
+
+
+		// Tổng số bản ghi theo filter
+		$total = $this->customerModel->countCustomer($filter);
+
+		// --- Tính offset ---
+		$page  = (int)$page;
+		$page  = ($page > 0) ? $page : 1;
+		$max_page = ceil($total / $perpage);
+		if ($page > $max_page && $total > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('manage-customer/list') . ($query ? '?' . $query : ''));
+		}
+
+		$start = ($page - 1) * $perpage;
+
+		$data['customers'] = $this->customerModel->getCustomers($perpage, $start, $filter);
+
+		$data['links'] = init_pagination(base_url('manage-customer/list'), $total, $perpage, $page);
+
+		// Trả filter về view
+		$data['keyword']   = $keyword;
+		$data['status']    = $status;
+		$data['role_id']   = $role_id;
+		$data['perpage']   = $perpage;
+
 		$data['title'] = "Danh sách người dùng";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Danh sách người dùng']
 		];
+		$data['start'] = $start;
 		$data['template'] = "manage-customer/index";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
-	public function manageRoleUser()
+
+
+	public function manageRoleUser($page = 1)
 	{
 		$this->config->config['pageTitle'] = 'Manage Role';
-
 		$this->load->model('customerModel');
-		$data['roles'] = $this->customerModel->getAllRole();
-		// echo '<pre>';
-		// print_r($data['roles']);
-		// echo '</pre>';
+
+		// --- Lấy filter từ GET ---
+		$keyword  = $this->input->get('keyword', TRUE);
+		$perpage  = (int)$this->input->get('perpage');
+		$perpage  = ($perpage > 0) ? $perpage : 1;
+
+		$filter = [
+			'keyword' => $keyword,
+		];
+
+		$total = $this->customerModel->countAllRoles($filter);
+
+		$page  = (int)$page;
+		$page = (int)$this->uri->segment(2);
+		if ($page < 1) $page = 1;
+		$max_page = ceil($total / $perpage);
+		if ($page > $max_page && $total > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('manage-role') . ($query ? '?' . $query : ''));
+		}
+
+		$start = ($page - 1) * $perpage;
+
+		
+		// --- Lấy danh sách vai trò ---
+		$data['roles']   = $this->customerModel->getAllRole($perpage, $start, $filter);
+		$data['links'] = init_pagination(base_url('manage-role'), $total, $perpage, 2);
+
+
+		// --- Truyền filter lại cho view ---
+		$data['keyword'] = $keyword;
+		$data['perpage'] = $perpage;
+		// Thông tin view
 		$data['title'] = "Quản lý nhóm người dùng";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Danh sách vai trò'],
 		];
+		$data['start'] = $start;
 		$data['template'] = "manage-customer/listRole";
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
+
+
+
 
 	public function editRole($Role_ID)
 	{

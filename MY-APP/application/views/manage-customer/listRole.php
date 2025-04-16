@@ -7,6 +7,7 @@
                 <div class=""><h2><?php echo $title ?></h2></div>
             </div>
             <div class="ibox-content">
+                <?php $this->load->view('manage-customer/component/filterListRole'); ?>
                 <?php $this->load->view('manage-customer/component/roleTable'); ?>
             </div>
         </div>

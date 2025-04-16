@@ -76,7 +76,7 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <label for="status" class="form-label">Trạng thái tài khoản</label>
-                                    <select name="Status" class="form-control setupSelect2" id="=">
+                                    <select name="Status" class="form-control setupSelect2" id="">
                                         <option value="1" <?php echo ($customers->Status == 1) ? 'selected' : ''; ?>>Kích
                                             hoạt</option>
                                         <option value="0" <?php echo ($customers->Status == 0) ? 'selected' : ''; ?>>Khóa

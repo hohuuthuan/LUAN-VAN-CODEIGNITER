@@ -6,9 +6,32 @@ class categoryModel extends CI_Model
         return $this->db->insert('category', $data);
     }
 
-    public function selectCategory()
+    public function countCategory($keyword = null, $status = null)
     {
-        $query = $this->db->get('category');
+        if (!empty($keyword)) {
+            $this->db->like('Name', $keyword);
+        }
+
+        if ($status !== null && $status !== '') {
+            $this->db->where('Status', (int)$status);
+        }
+
+        return $this->db->count_all_results('category');
+    }
+    public function selectCategory($keyword = null, $status = null, $limit = 20, $offset = 0)
+    {
+        if (!empty($keyword)) {
+            $this->db->like('Name', $keyword);
+        }
+
+        if ($status !== null && $status !== '') {
+            $this->db->where('Status', (int)$status);
+        }
+
+        $this->db->order_by('Status', 'DESC');
+        $this->db->order_by('Name', 'ASC');
+
+        $query = $this->db->get('category', $limit, $offset);
         return $query->result();
     }
     public function selectCategoryById($CategoryID)

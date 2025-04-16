@@ -44,67 +44,48 @@ class productController extends CI_Controller
 	}
 
 
-
-	public function index()
+	public function index($page = 1)
 	{
-		// $this->checkLogin();
 		$this->config->config['pageTitle'] = 'List Products';
 		$this->load->model('indexModel');
-
-		$total_products = $this->indexModel->countAllProduct();
-
 		$this->load->library('pagination');
 
-		$config = array();
-		$config["base_url"] = base_url() . 'product/list';
-		$config['total_rows'] = $total_products; // Sử dụng số lượng sản phẩm đã được đếm
-		$config["per_page"] = 10; // Số lượng sản phẩm trên mỗi trang
-		$config["uri_segment"] = 3; // Vị trí của số trang trong URI
-		$config['use_page_numbers'] = TRUE; // Sử dụng số trang thay vì offset
-		$config['full_tag_open'] = '<ul class="pagination">';
-		$config['full_tag_close'] = '</ul>';
-		$config['first_link'] = 'First';
-		$config['first_tag_open'] = '<li>';
-		$config['first_tag_close'] = '</li>';
-		$config['last_link'] = 'Last';
-		$config['last_tag_open'] = '<li>';
-		$config['last_tag_close'] = '</li>';
-		$config['cur_tag_open'] = '<li class="active"><a>';
-		$config['cur_tag_close'] = '</a></li>';
-		$config['num_tag_open'] = '<li>';
-		$config['num_tag_close'] = '</li>';
-		$config['next_tag_open'] = '<li>';
-		$config['next_tag_close'] = '</li>';
-		$config['prev_tag_open'] = '<li>';
-		$config['prev_tag_close'] = '</li>';
+		$keyword  = $this->input->get('keyword', true);
+		$status   = $this->input->get('status', true);
+		$perpage  = (int) $this->input->get('perpage');
+		$perpage  = $perpage > 0 ? $perpage : 1;
 
-		// Khởi tạo phân trang
-		$this->pagination->initialize($config);
+		$total_products = $this->indexModel->countAllProduct($keyword, $status);
 
-		// Xác định trang hiện tại
-		$page = ($this->uri->segment(3)) ? $this->uri->segment(3) : 1;
-		$start = ($page - 1) * $config['per_page'];
+		$page  = (int)$page;
+		$page  = ($page > 0) ? $page : 1;
+		$max_page = ceil($total_products / $perpage);
+		if ($page > $max_page && $total_products > 0) {
+			$query = http_build_query($this->input->get());
+			redirect(base_url('product/list') . ($query ? '?' . $query : ''));
+		}
 
-		// Lấy dữ liệu sản phẩm theo phân trang
-		$data['products'] = $this->indexModel->getProductPagination($config['per_page'], $start);
-		$data['links'] = $this->pagination->create_links();
-		// echo '<pre>';
-		// print_r($data);
-		// echo '</pre>';
-		
+		$start = ($page - 1) * $perpage;
+
+
+		$data['products'] = $this->indexModel->getProductPagination($perpage, $start, $keyword, $status);
+		$data['links'] = init_pagination(base_url('product/list'), $total_products, $perpage, 3);
+
+
+		$data['keyword'] = $keyword;
+		$data['status'] = $status;
+		$data['perpage'] = $perpage;
 		$data['title'] = "Danh sách sản phẩm";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
 			['label' => 'Danh sách sản phẩm']
 		];
+		$data['start'] = $start;
 		$data['template'] = "product/index";
 		$this->load->view("admin-layout/admin-layout", $data);
-
 	}
-	
 
 
-	
 
 
 	public function createProduct()
@@ -126,8 +107,6 @@ class productController extends CI_Controller
 		];
 		$data['template'] = "product/storeProduct";
 		$this->load->view("admin-layout/admin-layout", $data);
-
-		
 	}
 
 	public function storeProduct()
@@ -180,7 +159,6 @@ class productController extends CI_Controller
 				$this->productModel->insertProduct($data);
 				$this->session->set_flashdata('success', 'Đã thêm sản phẩm thành công');
 				redirect(base_url('product/list'));
-
 			}
 		} else {
 			$this->session->set_flashdata('error', 'Tạo sản phẩm thất bại, Vui lòng thử lại');
@@ -210,8 +188,6 @@ class productController extends CI_Controller
 		];
 		$data['template'] = "product/editProduct";
 		$this->load->view("admin-layout/admin-layout", $data);
-
-
 	}
 
 	public function updateProduct($ProductID)
@@ -280,19 +256,19 @@ class productController extends CI_Controller
 			$this->editProduct($ProductID);
 		}
 	}
-	public function deleteProduct($id)
-	{
-		$this->load->model('productModel');
-		$result = $this->productModel->deleteProduct($id);
+	// public function deleteProduct($id)
+	// {
+	// 	$this->load->model('productModel');
+	// 	$result = $this->productModel->deleteProduct($id);
 
-		if ($result['status']) {
-			$this->session->set_flashdata('success', $result['message']);
-		} else {
-			$this->session->set_flashdata('error', $result['message']);
-		}
+	// 	if ($result['status']) {
+	// 		$this->session->set_flashdata('success', $result['message']);
+	// 	} else {
+	// 		$this->session->set_flashdata('error', $result['message']);
+	// 	}
 
-		redirect(base_url('product/list'));
-	}
+	// 	redirect(base_url('product/list'));
+	// }
 
 
 }

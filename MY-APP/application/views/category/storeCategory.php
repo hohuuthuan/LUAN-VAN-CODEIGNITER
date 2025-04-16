@@ -1,12 +1,6 @@
-<?php if ($this->session->flashdata('success')) { ?>
-    <div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-<?php } elseif ($this->session->flashdata('error')) { ?>
-    <div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-<?php } ?>
-
 <?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 
-<form action="<?php echo base_url('category/store') ?>" method="post" class="box" enctype="multipart/form-data">
+<form action="<?php echo base_url('category/storage') ?>" method="post" class="box" enctype="multipart/form-data">
     <div class="wrapper wrapper-content animated fadeInRight">
         <div class="row">
             <div class="col-lg-5">
@@ -24,18 +18,28 @@
                         <div class="row mb15">
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <label for="" class="control-label text-right">Tên thương hiệu<span
+                                    <label for="" class="control-label text-left">Tên danh mục<span
                                             class="text-danger" required>(*)</span></label>
-                                            <input name="Name" type="text" class="form-control" id="slug" onkeyup="ChangeToSlug();" placeholder="Nhập tên thương hiệu">
-                                </div>
+                                    <input name="Name" type="text" class="form-control"
+                                        id="slug" onkeyup="ChangeToSlug();" placeholder="Nhập tên danh mục"
+                                        value="<?php echo set_value('Name', isset($input['Name']) ? $input['Name'] : ''); ?>">
+                                    <span class="text-danger">
+                                        <?php echo isset($errors['Name']) ? $errors['Name'] : ''; ?>
+                                    </span>
 
+                                    <input name="Slug" type="hidden" class="form-control" id="convert_slug"
+                                        value="<?php echo set_value('Slug', isset($input['Slug']) ? $input['Slug'] : ''); ?>">
+
+                                </div>
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <label for="" class="control-label text-right">Slug<span
-                                            class="text-danger">(*)</span></label>
-                                    <input name="Slug" type="text" class="form-control" id="convert_slug"
-                                        placeholder="Nhập slug">
+                                    <div class="form-group">
+                                        <label for="Description">Mô tả</label>
+                                        <textarea name="Description" type="text" class="form-control" rows="4"
+                                            placeholder="Nhập mô tả danh mục"><?php echo set_value('Description', isset($input['Description']) ? $input['Description'] : ''); ?></textarea>
+                                        <span class="text-danger"><?php echo isset($errors['Description']) ? $errors['Description'] : ''; ?></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -43,49 +47,39 @@
                         <div class="row mb15">
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="description">Mô tả</label>
-                                        <textarea name="Description" type="text" class="form-control" rows="4"
-                                            placeholder="Nhập mô tả thương hiệu"></textarea>
-                                        <?php echo '<span class="text-danger">' . form_error('description') . '</span>' ?>
-                                    </div>
+                                    <label for="Status">Trạng thái</label>
+                                    <select name="Status" class="form-control setupSelect2">
+                                        <option value="1" <?php echo set_select('Status', '1', isset($input['Status']) && $input['Status'] == '1'); ?>>Active</option>
+                                        <option value="0" <?php echo set_select('Status', '0', isset($input['Status']) && $input['Status'] == '0'); ?>>Inactive</option>
+                                    </select>
+
                                 </div>
+
                             </div>
+
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="Image">Hình ảnh</label>
                                         <input name="Image" type="file" class="form-control-file">
-                                        <small class="text-danger"><?php if (isset($error))
-                                            echo $error ?></small>
-                                        </div>
+                                        <span class="text-danger">
+                                            <?php
+                                            if (isset($errors['Image'])) echo $errors['Image'];
+                                            elseif (isset($error)) echo $error;
+                                            ?>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-
-                            <div class="row mb15">
-                                <div class="col-lg-6">
-                                    <div class="form-row">
-                                        <label for="Status">Trạng thái</label>
-                                        <select name="Status" class="form-control setupSelect2">
-                                            <option selected value="1">Active</option>
-                                            <option value="0">Inactive</option>
-                                        </select>
-                                    </div>
-
-                                </div>
-                                
-                            </div>
-                           
-                           
                         </div>
                     </div>
                 </div>
             </div>
-            <hr>
-         
-            <div class="text-right mb15">
-                <button type="submit" name="send" value="send" class="btn btn-primary">Lưu lại</button>
-            </div>
         </div>
-    </form>
+        <hr>
+
+        <div class="text-right mb15">
+            <button type="submit" name="send" value="send" class="btn btn-primary">Lưu lại</button>
+        </div>
+    </div>
+</form>

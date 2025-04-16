@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.0.4 Chrome/128.0.6613.186 Electron/32.2.5 Safari/537.36" version="26.0.4">
   <diagram name="Trang-1" id="pE5sEg5oaD8jX1CC_taO">
-    <mxGraphModel dx="4253" dy="2239" grid="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="6024" dy="3309" grid="1" gridSize="10" guides="1" tooltips="1" connect="0" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -143,7 +143,7 @@
             <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="IzhlwgxWlZt_YVq8Qrcj-57" value="Khách vãn lai" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;strokeWidth=2;fontFamily=Times New Roman;" parent="1" vertex="1">
+        <mxCell id="IzhlwgxWlZt_YVq8Qrcj-57" value="Khách vãng lai" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;strokeWidth=2;fontFamily=Times New Roman;" parent="1" vertex="1">
           <mxGeometry x="-2410" y="-600" width="30" height="60" as="geometry" />
         </mxCell>
         <mxCell id="IzhlwgxWlZt_YVq8Qrcj-59" value="Đăng ký tài khoản" style="ellipse;whiteSpace=wrap;html=1;fontFamily=Times New Roman;" parent="1" vertex="1">

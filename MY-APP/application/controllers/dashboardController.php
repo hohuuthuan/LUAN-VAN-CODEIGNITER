@@ -75,8 +75,6 @@ class dashboardController extends CI_Controller
         $data['todayNewOrders'] = $this->revenueModel->getTodayNewOrders();
         $data['todayNewUsers'] = $this->revenueModel->getTodayNewUsers();
 
-        
-
 
         // Load view
         $data['template'] = "dashboard/adminHomePage";
