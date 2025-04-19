@@ -46,7 +46,6 @@ class indexController extends CI_Controller
 	{
 
 		$this->load->view('pages/component/page404');
-
 	}
 
 
@@ -109,7 +108,6 @@ class indexController extends CI_Controller
 		// echo '</pre>';
 		$this->data['template'] = "pages/home/home";
 		$this->load->view("pages/layout/index", $this->data);
-
 	}
 
 
@@ -143,14 +141,13 @@ class indexController extends CI_Controller
 	{
 		$this->config->config['pageTitle'] = 'Checkout';
 		if ($this->session->userdata('logged_in_customer')) {
-			if($this->cart->contents()){
+			if ($this->cart->contents()) {
 				$this->data['template'] = "pages/checkout/checkout";
 				$this->load->view("pages/layout/index", $this->data);
-			}else{
+			} else {
 				$this->session->set_flashdata('info', 'Bạn chưa có sản phẩm trong giỏ hàng');
 				redirect(base_url() . 'gio-hang');
 			}
-
 		} else {
 			$this->session->set_flashdata('error', 'Vui lòng đăng nhập để thực hiện đặt hàng');
 			redirect(base_url() . 'gio-hang');
@@ -160,9 +157,16 @@ class indexController extends CI_Controller
 	{
 		$this->config->config['pageTitle'] = 'List Order';
 		$user_id = $this->getUserOnSession();
+
+
 		$this->load->model('orderModel');
 		$this->load->model('productModel');
 		$data['order_items'] = $this->orderModel->getOrderByUserId($user_id['id']);
+
+		// echo '<pre>';
+		// print_r($data['order_items']);
+		// echo '</pre>';
+
 
 		if (!empty($data['order_items'])) {
 			foreach ($data['order_items'] as $order_item) {
@@ -177,6 +181,156 @@ class indexController extends CI_Controller
 		$this->data['template'] = 'pages/order/listOrder';
 		$this->load->view("pages/layout/index", $this->data);
 	}
+
+
+	public function reviewProducts($Order_Code)
+	{
+		$user_id = $this->getUserOnSession();
+		$products = $this->indexModel->getReviewableProducts($Order_Code, $user_id['id']);
+
+		// echo '<pre>';
+		// print_r($products);
+		// echo '</pre>';
+
+		$allReviewed = true;
+		foreach ($products as $product) {
+			if ($product->has_reviewed == 0) {
+				$allReviewed = false;
+				break;
+			}
+		}
+
+		if ($allReviewed) {
+			$this->session->set_flashdata('info', 'Bạn đã đánh giá tất cả sản phẩm trong đơn hàng này.');
+			redirect('order_customer/viewOrder/' . $Order_Code);
+			return;
+		}
+
+
+		$this->config->config['pageTitle'] = 'Đánh giá sản phẩm';
+		$this->data['all_product_in_order'] = $products;
+		$this->data['Order_Code'] = $Order_Code;
+		// $this->data['template'] = 'pages/review/reviewProducts';
+		$this->data['template'] = 'pages/review/test';
+		$this->load->view("pages/layout/index", $this->data);
+	}
+
+	public function submitReviews()
+	{
+		$user = $this->getUserOnSession();
+		$user_id = $user['id'];
+		$Order_Code = $this->input->post('Order_Code');
+		$reviews = $this->input->post('reviews');
+
+		if (empty($reviews)) {
+			$this->session->set_flashdata('error', 'Không có đánh giá nào được gửi.');
+			redirect('review/order/' . $Order_Code);
+		}
+
+		// Reset validation mỗi vòng lặp để tránh lỗi chồng rules
+		$this->load->library('form_validation');
+		$errors = [];
+
+		foreach ($reviews as $index => $review) {
+			$this->form_validation->set_rules("reviews[$index][rating]", 'số sao', 'required|greater_than[0]|less_than[6]', [
+				'required' => 'Bạn cần chọn %s.',
+				'greater_than' => 'Số sao phải lớn hơn 0.',
+				'less_than' => 'Số sao phải nhỏ hơn hoặc bằng 5.'
+			]);
+
+			$this->form_validation->set_rules("reviews[$index][comment]", 'Nhận xét', 'trim|required|min_length[5]', [
+				'required' => 'Bạn chưa nhập nhận xét cho sản phẩm.',
+				'min_length' => 'Nhận xét cần ít nhất 5 ký tự.'
+			]);
+		}
+
+		if ($this->form_validation->run() == FALSE) {
+			// Gộp lỗi chi tiết để hiển thị ở view
+			foreach ($reviews as $index => $review) {
+				$errors[$index]['rating']  = form_error("reviews[$index][rating]");
+				$errors[$index]['comment'] = form_error("reviews[$index][comment]");
+			}
+
+			$this->session->set_flashdata('error', 'Vui lòng kiểm tra lại các đánh giá.');
+			$this->session->set_flashdata('old_inputs', $reviews);
+			$this->session->set_flashdata('errors', $errors);
+
+			redirect('review/order/' . $Order_Code);
+			return;
+		}
+
+		// Nếu hợp lệ thì lưu
+		$data_to_insert = [];
+		$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
+
+		foreach ($reviews as $review) {
+			$product_id = (int)$review['ProductID'];
+			$rating = (int)$review['rating'];
+			$comment = trim($review['comment']);
+
+			$data_to_insert[] = [
+				'ProductID' => $product_id,
+				'UserID' => $user_id,
+				'rating' => $rating,
+				'comment' => $comment,
+				'created_at' => $time_now,
+				'is_active' => 0,
+			];
+		}
+
+		$this->indexModel->insertReviews($data_to_insert);
+		$this->session->set_flashdata('success', 'Cảm ơn bạn đã đánh giá sản phẩm!');
+		redirect('order_customer/listOrder');
+	}
+
+
+
+	// public function submitReviews()
+	// {
+	// 	$user = $this->getUserOnSession();
+	// 	$user_id = $user['id'];
+
+	// 	$reviews = $this->input->post('reviews');
+
+	// 	// echo '<pre>';
+	// 	// print_r($Order_Code);
+	// 	// echo '</pre>'; die();
+
+
+	// 	if (empty($reviews)) {
+	// 		$this->session->set_flashdata('error', 'Không có đánh giá nào được gửi.');
+	// 		redirect($_SERVER['HTTP_REFERER']);
+	// 	}
+
+	// 	$data_to_insert = [];
+	// 	$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
+
+	// 	foreach ($reviews as $review) {
+	// 		$product_id = (int)$review['ProductID'];
+	// 		$rating = (int)$review['rating'];
+	// 		$comment = trim($review['comment']);
+
+	// 		// Bỏ qua nếu rating không hợp lệ
+	// 		if ($rating < 1 || $rating > 5) continue;
+
+	// 		$data_to_insert[] = [
+	// 			'ProductID' => $product_id,
+	// 			'UserID' => $user_id,
+	// 			'rating' => $rating,
+	// 			'comment' => $comment,
+	// 			'created_at' => $time_now,
+	// 			'is_active' => 0,
+	// 		];
+	// 	}
+
+	// 	if (!empty($data_to_insert)) {
+	// 		$this->indexModel->insertReviews($data_to_insert);
+	// 		$this->session->set_flashdata('success', 'Cảm ơn bạn đã đánh giá sản phẩm!');
+	// 	} else {
+	// 		$this->session->set_flashdata('error', 'Đánh giá không hợp lệ hoặc thiếu điểm số.');
+	// 	}
+	// 	redirect('order_customer/listOrder');
+	// }
 
 
 
@@ -361,7 +515,6 @@ class indexController extends CI_Controller
 
 		$this->data['template'] = "pages/search/search";
 		$this->load->view("pages/layout/index", $this->data);
-
 	}
 
 	public function product($ProductID)
@@ -396,19 +549,16 @@ class indexController extends CI_Controller
 
 			$this->session->set_flashdata('error', 'Sản phẩm không tồn tại.');
 			redirect($_SERVER['HTTP_REFERER']);
-			
 		}
 		foreach ($this->cart->contents() as $items) {
 			if ($items['id'] == $ProductID) {
 				$this->session->set_flashdata('error', 'Mặt hàng bạn đặt đã tồn tại trong giỏ hàng. Vui lòng vào giỏ hàng chỉnh sửa số lượng.');
 				redirect(base_url() . 'gio-hang', 'refresh');
-				
 			}
 		}
 		if ($Quantity > $product->total_remaining) {
 			$this->session->set_flashdata('error', 'Số lượng bạn chọn vượt quá số lượng tồn kho. Vui lòng chọn lại.');
 			redirect($_SERVER['HTTP_REFERER']);
-			
 		}
 		$Selling_price = isset($product->Promotion) && $product->Promotion > 0
 			? $product->Selling_price * (1 - $product->Promotion / 100)
@@ -543,9 +693,7 @@ class indexController extends CI_Controller
 				];
 			}
 		} else {
-			$data = [
-
-			];
+			$data = [];
 		}
 
 
@@ -735,7 +883,7 @@ class indexController extends CI_Controller
 
 	public function dang_ky()
 	{
-		
+
 		$this->form_validation->set_rules('fullname', 'Fullname', 'trim|required|min_length[3]', [
 			'required' => 'Bạn cần cung cấp %s',
 			'min_length' => 'Tên người dùng phải có ít nhất 3 ký tự',
@@ -763,7 +911,7 @@ class indexController extends CI_Controller
 
 			$this->load->model('loginModel');
 			$email_exists = $this->loginModel->checkEmailExists($email);
-	
+
 			if ($email_exists) {
 				$this->session->set_flashdata('error', 'Email đã được sử dụng. Vui lòng sử dụng email khác.');
 				redirect(base_url('dang-nhap'));
@@ -951,7 +1099,6 @@ class indexController extends CI_Controller
 			$this->session->set_flashdata('error', 'Thông tin kích hoạt không hợp lệ.');
 			redirect(base_url('dang-nhap'));
 		}
-
 	}
 
 	public function verify_token_forget_password()
@@ -1067,8 +1214,6 @@ class indexController extends CI_Controller
 				} else {
 					$this->session->set_flashdata('error', 'Có lỗi xảy ra, vui lòng thực hiện lại');
 				}
-
-
 			} else {
 				$this->session->set_flashdata('error', 'Không thể thay đổi mật khẩu, bạn đã thay đổi trước đó, vui lòng thực hiện lại');
 				redirect(base_url('dang-nhap'));
@@ -1279,7 +1424,6 @@ class indexController extends CI_Controller
 				redirect(base_url('dang-nhap'));
 			}
 		}
-
 	}
 
 	public function changePassword()
@@ -1323,12 +1467,10 @@ class indexController extends CI_Controller
 
 					$this->session->unset_userdata('logged_in_customer');
 					redirect(base_url('dang-nhap'));
-
 				} else {
 					$this->session->set_flashdata('error', 'Có lỗi xảy ra, vui lòng thực hiện lại');
 					redirect(base_url('profile-user'));
 				}
-
 			} else {
 				$this->session->set_flashdata('error', 'Vui lòng nhập đúng và đầy đủ thông tin');
 				redirect(base_url('nhap-mat-khau-moi'));
@@ -1357,12 +1499,5 @@ class indexController extends CI_Controller
 			'date_cmt' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString()
 		];
 		$result = $this->indexModel->commentSend($data);
-
 	}
-
-
-
-
-
-
 }

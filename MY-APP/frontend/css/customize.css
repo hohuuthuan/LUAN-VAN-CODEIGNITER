@@ -1,4 +1,8 @@
-/* Toastr custom style */
+.mb10{
+	margin-bottom: 10px;
+}
+
+
 #toast-container > .toast {
 	background-image: none !important;
 }
@@ -195,4 +199,53 @@
 	text-align: center;
 	margin-bottom: 30px;
 	color: #3498db;
+}
+
+
+
+
+
+.review-card {
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	padding: 15px;
+	margin-bottom: 20px;
+	background-color: #fff;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.review-card img {
+	width: 120px;
+	height: 120px;
+	object-fit: cover;
+	border-radius: 6px;
+}
+
+.star-rating {
+	font-size: 30px;
+	cursor: pointer;
+}
+
+.font24{
+	font-size: 20px;
+}
+
+.star {
+	color: #ccc;
+}
+
+.star.active {
+	color: #f0ad4e;
+}
+
+textarea {
+	resize: vertical;
+	min-height: 80px;
+}
+
+.rating-label {
+	display: inline-block;
+	font-size: 20px;
+	margin-bottom: 5px;
+	font-weight: bold;
 }

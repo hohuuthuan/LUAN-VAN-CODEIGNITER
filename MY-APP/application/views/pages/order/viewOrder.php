@@ -8,7 +8,7 @@
                         <th scope="col">#</th>
                         <th scope="col">Order Code</th>
                         <th scope="col">Product Image</th>
-                        <th scope="col" style="width: 200px;">Product Name</th>
+                        <th scope="col">Product Name</th>
                         <th scope="col">Original Price</th>
                         <th scope="col">Sale</th>
                         <th scope="col">Discounted Price</th>
@@ -38,24 +38,27 @@
                             <td><?php echo $ord_details->checkout_method ?></td>
                             <td>
                                 <?php
-                                if ($ord_details->order_status == 1) {
-                                    echo '<span class="text text-primary">Đang chờ xử lý</span>';
+                                if ($ord_details->order_status == -1) {
+                                    echo '<span  class="text text-info">Đang chờ xử lý</span>';
+                                } elseif ($ord_details->order_status == 1) {
+                                    echo '<span class="text text-info">Đang được tiếp nhận</span>';
                                 } elseif ($ord_details->order_status == 2) {
-                                    echo '<span class="text text-warning">Người bán đang chuẩn bị hàng</span>';
+                                    echo '<span class="text text-info">Đang chuẩn bị hàng</span>';
                                 } elseif ($ord_details->order_status == 3) {
-                                    echo '<span class="text text-success">Đã giao cho đơn vị vận chuyển, đơn hàng đang được giao đến bạn</span>';
+                                    echo '<span class="text text-info">Đã giao cho đơn vị vận chuyển</span>';
                                 } elseif ($ord_details->order_status == 4) {
-                                    echo '<span class="text text-success">Đơn hàng đã giao thành công</span>';
+                                    echo '<span class="text text-success">Đơn hàng đã được thanh toán</span>';
                                 } else {
-                                    echo '<span class="text text-danger">Đã hủy</span>';
+                                    echo '<span class="badge badge-danger">Đã hủy</span>';
                                 }
                                 ?>
                             </td>
-                            <?php if (($ord_details->order_status == 1) || ($ord_details->order_status == 2)) { ?>
+    
+                            <?php if (($ord_details->order_status == -1) || ($ord_details->order_status == 1) || ($ord_details->order_status == 2) ) { ?>
                                 <td>
-                                    <a onclick="return confirm('Bạn chắc chắn xóa đơn này chứ, các sản phẩm trong đơn sẽ được xóa')"
+                                    <a onclick="return confirm('Bạn chắc chẳn huỷ đơn hàng này chứ')"
                                         href="<?php echo base_url('order_customer/deleteOrder/' . $ord_details->Order_Code) ?>"
-                                        class="btn btn-danger">Delete Order</a>
+                                        class="btn btn-danger">Huỷ đơn hàng</a>
                                 </td>
                             <?php } elseif ($ord_details->order_status == 3) { ?>
                                 <td style="color: #FE980F; width: 150px;">Đơn đang giao đến bạn, không thể hủy đơn</td>

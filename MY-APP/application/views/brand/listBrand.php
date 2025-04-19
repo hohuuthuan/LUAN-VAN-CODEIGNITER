@@ -1,13 +1,6 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-header bg-primary text-white">Danh sách thương hiệu</div>
-
-        <?php if ($this->session->flashdata('success')): ?>
-            <div class="alert alert-success"><?php echo $this->session->flashdata('success'); ?></div>
-        <?php elseif ($this->session->flashdata('error')): ?>
-            <div class="alert alert-danger"><?php echo $this->session->flashdata('error'); ?></div>
-        <?php endif; ?>
-
         <div class="card-body">
             <a href="<?php echo base_url('brand/create'); ?>" class="btn btn-success mb-3">Thêm thương hiệu</a>
 

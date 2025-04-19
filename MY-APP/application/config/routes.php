@@ -67,6 +67,13 @@ $route['order_customer/update-order-status']['POST'] = 'orderController/update_o
 $route['order_customer/viewOrder/(:any)']['GET'] = 'indexController/viewOrder/$1';
 $route['order_customer/deleteOrder/(:any)']['GET'] = 'indexController/deleteOrder/$1';
 
+
+/* REVIEW PRODUCT */
+$route['review/order/(:any)']['GET'] = 'indexController/reviewProducts/$1';
+$route['review/submitReviews']['POST'] = 'indexController/submitReviews';
+
+
+
 /* THANK PAGE */
 $route['thank-you-for-order']['GET'] = 'checkoutController/thank_you_for_order';
 $route['thank-you-for-payment']['GET'] = 'checkoutController/thank_you_for_payment';
@@ -83,6 +90,17 @@ $route['customer/update-avatar/(:any)']['POST'] = 'indexController/updateAvatarC
 
 /* SEND MAIL */
 $route['send-mail'] = 'indexController/send_mail';
+
+
+
+
+
+
+
+
+
+
+
 
 
                                             /* ADMIN */

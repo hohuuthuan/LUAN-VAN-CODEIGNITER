@@ -161,14 +161,9 @@ table strong {
 .form-control {
 	height: 31px;
 }
-input[type="radio"].form-control {
-	height: 21px;
-}
+
 .ml10 {
 	margin-left: 10px;
-}
-.active-bg {
-	background: #ffc !important;
 }
 
 .select2-container--default {

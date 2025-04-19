@@ -38,7 +38,7 @@ class indexModel extends CI_Model
     {
         $this->db->select('suppliers.*');
         $this->db->from('suppliers');
-        // $this->db->where('supplier.Status', 1);
+        $this->db->where('supplier.Status', 1);
         $query = $this->db->get();
         return $query->result();
     }
@@ -82,13 +82,6 @@ class indexModel extends CI_Model
     }
 
 
-
-    // Pagination
-    // public function countAllProduct()
-    // {
-    //     return $this->db->count_all('product');
-    // }
-
     public function countAllProduct($keyword = null, $status = null)
     {
         $this->db->from('product');
@@ -131,35 +124,6 @@ class indexModel extends CI_Model
         $this->db->from('product');
         return $this->db->count_all_results();
     }
-
-
-
-
-    // public function getProductPagination($limit, $start)
-    // {
-    //     $query = $this->db->select('category.Name as tendanhmuc, 
-    //                                 product.*, 
-    //                                 brand.Name as tenthuonghieu, 
-    //                                 COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
-    //         ->from('category')
-    //         ->join('product', 'product.CategoryID = category.CategoryID')
-    //         ->join('brand', 'brand.BrandID = product.BrandID')
-    //         ->join('batches', 'batches.ProductID = product.ProductID', 'left')
-    //         ->group_by('product.ProductID')
-    //         ->order_by('total_remaining', 'DESC')
-    //         ->limit($limit, $start)
-    //         ->get();
-
-    //     $products = $query->result();
-
-    //     // Lấy chi tiết số lượng tồn kho theo từng lô
-    //     foreach ($products as $product) {
-    //         $product->batches = $this->get_batches_by_product($product->ProductID);
-    //     }
-
-    //     return $products;
-    // }
-
 
 
     public function getProductPagination($limit, $start, $keyword = null, $status = null)
@@ -225,46 +189,6 @@ class indexModel extends CI_Model
 
         return $products;
     }
-
-
-    // public function getProductsByDiseaseType($disease_type)
-    // {
-    //     $this->db->select('product.*, category.Name as tendanhmuc, brand.Name as tenthuonghieu');
-    //     $this->db->from('product');
-    //     $this->db->join('category', 'category.CategoryID = product.CategoryID');
-    //     $this->db->join('brand', 'brand.BrandID = product.BrandID');
-    //     $this->db->where('product.Status', 1);
-
-    //     $this->db->like('product.Product_uses', $disease_type, 'both', false);
-
-    //     $query = $this->db->get();
-    //     return $query->result();
-    // }
-
-
-    // public function countProductsByDiseaseType($disease_type)
-    // {
-    //     $this->db->from('product');
-    //     $this->db->like('Product_uses', $disease_type, 'both', false);
-    //     $this->db->where('Status', 1);
-    //     return $this->db->count_all_results();
-    // }
-
-    // public function getProductsByDiseaseType($disease_type, $limit = 6, $offset = 0)
-    // {
-    //     $this->db->select('product.*, category.Name as tendanhmuc, brand.Name as tenthuonghieu');
-    //     $this->db->from('product');
-    //     $this->db->join('category', 'category.CategoryID = product.CategoryID');
-    //     $this->db->join('brand', 'brand.BrandID = product.BrandID');
-    //     $this->db->where('product.Status', 1);
-    //     $this->db->like('product.Product_uses', $disease_type, 'both', false);
-    //     $this->db->limit($limit, $offset);
-
-    //     return $this->db->get()->result();
-    // }
-
-
-
 
 
     public function getProductsByDiseaseType($disease_type, $limit = 10, $offset = 0)
@@ -479,44 +403,6 @@ class indexModel extends CI_Model
             ->get();
         return $query->result();
     }
-    // public function getProductDetails($id)
-    // {
-    //     $query = $this->db->select('category.title as tendanhmuc, 
-    //                                  product.*, brand.title as tenthuonghieu, 
-    //                                  warehouses.quantity')
-    //         ->from('category')
-    //         ->join('product', 'product.CategoryID = category.CategoryID')
-    //         ->join('brand', 'brand.BrandID = product.BrandID')
-    //         ->join('warehouses', 'warehouses.ProductID = product.ProductID', 'left')
-    //         ->where('product.ProductID', $id)
-    //         ->get();
-
-    //     $result = $query->result();
-    //     if (empty($result)) {
-    //         // You can log or handle this case
-    //         log_message('debug', 'No product details found for ID: ' . $id);
-    //     }
-    //     return $result;
-    // }
-
-
-    //     public function getProductDetails($ProductID)
-    // {
-    //     $query = $this->db->select('category.Name as tendanhmuc, 
-    //                                  product.*, brand.Name as tenthuonghieu')
-    //         ->from('category')
-    //         ->join('product', 'product.CategoryID = category.CategoryID')
-    //         ->join('brand', 'brand.BrandID = product.BrandID')
-    //         ->where('product.ProductID', $ProductID)
-    //         ->get();
-
-    //     $result = $query->result();
-    //     if (empty($result)) {
-    //         // You can log or handle this case
-    //         log_message('debug', 'No product details found for ID: ' . $ProductID);
-    //     }
-    //     return $result;
-    // }
 
     public function getProductDetails($ProductID)
     {
@@ -537,6 +423,75 @@ class indexModel extends CI_Model
             log_message('debug', 'No product details found for ID: ' . $ProductID);
         }
         return $result;
+    }
+
+    // public function getReviewableProducts($Order_Code, $user_id)
+    // {
+    //     $this->db->select('order_detail.ProductID, product.Name, product.Image');
+    //     $this->db->from('orders');
+    //     $this->db->join('order_detail', 'orders.Order_Code = order_detail.Order_Code');
+    //     $this->db->join('product', 'order_detail.ProductID = product.ProductID');
+    //     $this->db->join('shipping', 'orders.ShippingID = shipping.id');
+    //     $this->db->where('orders.Order_Code', $Order_Code);
+    //     $this->db->where('shipping.user_id', $user_id);
+    //     $this->db->where('orders.Order_Status', 4);
+    //     $this->db->group_by('order_detail.ProductID'); // Tránh trùng sản phẩm
+    //     $query = $this->db->get();
+    //     return $query->result();
+    // }
+
+
+    public function getReviewableProducts($Order_Code, $user_id)
+    {
+        $this->db->select('
+            orders.Order_Code,
+            order_detail.ProductID, 
+            product.Name, 
+            product.Image,
+            IF(MAX(reviews.id) IS NOT NULL, 1, 0) AS has_reviewed');
+        $this->db->from('orders');
+        $this->db->join('order_detail', 'orders.Order_Code = order_detail.Order_Code');
+        $this->db->join('product', 'order_detail.ProductID = product.ProductID');
+        $this->db->join('shipping', 'orders.ShippingID = shipping.id');
+        $this->db->join('reviews', 'reviews.ProductID = order_detail.ProductID AND reviews.UserID = '.$this->db->escape($user_id), 'left');
+        $this->db->where('orders.Order_Code', $Order_Code);
+        $this->db->where('shipping.user_id', $user_id);
+        $this->db->where('orders.Order_Status', 4);
+        $this->db->group_by(['order_detail.ProductID', 'product.Name', 'product.Image']);
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function insertReviews($reviews)
+    {
+        if (!empty($reviews)) {
+            $this->db->insert_batch('reviews', $reviews);
+        }
+    }
+    
+
+
+
+    public function getProductInOrder($Order_Code)
+    {
+        $user_id = $this->session->userdata('UserID');
+
+        // Lấy sản phẩm trong đơn hàng
+        $this->db->select('od.ProductID, p.Name, p.Image');
+        $this->db->from('order_detail od');
+        $this->db->join('product p', 'p.ProductID = od.ProductID');
+        $this->db->join('orders o', 'o.Order_Code = od.Order_Code');
+        $this->db->where('od.Order_Code', $Order_Code);
+        $this->db->where('o.UserID', $user_id);
+        $products = $this->db->get()->result();
+
+        $order = $this->db->get_where('orders', ['Order_Code' => $Order_Code, 'UserID' => $user_id])->row();
+
+
+        if (!$order || $order->Order_Status != 4) {
+            show_error('Đơn hàng không hợp lệ hoặc chưa hoàn tất.');
+        }
+        return $order;
     }
 
 
