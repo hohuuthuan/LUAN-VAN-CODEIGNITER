@@ -1,15 +1,15 @@
-<table class="table table-striped table-bordered mt20 mb20">
+<table class="table table-striped table-bordered table-hover mt20 mb20">
     <thead>
         <tr>
-            <th scope="text-center">#</th>
-            <th scope="text-center">Order code</th>
-            <th scope="text-center">Customer name</th>
-            <th scope="text-center">Customer phone</th>
-            <th scope="text-center">Customer address</th>
-            <th scope="text-center">Payment method</th>
-            <th scope="text-center">Date order</th>
-            <th scope="text-center">Status</th>
-            <th scope="text-center">Actions</th>
+            <th>#</th>
+            <th>Order code</th>
+            <th>Customer name</th>
+            <th>Customer phone</th>
+            <th>Customer address</th>
+            <th class="payment-method">Payment method</th>
+            <th>Date order</th>
+            <th>Status</th>
+            <th class="action-order">Actions</th>
         </tr>
     </thead>
 

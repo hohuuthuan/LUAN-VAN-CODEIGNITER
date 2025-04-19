@@ -446,8 +446,8 @@ span .bi-calendar-date {
 	padding-bottom: 120px;
 }
 
-.select-time-type {
-	appearance: none; /* Ẩn giao diện mặc định của trình duyệt */
+/* .select-time-type {
+	appearance: none;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 
@@ -461,7 +461,7 @@ span .bi-calendar-date {
 	cursor: pointer;
 }
 
-/* Hover & Focus */
+
 .select-time-type:hover {
 	border-color: #2980b9;
 }
@@ -470,7 +470,7 @@ span .bi-calendar-date {
 	outline: none;
 	border-color: #1abc9c;
 	box-shadow: 0 0 5px rgba(26, 188, 156, 0.5);
-}
+} */
 
 #revenueChart {
 	width: 70%;
@@ -544,5 +544,20 @@ span .bi-calendar-date {
 }
 .filter-date-receive label{
 	font-weight: 600;
+}
+
+th.action-order{
+	min-width: 95px;
+}
+
+th.payment-method{
+	max-width: 73px;
+}
+
+
+.table tbody tr:hover {
+    background-color: #f4e3ad;
+    transition: background-color 0.05s ease-in-out;
+    cursor: pointer;
 }
 
