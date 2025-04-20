@@ -2,6 +2,29 @@
 	margin-bottom: 10px;
 }
 
+.mt15{
+	margin-top: 15px;
+}
+
+.display-flex{
+	display: flex;
+}
+
+.coupon_code{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 15px;
+}
+
+.coupon_wrapper{
+	position: relative; 
+	width: 100%; 
+	padding: 20px; 
+	border-top: 1px solid #ccc; 
+	margin-top: 20px;
+}
 
 #toast-container > .toast {
 	background-image: none !important;

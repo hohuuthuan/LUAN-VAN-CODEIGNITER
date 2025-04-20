@@ -277,25 +277,59 @@ class orderModel extends CI_Model
 
 
 
+    // public function selectOrderDetails($orderCode)
+    // {
+    //     $query = $this->db->select('orders.Order_Code, orders.TotalAmount, order_detail.id as order_detail_id,
+    //                                 orders.Order_Status as order_status,
+    //                                 orders.Payment_Status as payment_status,
+    //                                 order_detail.Subtotal as sub, 
+    //                                 order_detail.Quantity as qty, 
+    //                                 order_detail.Order_Code, 
+    //                                 order_detail.ProductID, 
+    //                                 product.*, shipping.*')
+    //         ->from('order_detail')
+    //         ->join('product', 'order_detail.ProductID = product.ProductID', 'left')
+    //         ->join('orders', 'orders.Order_Code = order_detail.Order_Code')
+    //         ->join('shipping', 'orders.ShippingID = shipping.id')
+    //         ->where('order_detail.Order_Code', $orderCode)
+    //         ->get();
+
+    //     return $query->result();
+    // }
+
+
     public function selectOrderDetails($orderCode)
     {
-        $query = $this->db->select('orders.Order_Code, order_detail.id as order_detail_id,
-                                    orders.Order_Status as order_status,
-                                    orders.Payment_Status as payment_status,
-                                    order_detail.Subtotal as sub, 
-                                    order_detail.Quantity as qty, 
-                                    order_detail.Order_Code, 
-                                    order_detail.ProductID, 
-                                    product.*, shipping.*')
+        $query = $this->db->select('
+            orders.Order_Code, 
+            orders.TotalAmount, 
+            orders.DiscountID,
+            orders.Order_Status as order_status,
+            orders.Payment_Status as payment_status,
+            order_detail.id as order_detail_id,
+            order_detail.Subtotal as sub, 
+            order_detail.Quantity as qty, 
+            order_detail.Order_Code, 
+            order_detail.ProductID, 
+            product.*,
+            shipping.*,
+            discount.Coupon_code,
+            discount.Discount_type,
+            discount.Discount_value,
+            discount.Min_order_value,
+            discount.Max_discount
+        ')
             ->from('order_detail')
             ->join('product', 'order_detail.ProductID = product.ProductID', 'left')
             ->join('orders', 'orders.Order_Code = order_detail.Order_Code')
             ->join('shipping', 'orders.ShippingID = shipping.id')
+            ->join('discount', 'orders.DiscountID = discount.DiscountID', 'left')
             ->where('order_detail.Order_Code', $orderCode)
             ->get();
 
         return $query->result();
     }
+
 
     public function printOrderDetails($orderCode)
     {

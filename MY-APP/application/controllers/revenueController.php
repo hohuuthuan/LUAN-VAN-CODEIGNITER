@@ -131,6 +131,12 @@
             $this->config->config['pageTitle'] = 'Thống kê lô hàng';
             $data = [];
             $data['batches'] = $this->revenueModel->getBatchProfitStatus();
+
+            // echo '<pre>';
+            // print_r($data['batches']);
+            // echo '</pre>';
+
+
             $data['title'] = "Thống kê lô hàng";
             $data['breadcrumb'] = [
                 ['label' => 'Dashboard', 'url' => 'dashboard'],

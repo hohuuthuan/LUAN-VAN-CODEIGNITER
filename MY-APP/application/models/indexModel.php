@@ -38,7 +38,7 @@ class indexModel extends CI_Model
     {
         $this->db->select('suppliers.*');
         $this->db->from('suppliers');
-        $this->db->where('supplier.Status', 1);
+        // $this->db->where('supplier.Status', 1);
         $query = $this->db->get();
         return $query->result();
     }
@@ -425,22 +425,6 @@ class indexModel extends CI_Model
         return $result;
     }
 
-    // public function getReviewableProducts($Order_Code, $user_id)
-    // {
-    //     $this->db->select('order_detail.ProductID, product.Name, product.Image');
-    //     $this->db->from('orders');
-    //     $this->db->join('order_detail', 'orders.Order_Code = order_detail.Order_Code');
-    //     $this->db->join('product', 'order_detail.ProductID = product.ProductID');
-    //     $this->db->join('shipping', 'orders.ShippingID = shipping.id');
-    //     $this->db->where('orders.Order_Code', $Order_Code);
-    //     $this->db->where('shipping.user_id', $user_id);
-    //     $this->db->where('orders.Order_Status', 4);
-    //     $this->db->group_by('order_detail.ProductID'); // Tránh trùng sản phẩm
-    //     $query = $this->db->get();
-    //     return $query->result();
-    // }
-
-
     public function getReviewableProducts($Order_Code, $user_id)
     {
         $this->db->select('
@@ -453,7 +437,7 @@ class indexModel extends CI_Model
         $this->db->join('order_detail', 'orders.Order_Code = order_detail.Order_Code');
         $this->db->join('product', 'order_detail.ProductID = product.ProductID');
         $this->db->join('shipping', 'orders.ShippingID = shipping.id');
-        $this->db->join('reviews', 'reviews.ProductID = order_detail.ProductID AND reviews.UserID = '.$this->db->escape($user_id), 'left');
+        $this->db->join('reviews', 'reviews.ProductID = order_detail.ProductID AND reviews.UserID = ' . $this->db->escape($user_id), 'left');
         $this->db->where('orders.Order_Code', $Order_Code);
         $this->db->where('shipping.user_id', $user_id);
         $this->db->where('orders.Order_Status', 4);
@@ -472,20 +456,20 @@ class indexModel extends CI_Model
         $this->db->where('orders.Order_Code', $Order_Code);
         $this->db->where('shipping.user_id', $user_id);
         $total = $this->db->get()->row()->total_products;
-    
+
         // Đếm số sản phẩm đã được user đánh giá
         $this->db->select('COUNT(DISTINCT reviews.ProductID) as reviewed_count');
         $this->db->from('order_detail');
         $this->db->join('orders', 'orders.Order_Code = order_detail.Order_Code');
         $this->db->join('shipping', 'orders.ShippingID = shipping.id');
-        $this->db->join('reviews', 'reviews.ProductID = order_detail.ProductID AND reviews.UserID = '.$this->db->escape($user_id));
+        $this->db->join('reviews', 'reviews.ProductID = order_detail.ProductID AND reviews.UserID = ' . $this->db->escape($user_id));
         $this->db->where('orders.Order_Code', $Order_Code);
         $this->db->where('shipping.user_id', $user_id);
         $reviewed = $this->db->get()->row()->reviewed_count;
-    
+
         return ($reviewed >= $total); // true nếu đã đánh giá hết
     }
-    
+
 
 
     public function insertReviews($reviews)
@@ -494,7 +478,7 @@ class indexModel extends CI_Model
             $this->db->insert_batch('reviews', $reviews);
         }
     }
-    
+
 
 
 
@@ -634,5 +618,17 @@ class indexModel extends CI_Model
         }
         $this->db->trans_complete();
         return true;
+    }
+
+
+
+
+    public function getValidCoupon($coupon_code)
+    {
+        $this->db->where('Coupon_code', $coupon_code);
+        $this->db->where('Start_date <=', date('Y-m-d H:i:s'));
+        $this->db->where('End_date >=', date('Y-m-d H:i:s'));
+        $query = $this->db->get('discount');
+        return $query->row();
     }
 }

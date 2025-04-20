@@ -153,33 +153,92 @@ class indexController extends CI_Controller
 			redirect(base_url() . 'gio-hang');
 		}
 	}
-	// public function listOrder()
+
+
+	// public function applyCoupon()
 	// {
-	// 	$this->config->config['pageTitle'] = 'List Order';
-	// 	$user_id = $this->getUserOnSession();
 
+	// 	$this->load->model('indexModel');
+	// 	$coupon_code = $this->input->post('coupon_code', TRUE);
+	// 	$cart_total = $this->cart->total();
 
-	// 	$this->load->model('orderModel');
-	// 	$this->load->model('productModel');
-	// 	$data['order_items'] = $this->orderModel->getOrderByUserId($user_id['id']);
+	// 	$coupon = $this->indexModel->getValidCoupon($coupon_code);
 
 	// 	echo '<pre>';
-	// 	print_r($data['order_items']);
-	// 	echo '</pre>';
+	// 	print_r($coupon);
+	// 	echo '</pre>'; die();
 
-	// 	if (!empty($data['order_items'])) {
-	// 		foreach ($data['order_items'] as $order_item) {
-	// 			$product_details = $this->productModel->selectProductById($order_item->ProductID);
-	// 			$order_item->product_details = $product_details;
-	// 		}
-	// 	} else {
-	// 		$this->session->set_flashdata('error', 'Không có đơn hàng nào');
+
+	// 	if (!$coupon) {
+	// 		$this->session->set_flashdata('coupon_error', 'Mã giảm giá không hợp lệ hoặc đã hết hạn');
+	// 		redirect($_SERVER['HTTP_REFERER']);
 	// 	}
 
-	// 	$this->data['order_items'] = $data['order_items'];
-	// 	$this->data['template'] = 'pages/order/listOrder';
-	// 	$this->load->view("pages/layout/index", $this->data);
+	// 	if ($cart_total < $coupon->Min_order_value) {
+	// 		$this->session->set_flashdata('coupon_error', 'Đơn hàng chưa đạt giá trị tối thiểu để sử dụng mã giảm giá này');
+	// 		redirect($_SERVER['HTTP_REFERER']);
+	// 	}
+
+	// 	$discount = 0;
+
+	// 	if ($coupon->Discount_type == 'Percentage') {
+	// 		$discount = ($cart_total * $coupon->Discount_value) / 100;
+	// 		if ($coupon->Max_discount && $discount > $coupon->Max_discount) {
+	// 			$discount = $coupon->Max_discount;
+	// 		}
+	// 	} elseif ($coupon->Discount_type == 'Fixed') {
+	// 		$discount = $coupon->Discount_value;
+	// 	}
+
+	// 	$this->session->set_userdata('coupon_code', $coupon_code);
+	// 	$this->session->set_userdata('coupon_discount', $discount);
+	// 	$this->session->set_flashdata('coupon_success', 'Áp dụng mã giảm giá thành công');
+
+	// 	redirect($_SERVER['HTTP_REFERER']);
 	// }
+
+
+	public function applyCoupon()
+	{
+		$this->load->model('indexModel');
+		$coupon_code = $this->input->post('coupon_code', TRUE);
+		$cart_total = $this->cart->total();
+
+		$coupon = $this->indexModel->getValidCoupon($coupon_code);
+
+		if (!$coupon) {
+			$this->session->set_flashdata('coupon_error', 'Mã giảm giá không hợp lệ hoặc đã hết hạn');
+			redirect($_SERVER['HTTP_REFERER']);
+		}
+
+		if ($cart_total < $coupon->Min_order_value) {
+			$this->session->set_flashdata('coupon_error', 'Đơn hàng chưa đạt giá trị tối thiểu để sử dụng mã giảm giá này');
+			redirect($_SERVER['HTTP_REFERER']);
+		}
+
+		$discount = 0;
+
+		if ($coupon->Discount_type == 'Percentage') {
+			$discount = ($cart_total * $coupon->Discount_value) / 100;
+			if ($coupon->Max_discount && $discount > $coupon->Max_discount) {
+				$discount = $coupon->Max_discount;
+			}
+		} elseif ($coupon->Discount_type == 'Fixed') {
+			$discount = $coupon->Discount_value;
+		}
+
+		// Lưu đầy đủ vào session
+		$this->session->set_userdata('coupon_code', $coupon->Coupon_code);
+		$this->session->set_userdata('coupon_discount', $discount);
+		$this->session->set_userdata('coupon_id', $coupon->DiscountID);
+
+		$this->session->set_flashdata('coupon_success', 'Áp dụng mã giảm giá thành công');
+
+		redirect($_SERVER['HTTP_REFERER']);
+	}
+
+
+
 
 	public function listOrder()
 	{
@@ -198,7 +257,7 @@ class indexController extends CI_Controller
 			foreach ($order_items as $order_item) {
 				$product_details = $this->productModel->selectProductById($order_item->ProductID);
 				$order_item->product_details = $product_details;
-			
+
 				// Thêm cờ đánh giá
 				if ($order_item->Order_Status == 4) {
 					$order_item->has_reviewed_all_products = $this->indexModel->getReviewStatusOfOrder($order_item->Order_Code, $user_id['id']);
@@ -206,7 +265,6 @@ class indexController extends CI_Controller
 					$order_item->has_reviewed_all_products = false;
 				}
 			}
-			
 		} else {
 			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
 		}

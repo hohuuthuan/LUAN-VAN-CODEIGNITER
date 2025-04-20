@@ -22,7 +22,7 @@
                                     $order_totals[$ord->Order_Code] = 0;
                                 }
                                 $order_totals[$ord->Order_Code] += $subtotal;
-                                ?>
+                            ?>
                                 <div class="row">
                                     <table style="height: 207px;" class="table table-bordered table-hover">
                                         <thead class="">
@@ -56,7 +56,6 @@
                                                         echo '<span class="text-success" style="font-size: 1.4rem; font-weight: bold;">' . number_format($Promotioned_price, 0, ',', '.') . ' VNĐ</span>';
                                                     } else {
                                                         echo '<span class="text-success" style="font-size: 1.4rem; font-weight: bold;">' . number_format($ord->Selling_price, 0, ',', '.') . ' VNĐ</span>';
-
                                                     }
                                                     ?>
                                                 </td>
@@ -91,7 +90,7 @@
 
                                             if (!empty($ord->product_qty_in_batches['batches'])) {
                                                 foreach ($ord->product_qty_in_batches['batches'] as $key => $quantity_in_batch):
-                                                    ?>
+                                            ?>
                                                     <tr>
                                                         <td><?php echo htmlspecialchars($quantity_in_batch['Batch_ID']); ?></td>
                                                         <td><?php echo htmlspecialchars($quantity_in_batch['QuantityToTake']); ?>
@@ -136,7 +135,7 @@
                                         <tr>
                                             <td>
                                                 <h1 style="font-weight: 900;" class="text-danger">
-                                                    <?php echo number_format($total, 0, ',', '.') . ' VNĐ'; ?>
+                                                    <?php echo number_format($order_details[0]->TotalAmount, 0, ',', '.') . ' VNĐ'; ?>
                                                 </h1>
                                             </td>
                                         </tr>
@@ -144,6 +143,25 @@
                                     </tbody>
                                 <?php endforeach; ?>
                             </table>
+                            <?php if (!empty($order_details[0]->DiscountID) && !empty($order_details[0]->Discount_value)): ?>
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Số tiền đã được giảm</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <h2 style="font-weight: 600;" class="text-info">
+                                                    <?php echo number_format($order_details[0]->Discount_value, 0, ',', '.') . ' VNĐ'; ?>
+                                                </h2>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            <?php endif; ?>
+
                             <table class="table table-bordered table-hover">
                                 <?php foreach ($order_totals as $Order_Code => $total): ?>
                                     <thead class="">
@@ -157,19 +175,19 @@
                                             <td>
                                                 <?php
                                                 if ($ord->payment_status == 1) {
-                                                    ?>
+                                                ?>
                                                     <h3 style="font-weight: 900; color: green">
                                                         Đã thanh toán
                                                     </h3>
 
-                                                    <?php
+                                                <?php
                                                 } else {
-                                                    ?>
+                                                ?>
                                                     <h3 style="font-weight: 900;" class="text-danger">
                                                         Chưa được thanh toán
                                                     </h3>
 
-                                                    <?php
+                                                <?php
                                                 }
                                                 ?>
 
@@ -179,6 +197,7 @@
                                     </tbody>
                                 <?php endforeach; ?>
                             </table>
+
                             <table class="table table-bordered table-hover">
                                 <thead class="">
                                     <tr>
@@ -191,12 +210,12 @@
                                             <?php foreach ($order_details as $key => $ord): ?>
                                                 <?php if ($ord->Order_Code != $previous_Order_Code): ?>
                                                     <?php
-                                                   
+
                                                     if ($ord->product_qty_in_batches['shortage'] > 0) {
                                                         echo '<h3 style="color: red;">Số lượng hiện tại trong kho không đủ</h3>';
                                                     } else {
                                                         if ($ord->checkout_method == 'COD' && $ord->order_status != 4) {
-                                                            ?>
+                                                    ?>
                                                             <select class="form-control form-control-sm order_status setupSelect2"
                                                                 data-order-code="<?php echo $ord->Order_Code; ?>">
                                                                 <option value="-1" <?= ($ord->order_status == 0) ? 'selected' : ''; ?>>Chọn
@@ -215,9 +234,9 @@
                                                             <button style="float: right;"
                                                                 class="btn btn-primary btn-sm save-status mt20"
                                                                 data-order-code="<?php echo $ord->Order_Code ?>">Lưu</button>
-                                                            <?php
+                                                        <?php
                                                         } elseif ($ord->checkout_method == 'VNPAY' && $ord->order_status != 4) {
-                                                            ?>
+                                                        ?>
                                                             <select class="form-control form-control-sm order_status setupSelect2"
                                                                 data-order-code="<?php echo $ord->Order_Code ?>">
                                                                 <option value="0" <?php echo $ord->order_status == 0 ? 'selected' : '' ?>>
@@ -236,7 +255,7 @@
                                                             <button style="float: right;"
                                                                 class="btn btn-primary btn-sm save-status mt20"
                                                                 data-order-code="<?php echo $ord->Order_Code ?>">Lưu</button>
-                                                            <?php
+                                                    <?php
                                                         } else {
                                                             echo '<h3>Đơn hàng đã hoàn tất</h3>';
                                                         }
@@ -258,7 +277,7 @@
 </div>
 
 <script>
-    $(document).on('click', '.save-status', function () {
+    $(document).on('click', '.save-status', function() {
         const button = $(this);
         const orderCode = button.data('order-code');
         const value = $(`.order_status[data-order-code="${orderCode}"]`).val();
@@ -268,7 +287,7 @@
         } else {
             // Lấy dữ liệu batches
             let product_qty_in_batch = [];
-            $(`table[data-order-code="${orderCode}"] tbody tr`).each(function () {
+            $(`table[data-order-code="${orderCode}"] tbody tr`).each(function() {
                 const batch_id = $(this).find('td:eq(0)').text().trim();
                 const quantity = $(this).find('td:eq(1)').text().trim();
 
@@ -292,14 +311,14 @@
                     Order_Code: orderCode,
                     product_qty_in_batch: product_qty_in_batch
                 },
-                beforeSend: function () {
+                beforeSend: function() {
                     button.prop('disabled', true).text('Đang lưu...');
                 },
-                success: function (response) {
+                success: function(response) {
                     alert('Cập nhật trạng thái đơn hàng thành công');
                     location.reload();
                 },
-                error: function (xhr, status, error) {
+                error: function(xhr, status, error) {
                     alert('Có lỗi xảy ra khi cập nhật trạng thái đơn hàng');
                     button.prop('disabled', false).text('Lưu');
                 }

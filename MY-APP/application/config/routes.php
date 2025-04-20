@@ -61,6 +61,11 @@ $route['delete-item/(:any)']['GET'] = 'indexController/delete_item/$1';
 $route['checkout']['GET'] = 'indexController/checkout';
 $route['confirm-checkout-method']['POST'] = 'checkoutController/confirm_checkout_method';
 
+/* APPLY COUPON */
+$route['apply-coupon']['POST'] = 'indexController/applyCoupon';
+
+
+
 /* LIST ORDER */
 $route['order_customer/listOrder']['GET'] = 'indexController/listOrder';
 $route['order_customer/update-order-status']['POST'] = 'orderController/update_order_status_COD';
@@ -174,11 +179,6 @@ $route['warehouse/receive-goods-history/(:num)']['GET'] = 'warehouseController/r
 $route['warehouse/receive-goods-history/receipt_detail/(:any)']['GET'] = 'warehouseController/receipt_detail/$1';
 
 
-// $route['quantity/update/(:any)']['GET'] = 'warehouseController/updateQuantityProduct/$1';
-// $route['product-in-warehouse/delete/(:any)']['GET'] = 'warehouseController/deleteProduct/$1';
-// $route['warehouse/plusquantity-importpriceinwwarehouses/(:any)']['POST'] = 'warehouseController/plusQuantityWarehouses/$1';
-
-
 
 /* MANAGE ORDER */
 $route['order_admin/listOrder']['GET'] = 'orderController/index';
@@ -195,6 +195,18 @@ $route['comment/list/edit/(:any)']['GET'] = 'dashboardController/editComment/$1'
 $route['comment/update/(:any)']['POST'] = 'dashboardController/updateComment/$1';
 $route['comment/delete/(:any)']['GET'] = 'dashboardController/deleteComment/$1';
 
+
+/* MANAGE REVIEWS */
+$route['review-list']['GET'] = 'reviewController/index';
+$route['review-list/(:num)']['GET'] = 'reviewController/index/$1';
+$route['review-list/detail/(:num)']['GET'] = 'reviewController/reviewProduct/$1';
+$route['review-list/detail/(:num)/(:num)']['GET'] = 'reviewController/reviewProduct/$1/$2';
+$route['reply-comment']['POST'] = 'reviewController/updateReview';
+
+
+
+
+
 /* REVENUE */
 $route['revenue']['GET'] = 'revenueController/index';
 $route['revenue-custom']['POST'] = 'revenueController/customRevenue';
@@ -209,7 +221,6 @@ $route['revenueBatches']['GET'] = 'revenueController/revenueBatchesPage';
 
 
 /* AI CHẨN ĐOÁN BỆNH */
-
 $route['predict']['GET'] = 'predictController/yolo_predict_page';
 $route['predict']['POST'] = 'predictController/yolo_predict_page';
 $route['predict/(:num)']['GET']  = 'predictController/yolo_predict_page/$1';

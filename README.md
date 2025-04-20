@@ -98,3 +98,9 @@ vnp_BankTranNo=VNP14842511
 
 
 chỉnh lại phần dữ liệu default của các bảng
+
+
+Xoá coupon_code của order_detail
+
+
+Phần dash board các mục ngày hôm nay bị sai

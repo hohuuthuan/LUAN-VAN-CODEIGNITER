@@ -279,9 +279,8 @@ class orderController extends CI_Controller
 		$data['order_details'] = $this->orderModel->selectOrderDetails($order_code);
 
 		if (!empty($data['order_details'])) {
-			// Lặp qua từng sản phẩm trong order_details
+
 			foreach ($data['order_details'] as &$order_detail) {
-				// Lấy số lượng sản phẩm trong batch cho từng sản phẩm và gắn vào thuộc tính mới
 				$order_detail->product_qty_in_batches = $this->orderModel->get_qty_product_in_batches($order_detail->ProductID, $order_detail->qty);
 			}
 

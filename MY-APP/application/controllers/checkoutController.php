@@ -82,186 +82,417 @@ class CheckoutController extends CI_Controller
     }
 
 
+    // public function confirm_checkout_method()
+    // {
+
+    //     $this->form_validation->set_rules('name', 'Username', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+    //     $this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+    //     $this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+    //     $this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
+
+
+
+    //     $user_id = $this->getUserOnSession();
+    //     $email = $this->input->post('email');
+    //     // Tạo mã đơn hàng duy nhất
+    //     $letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
+    //     $numbers = sprintf("%06d", rand(0, 999999));
+    //     $order_code = $letters . $numbers;
+
+    //     // Lấy dữ liệu vận chuyển từ form
+    //     $shipping_data = [
+    //         'user_id' => $user_id['id'],
+    //         'name' => $this->input->post('name'),
+    //         'email' => $this->input->post('email'),
+    //         'phone' => $this->input->post('phone'),
+    //         'address' => $this->input->post('address'),
+    //         'checkout_method' => $this->input->post('checkout_method')
+    //     ];
+
+
+    //     $this->session->set_userdata("shipping_data_{$order_code}", $shipping_data);
+
+
+    //     $subtotal = 0;
+    //     $total = 0;
+    //     foreach ($this->cart->contents() as $items) {
+    //         $subtotal = $items['qty'] * $items['price'];
+    //         $total += $subtotal;
+    //     }
+
+    //     if ($this->form_validation->run()) {
+    //         if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'COD') {
+    //             // Truy xuất đúng session shipping theo order_code
+    //             $shipping_data_session = $this->session->userdata("shipping_data_{$order_code}");
+
+    //             // echo '<pre>';
+    //             // print_r($shipping_data_session);
+    //             // echo '</pre>';
+    //             // die();
+
+    //             $this->load->model('orderModel');
+    //             $ShippingID = $this->orderModel->newShipping($shipping_data_session);
+
+    //             if ($ShippingID) {
+    //                 if (!empty($this->session->userdata("shipping_data_{$order_code}"))) {
+    //                     $this->session->unset_userdata("shipping_data_{$order_code}");
+    //                 }
+
+    //                 $data_order = [
+    //                     'Order_code' => $order_code,
+    //                     'Order_Status' => -1,
+    //                     'Payment_Status' => 0,
+    //                     'UserID' => $user_id['id'],
+    //                     'TotalAmount' => $total,
+    //                     // Chưa có giảm giá
+    //                     'Date_Order' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString(),
+    //                     'ShippingID' => $ShippingID
+    //                 ];
+    //                 $this->data['order_id'] = $this->orderModel->insert_order($data_order);
+
+    //                 foreach ($this->cart->contents() as $items) {
+    //                     $data_order_detail = array(
+    //                         'Order_code' => $order_code,
+    //                         'ProductID' => $items['id'],
+    //                         'Quantity' => $items['qty'],
+    //                         'Selling_price' => $items['price'],
+    //                         // Chưa có áp mã giảm giá
+    //                         'Subtotal' => $items['subtotal'],
+    //                     );
+    //                     $order_detail_id = $this->orderModel->insert_order_detail($data_order_detail);
+    //                     $get_product_in_batches = $this->orderModel->get_qty_product_in_batches($items['id'], $items['qty']);
+    //                     if (!empty($get_product_in_batches)) {
+    //                         foreach ($get_product_in_batches['batches'] as $batch) {
+    //                             $data_order_batches = [
+    //                                 'order_detail_id' => $order_detail_id,
+    //                                 'batch_id' => $batch['Batch_ID'],
+    //                                 'quantity' => $get_product_in_batches['totalQuantity']
+    //                             ];
+    //                             $result = $this->orderModel->insert_order_batches($data_order_batches);
+    //                         }
+    //                     }
+    //                 }
+    //             }
+
+    //             $this->session->set_flashdata('success', 'Đặt hàng thành công');
+    //             $this->cart->destroy();
+
+    //             $to_mail = $email;
+    //             $subject = 'Thông báo đặt hàng';
+    //             $message = 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.';
+    //             $this->send_mail($to_mail, $subject, $message);
+    //             redirect(base_url('thank-you-for-order'));
+    //         } elseif (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
+
+    //             // Chuyển hướng thanh toán vnpay
+    //             $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+    //             $vnp_Returnurl = "http://localhost:8000/thank-you-for-order";
+    //             $vnp_TmnCode = "F72UMWTL";
+    //             $vnp_HashSecret = "696U98UTDBDDD09ZN1T0GAVR3KC4EVMU";
+
+    //             $vnp_TxnRef = $order_code;
+    //             $vnp_OrderInfo = 'Thanh toan don hang: ' . $order_code;
+    //             $vnp_OrderType = 'billpayment';
+    //             $vnp_Amount = $total * 100;
+    //             $vnp_Locale = 'vn';
+    //             $vnp_BankCode = 'NCB';
+    //             $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+
+    //             $inputData = array(
+    //                 "vnp_Version" => "2.1.0",
+    //                 "vnp_TmnCode" => $vnp_TmnCode,
+    //                 "vnp_Amount" => $vnp_Amount,
+    //                 "vnp_Command" => "pay",
+    //                 "vnp_CreateDate" => date('YmdHis'),
+    //                 "vnp_CurrCode" => "VND",
+    //                 "vnp_IpAddr" => $vnp_IpAddr,
+    //                 "vnp_Locale" => $vnp_Locale,
+    //                 "vnp_OrderInfo" => $vnp_OrderInfo,
+    //                 "vnp_OrderType" => $vnp_OrderType,
+    //                 "vnp_ReturnUrl" => $vnp_Returnurl,
+    //                 "vnp_TxnRef" => $vnp_TxnRef
+
+    //             );
+
+    //             if (isset($vnp_BankCode) && $vnp_BankCode != "") {
+    //                 $inputData['vnp_BankCode'] = $vnp_BankCode;
+    //             }
+    //             if (isset($vnp_Bill_State) && $vnp_Bill_State != "") {
+    //                 $inputData['vnp_Bill_State'] = $vnp_Bill_State;
+    //             }
+
+    //             ksort($inputData);
+    //             $query = "";
+    //             $i = 0;
+    //             $hashdata = "";
+    //             foreach ($inputData as $key => $value) {
+    //                 if ($i == 1) {
+    //                     $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
+    //                 } else {
+    //                     $hashdata .= urlencode($key) . "=" . urlencode($value);
+    //                     $i = 1;
+    //                 }
+    //                 $query .= urlencode($key) . "=" . urlencode($value) . '&';
+    //             }
+
+    //             $vnp_Url = $vnp_Url . "?" . $query;
+    //             if (isset($vnp_HashSecret)) {
+    //                 $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret); //  
+    //                 $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
+    //             }
+    //             $returnData = array(
+    //                 'code' => '00',
+    //                 'message' => 'success',
+    //                 'data' => $vnp_Url
+    //             );
+    //             if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
+    //                 header('Location: ' . $vnp_Url);
+    //                 die();
+    //             } else {
+    //                 echo json_encode($returnData);
+    //             }
+    //         } else {
+    //             $this->session->set_flashdata('error', 'Vui lòng chọn phương thức thanh toán');
+    //             redirect(base_url('checkout'));
+    //         }
+    //     } else {
+    //         $this->session->set_flashdata('error', 'Vui lòng điền đầy đủ thông tin');
+    //         redirect(base_url('checkout'));
+    //     }
+    // }
+
+
+    private function generate_order_code()
+    {
+        $letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
+        $numbers = sprintf("%06d", rand(0, 999999));
+        return $letters . $numbers;
+    }
+
+    private function get_shipping_data($user_id, $checkout_method)
+    {
+        return [
+            'user_id' => $user_id,
+            'name' => $this->input->post('name'),
+            'email' => $this->input->post('email'),
+            'phone' => $this->input->post('phone'),
+            'address' => $this->input->post('address'),
+            'checkout_method' => $checkout_method
+        ];
+    }
+
+    private function calculate_total_cart()
+    {
+        $total = 0;
+        foreach ($this->cart->contents() as $item) {
+            $total += $item['qty'] * $item['price'];
+        }
+
+        $discount = $this->session->userdata('coupon_discount') ?? 0;
+
+        return max(0, $total - $discount);
+    }
+
+
     public function confirm_checkout_method()
     {
+        $this->load->model('orderModel');
+        $this->load->library('form_validation');
 
+        // Validate input
         $this->form_validation->set_rules('name', 'Username', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
         $this->form_validation->set_rules('email', 'Email', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
         $this->form_validation->set_rules('phone', 'Phone', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
         $this->form_validation->set_rules('address', 'Address', 'trim|required', ['required' => 'Bạn cần cung cấp %s']);
 
-        
+        if (!$this->form_validation->run()) {
+            $this->session->set_flashdata('error', 'Vui lòng điền đầy đủ thông tin');
+            return redirect(base_url('checkout'));
+        }
 
-        $user_id = $this->getUserOnSession();
-        $email = $this->input->post('email');
-        // Tạo mã đơn hàng duy nhất
-        $letters = substr(str_shuffle("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 3);
-        $numbers = sprintf("%06d", rand(0, 999999));
-        $order_code = $letters . $numbers;
+        $user = $this->getUserOnSession();
+        $checkout_method = $this->input->post('checkout_method');
+        $order_code = $this->generate_order_code();
 
-        // Lấy dữ liệu vận chuyển từ form
-        $shipping_data = [
-            'user_id' => $user_id['id'],
-            'name' => $this->input->post('name'),
-            'email' => $this->input->post('email'),
-            'phone' => $this->input->post('phone'),
-            'address' => $this->input->post('address'),
-            'checkout_method' => $this->input->post('checkout_method')
-        ];
-
-        // Lưu thông tin shipping vào session với key là mã đơn hàng
+        $shipping_data = $this->get_shipping_data($user['id'], $checkout_method);
         $this->session->set_userdata("shipping_data_{$order_code}", $shipping_data);
 
-        // Tính tổng tiền
-        $subtotal = 0;
-        $total = 0;
-        foreach ($this->cart->contents() as $items) {
-            $subtotal = $items['qty'] * $items['price'];
-            $total += $subtotal;
+        $total = $this->calculate_total_cart();
+
+        if ($checkout_method === 'COD') {
+            $this->process_cod_order($order_code, $shipping_data, $user['id'], $total);
+            $this->send_mail($shipping_data['email'], 'Thông báo đặt hàng', 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.');
+            return redirect(base_url('thank-you-for-order'));
         }
 
-        if ($this->form_validation->run()) {
-            if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'COD') {
-                // Truy xuất đúng session shipping theo order_code
-                $shipping_data_session = $this->session->userdata("shipping_data_{$order_code}");
-
-                // echo '<pre>';
-                // print_r($shipping_data_session);
-                // echo '</pre>';
-                // die();
-
-                $this->load->model('orderModel');
-                $ShippingID = $this->orderModel->newShipping($shipping_data_session);
-
-                if ($ShippingID) {
-                    if (!empty($this->session->userdata("shipping_data_{$order_code}"))) {
-                        $this->session->unset_userdata("shipping_data_{$order_code}");
-                    }
-
-                    $data_order = [
-                        'Order_code' => $order_code,
-                        'Order_Status' => -1,
-                        'Payment_Status' => 0,
-                        'UserID' => $user_id['id'],
-                        'TotalAmount' => $total,
-                        // Chưa có giảm giá
-                        'Date_Order' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString(),
-                        'ShippingID' => $ShippingID
-                    ];
-                    $this->data['order_id'] = $this->orderModel->insert_order($data_order);
-
-                    foreach ($this->cart->contents() as $items) {
-                        $data_order_detail = array(
-                            'Order_code' => $order_code,
-                            'ProductID' => $items['id'],
-                            'Quantity' => $items['qty'],
-                            'Selling_price' => $items['price'],
-                            // Chưa có áp mã giảm giá
-                            'Subtotal' => $items['subtotal'],
-                        );
-                        $order_detail_id = $this->orderModel->insert_order_detail($data_order_detail);
-                        $get_product_in_batches = $this->orderModel->get_qty_product_in_batches($items['id'], $items['qty']);
-                        if (!empty($get_product_in_batches)) {
-                            foreach ($get_product_in_batches['batches'] as $batch) {
-                                $data_order_batches = [
-                                    'order_detail_id' => $order_detail_id,
-                                    'batch_id' => $batch['Batch_ID'],
-                                    'quantity' => $get_product_in_batches['totalQuantity']
-                                ];
-                                $result = $this->orderModel->insert_order_batches($data_order_batches);
-                            }
-                        }
-                    }
-                }
-
-                $this->session->set_flashdata('success', 'Đặt hàng thành công');
-                $this->cart->destroy();
-
-                $to_mail = $email;
-                $subject = 'Thông báo đặt hàng';
-                $message = 'Cảm ơn bạn đã đặt hàng, chúng tôi sẽ gửi đơn hàng đến bạn sớm nhất.';
-                $this->send_mail($to_mail, $subject, $message);
-                redirect(base_url('thank-you-for-order'));
-            } elseif (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
-
-                // Chuyển hướng thanh toán vnpay
-                $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-                $vnp_Returnurl = "http://localhost:8000/thank-you-for-order";
-                $vnp_TmnCode = "F72UMWTL";
-                $vnp_HashSecret = "696U98UTDBDDD09ZN1T0GAVR3KC4EVMU";
-
-                $vnp_TxnRef = $order_code;
-                $vnp_OrderInfo = 'Thanh toan don hang: ' . $order_code;
-                $vnp_OrderType = 'billpayment';
-                $vnp_Amount = $total * 100;
-                $vnp_Locale = 'vn';
-                $vnp_BankCode = 'NCB';
-                $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
-
-
-                $inputData = array(
-                    "vnp_Version" => "2.1.0",
-                    "vnp_TmnCode" => $vnp_TmnCode,
-                    "vnp_Amount" => $vnp_Amount,
-                    "vnp_Command" => "pay",
-                    "vnp_CreateDate" => date('YmdHis'),
-                    "vnp_CurrCode" => "VND",
-                    "vnp_IpAddr" => $vnp_IpAddr,
-                    "vnp_Locale" => $vnp_Locale,
-                    "vnp_OrderInfo" => $vnp_OrderInfo,
-                    "vnp_OrderType" => $vnp_OrderType,
-                    "vnp_ReturnUrl" => $vnp_Returnurl,
-                    "vnp_TxnRef" => $vnp_TxnRef
-
-                );
-
-                if (isset($vnp_BankCode) && $vnp_BankCode != "") {
-                    $inputData['vnp_BankCode'] = $vnp_BankCode;
-                }
-                if (isset($vnp_Bill_State) && $vnp_Bill_State != "") {
-                    $inputData['vnp_Bill_State'] = $vnp_Bill_State;
-                }
-
-                ksort($inputData);
-                $query = "";
-                $i = 0;
-                $hashdata = "";
-                foreach ($inputData as $key => $value) {
-                    if ($i == 1) {
-                        $hashdata .= '&' . urlencode($key) . "=" . urlencode($value);
-                    } else {
-                        $hashdata .= urlencode($key) . "=" . urlencode($value);
-                        $i = 1;
-                    }
-                    $query .= urlencode($key) . "=" . urlencode($value) . '&';
-                }
-
-                $vnp_Url = $vnp_Url . "?" . $query;
-                if (isset($vnp_HashSecret)) {
-                    $vnpSecureHash = hash_hmac('sha512', $hashdata, $vnp_HashSecret); //  
-                    $vnp_Url .= 'vnp_SecureHash=' . $vnpSecureHash;
-                }
-                $returnData = array(
-                    'code' => '00',
-                    'message' => 'success',
-                    'data' => $vnp_Url
-                );
-                if (isset($_POST['checkout_method']) && $_POST['checkout_method'] == 'VNPAY') {
-                    header('Location: ' . $vnp_Url);
-                    die();
-                } else {
-                    echo json_encode($returnData);
-                }
-            } else {
-                $this->session->set_flashdata('error', 'Vui lòng chọn phương thức thanh toán');
-                redirect(base_url('checkout'));
-            }
-        } else {
-            $this->session->set_flashdata('error', 'Vui lòng điền đầy đủ thông tin');
-            redirect(base_url('checkout'));
+        if ($checkout_method === 'VNPAY') {
+            $this->redirect_to_vnpay($order_code, $total);
         }
+
+        $this->session->set_flashdata('error', 'Vui lòng chọn phương thức thanh toán');
+        redirect(base_url('checkout'));
     }
 
+
+
+
+    private function process_cod_order($order_code, $shipping_data, $user_id, $total)
+    {
+        $ShippingID = $this->orderModel->newShipping($shipping_data);
+        if (!$ShippingID) return;
+
+        $this->session->unset_userdata("shipping_data_{$order_code}");
+
+        // Chuẩn bị thông tin đơn hàng
+        $order_data = [
+            'Order_code' => $order_code,
+            'Order_Status' => -1,
+            'Payment_Status' => 0,
+            'UserID' => $user_id,
+            'TotalAmount' => $total,
+            'Date_Order' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString(),
+            'ShippingID' => $ShippingID
+        ];
+
+        // Ghi nhận mã giảm giá nếu có
+        $coupon_id = $this->session->userdata('coupon_id');
+        $coupon_discount = $this->session->userdata('coupon_discount');
+        $coupon_type = $this->session->userdata('coupon_type');
+        $max_discount = $this->session->userdata('coupon_max');
+
+        if ($coupon_id) {
+            $order_data['DiscountID'] = $coupon_id;
+        }
+
+        $order_id = $this->orderModel->insert_order($order_data);
+
+        // Lấy dữ liệu giỏ hàng
+        $cart_items = $this->cart->contents();
+        $subtotal = 0;
+
+        foreach ($cart_items as $item) {
+            $subtotal += $item['subtotal'];
+        }
+
+        // Tính tổng chiết khấu sẽ áp dụng
+        $discount_applied = 0;
+        if ($coupon_discount && $subtotal > 0) {
+            if ($coupon_type == 'percent') {
+                $discount_applied = round($subtotal * $coupon_discount / 100);
+                if ($max_discount) {
+                    $discount_applied = min($discount_applied, $max_discount);
+                }
+            } else {
+                $discount_applied = $coupon_discount;
+            }
+        }
+
+        // Phân bổ chiết khấu vào từng dòng sản phẩm
+        $total_allocated = 0;
+        $index = 0;
+        $cart_count = count($cart_items);
+
+        foreach ($cart_items as $item) {
+            $index++;
+            $line_total = $item['subtotal'];
+            $ratio = $line_total / $subtotal;
+            $discount_allocated = round($discount_applied * $ratio);
+
+
+            if ($index == $cart_count) {
+                $discount_allocated = $discount_applied - $total_allocated;
+            }
+
+            $total_allocated += $discount_allocated;
+
+            // Lưu chi tiết đơn hàng
+            $detail = [
+                'Order_code' => $order_code,
+                'ProductID' => $item['id'],
+                'Quantity' => $item['qty'],
+                'Selling_price' => $item['price'],
+                'Subtotal' => $item['subtotal'],
+                'discount_amount' => $discount_allocated
+            ];
+            $detail_id = $this->orderModel->insert_order_detail($detail);
+
+            // Lưu thông tin batch (kho)
+            $batches = $this->orderModel->get_qty_product_in_batches($item['id'], $item['qty']);
+            if (!empty($batches['batches'])) {
+                foreach ($batches['batches'] as $batch) {
+                    $this->orderModel->insert_order_batches([
+                        'order_detail_id' => $detail_id,
+                        'batch_id' => $batch['Batch_ID'],
+                        'quantity' => $batches['totalQuantity']
+                    ]);
+                }
+            }
+        }
+
+        // Clear session sau khi đặt hàng
+        $this->session->set_flashdata('success', 'Đặt hàng thành công');
+        $this->session->unset_userdata('coupon_code');
+        $this->session->unset_userdata('coupon_discount');
+        $this->session->unset_userdata('coupon_type');
+        $this->session->unset_userdata('coupon_max');
+        $this->session->unset_userdata('coupon_id');
+
+        $this->cart->destroy();
+    }
+
+
+
+    private function redirect_to_vnpay($order_code, $total)
+    {
+        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        $vnp_Returnurl = base_url('thank-you-for-order');
+        $vnp_TmnCode = "F72UMWTL";
+        $vnp_HashSecret = "696U98UTDBDDD09ZN1T0GAVR3KC4EVMU";
+
+        $vnp_TxnRef = $order_code;
+        $vnp_OrderInfo = 'Thanh toan don hang: ' . $order_code;
+        $vnp_OrderType = 'billpayment';
+        $vnp_Amount = $total * 100;
+        $vnp_Locale = 'vn';
+        $vnp_BankCode = 'NCB';
+        $vnp_IpAddr = $_SERVER['REMOTE_ADDR'];
+
+        $inputData = array(
+            "vnp_Version" => "2.1.0",
+            "vnp_TmnCode" => $vnp_TmnCode,
+            "vnp_Amount" => $vnp_Amount,
+            "vnp_Command" => "pay",
+            "vnp_CreateDate" => date('YmdHis'),
+            "vnp_CurrCode" => "VND",
+            "vnp_IpAddr" => $vnp_IpAddr,
+            "vnp_Locale" => $vnp_Locale,
+            "vnp_OrderInfo" => $vnp_OrderInfo,
+            "vnp_OrderType" => $vnp_OrderType,
+            "vnp_ReturnUrl" => $vnp_Returnurl,
+            "vnp_TxnRef" => $vnp_TxnRef,
+            "vnp_BankCode" => $vnp_BankCode
+        );
+
+        // Sắp xếp key tăng dần
+        ksort($inputData);
+
+        $query = [];
+        $hashdata = [];
+
+        foreach ($inputData as $key => $value) {
+            $hashdata[] = urlencode($key) . "=" . urlencode($value);
+            $query[] = urlencode($key) . "=" . urlencode($value);
+        }
+
+        $hashdataStr = implode('&', $hashdata);
+        $queryStr = implode('&', $query);
+
+        $vnpSecureHash = hash_hmac('sha512', $hashdataStr, $vnp_HashSecret);
+        $vnp_Url .= '?' . $queryStr . '&vnp_SecureHash=' . $vnpSecureHash;
+
+        redirect($vnp_Url);
+    }
 
 
     public function thank_you_for_order()
@@ -273,54 +504,101 @@ class CheckoutController extends CI_Controller
             $this->load->model('orderModel');
             $ShippingID = $this->orderModel->newShipping($shipping_data_session);
 
-
             if ($ShippingID) {
                 if (!empty($this->session->userdata("shipping_data_{$_GET['vnp_TxnRef']}"))) {
                     $this->session->unset_userdata("shipping_data_{$_GET['vnp_TxnRef']}");
                 }
+
                 // Tính tổng tiền
                 $subtotal = 0;
                 $total = 0;
-                foreach ($this->cart->contents() as $items) {
-                    $subtotal = $items['qty'] * $items['price'];
+                foreach ($this->cart->contents() as $item) {
+                    $subtotal = $item['qty'] * $item['price'];
                     $total += $subtotal;
                 }
-                $data_order = [
+
+                $total_amount = $_GET['vnp_Amount'] / 100;
+
+                $order_data = [
                     'Order_code' => $_GET['vnp_TxnRef'],
                     'Order_Status' => -1,
                     'Payment_Status' => 1,
                     'UserID' => $user_id['id'],
-                    'TotalAmount' => $total,
-                    // Chưa có giảm giá
+                    'TotalAmount' => $total_amount,
                     'Date_Order' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString(),
-                    'ShippingID' => $ShippingID,
-                    'Payment_date_successful' => Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString()
+                    'ShippingID' => $ShippingID
                 ];
-                $this->data['order_id'] = $this->orderModel->insert_order($data_order);
+                // Ghi nhận mã giảm giá nếu có
+                $coupon_id = $this->session->userdata('coupon_id');
+                $coupon_discount = $this->session->userdata('coupon_discount');
+                $coupon_type = $this->session->userdata('coupon_type');
+                $max_discount = $this->session->userdata('coupon_max');
+
+                if ($coupon_id) {
+                    $order_data['DiscountID'] = $coupon_id;
+                }
+
+                $order_id = $this->orderModel->insert_order($order_data);
+
+                // Lấy dữ liệu giỏ hàng
+                $cart_items = $this->cart->contents();
+                $subtotal = 0;
+
+                foreach ($cart_items as $item) {
+                    $subtotal += $item['subtotal'];
+                }
+
+                // Tính tổng chiết khấu sẽ áp dụng
+                $discount_applied = 0;
+                if ($coupon_discount && $subtotal > 0) {
+                    if ($coupon_type == 'percent') {
+                        $discount_applied = round($subtotal * $coupon_discount / 100);
+                        if ($max_discount) {
+                            $discount_applied = min($discount_applied, $max_discount);
+                        }
+                    } else {
+                        $discount_applied = $coupon_discount;
+                    }
+                }
+
+                // Phân bổ chiết khấu vào từng dòng sản phẩm
+                $total_allocated = 0;
+                $index = 0;
+                $cart_count = count($cart_items);
+
+                foreach ($cart_items as $item) {
+                    $index++;
+                    $line_total = $item['subtotal'];
+                    $ratio = $line_total / $subtotal;
+                    $discount_allocated = round($discount_applied * $ratio);
 
 
-                foreach ($this->cart->contents() as $items) {
-                    $data_order_detail = array(
+                    if ($index == $cart_count) {
+                        $discount_allocated = $discount_applied - $total_allocated;
+                    }
+
+                    $total_allocated += $discount_allocated;
+
+                    // Lưu chi tiết đơn hàng
+                    $detail = [
                         'Order_code' => $_GET['vnp_TxnRef'],
-                        'ProductID' => $items['id'],
-                        'Quantity' => $items['qty'],
-                        'Selling_price' => $items['price'],
-                        // Chưa có áp mã giảm giá
-                        'Subtotal' => $items['subtotal'],
-                    );
-                    $order_detail_id = $this->orderModel->insert_order_detail($data_order_detail);
+                        'ProductID' => $item['id'],
+                        'Quantity' => $item['qty'],
+                        'Selling_price' => $item['price'],
+                        'Subtotal' => $item['subtotal'],
+                        'discount_amount' => $discount_allocated
+                    ];
+                    $detail_id = $this->orderModel->insert_order_detail($detail);
 
-                    $get_product_in_batches = $this->orderModel->get_qty_product_in_batches($items['id'], $items['qty']);
-
-
-                    if (!empty($get_product_in_batches)) {
-                        foreach ($get_product_in_batches['batches'] as $batch) {
-                            $data_order_batches = [
-                                'order_detail_id' => $order_detail_id,
+                    // Lưu thông tin batch (kho)
+                    $batches = $this->orderModel->get_qty_product_in_batches($item['id'], $item['qty']);
+                    if (!empty($batches['batches'])) {
+                        foreach ($batches['batches'] as $batch) {
+                            $this->orderModel->insert_order_batches([
+                                'order_detail_id' => $detail_id,
                                 'batch_id' => $batch['Batch_ID'],
-                                'quantity' => $get_product_in_batches['totalQuantity']
-                            ];
-                            $this->orderModel->insert_order_batches($data_order_batches);
+                                'quantity' => $batches['totalQuantity']
+                            ]);
                         }
                     }
                 }
@@ -344,8 +622,16 @@ class CheckoutController extends CI_Controller
             $this->indexModel->insert_VNPAY($data_vnpay);
 
 
+            // Clear session sau khi đặt hàng
             $this->session->set_flashdata('success', 'Đặt hàng thành công');
+            $this->session->unset_userdata('coupon_code');
+            $this->session->unset_userdata('coupon_discount');
+            $this->session->unset_userdata('coupon_type');
+            $this->session->unset_userdata('coupon_max');
+            $this->session->unset_userdata('coupon_id');
+
             $this->cart->destroy();
+
 
             $to_mail = $user_id['email'];
             $subject = 'Thông báo đặt hàng';
@@ -360,6 +646,9 @@ class CheckoutController extends CI_Controller
         $this->data['template'] = "thanks/index";
         $this->load->view("pages/layout/index", $this->data);
     }
+
+
+
 
     public function thank_you_for_payment()
     {

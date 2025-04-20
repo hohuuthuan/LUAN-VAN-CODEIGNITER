@@ -3,7 +3,7 @@
 if (!function_exists('init_pagination')) {
     function init_pagination($base_url, $total_rows, $per_page = 10, $uri_segment = 3)
     {
-        $CI =& get_instance(); // để dùng pagination
+        $CI = &get_instance(); // để dùng pagination
 
         $config['base_url']           = $base_url;
         $config['total_rows']         = $total_rows;
@@ -27,7 +27,7 @@ if (!function_exists('init_pagination')) {
         $config['cur_tag_close']   = '</a></li>';
         $config['num_tag_open']    = '<li>';
         $config['num_tag_close']   = '</li>';
-
+        
         $CI->pagination->initialize($config);
 
         return $CI->pagination->create_links();

@@ -8,10 +8,9 @@
 input::placeholder {
 	font-size: 13px;
 }
-.font-weight-normal{
+.font-weight-normal {
 	font-weight: normal;
 }
-
 
 .mb20 {
 	margin-bottom: 20px;
@@ -475,84 +474,98 @@ span .bi-calendar-date {
 
 .table-batches td,
 .table-batches th {
-    vertical-align: top !important; 
-    border-top: 1px solid #dee2e6; 
-    border-bottom: 1px solid #dee2e6;
+	vertical-align: top !important;
+	border-top: 1px solid #dee2e6;
+	border-bottom: 1px solid #dee2e6;
 }
 
-.table-sub th, 
+.table-sub th,
 .table-sub td {
-    border: 1px solid #dee2e6;
+	border: 1px solid #dee2e6;
 }
 
-
-.product-name, .product-code {
-    font-size: inherit !important; 
-    font-weight: normal !important;
-    border: none !important;
-    padding: 8px !important;
+.product-name,
+.product-code {
+	font-size: inherit !important;
+	font-weight: normal !important;
+	border: none !important;
+	padding: 8px !important;
 }
-
 
 #chart-container {
-    width: 100%;
-    max-width: 900px;
-    height: auto; 
-    margin: auto; 
+	width: 100%;
+	max-width: 900px;
+	height: auto;
+	margin: auto;
 }
 
 #revenueChart {
-    width: 100% !important;
-    height: 100% !important;
+	width: 100% !important;
+	height: 100% !important;
 }
-
 
 .nav-second-level li.active a {
-    font-weight: bold;
-    color: #1ab394 !important;
+	font-weight: bold;
+	color: #1ab394 !important;
 }
 
-.receipt_detail_eye{
-	font-size: 24px;;
+.receipt_detail_eye {
+	font-size: 24px;
 }
-
 
 .error-product-code,
-.error-unit{
+.error-unit {
 	margin-top: 6px;
 }
 
 .breadcrumb-custom {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 
-.filter-date-order{
+.filter-date-order {
 	margin-top: -23px;
 }
-.filter-date-order label{
+.filter-date-order label {
 	font-weight: 600;
 }
 
-
-.filter-date-receive{
+.filter-date-receive {
 	margin-top: -23.5px;
 }
-.filter-date-receive label{
+.filter-date-receive label {
 	font-weight: 600;
 }
 
-th.action-order{
+th.action-order {
 	min-width: 95px;
 }
 
-th.payment-method{
+th.payment-method {
 	max-width: 73px;
 }
 
-
 .table tbody tr:hover {
-    background-color: #f4e3ad;
-    transition: background-color 0.05s ease-in-out;
-    cursor: pointer;
+	background-color: #f4e3ad;
+	transition: background-color 0.05s ease-in-out;
+	cursor: pointer;
 }
 
+.detail-comment {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.detail-comment-span {
+	font-size: 18px;
+	font-weight: 900;
+}
+
+.review-submit{
+	margin-bottom: 14px;
+}
+
+
+.list-review-wrapper{
+	border-top: 1px solid rgb(210, 208, 208);
+}

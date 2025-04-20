@@ -67,9 +67,42 @@ class revenueModel extends CI_Model
     }
 
 
+    private function calculateProfitTotals($orderProfits, $groupByFormat)
+    {
+        $totalProfitAll = 0;
+        $totalRevenueAll = 0;
+        $totalCostAll = 0;
+        $groupedTotals = [];
+
+        foreach ($orderProfits as $order) {
+            $groupKey = date($groupByFormat, strtotime($order->Payment_Date));
+            $totalProfitAll += $order->Total_Profit;
+            $totalRevenueAll += $order->Total_Revenue;
+            $totalCostAll += $order->Total_Cost;
+
+            if (!isset($groupedTotals[$groupKey])) {
+                $groupedTotals[$groupKey] = [
+                    'Total_Revenue' => 0,
+                    'Total_Cost' => 0,
+                    'Total_Profit' => 0
+                ];
+            }
+
+            $groupedTotals[$groupKey]['Total_Revenue'] += $order->Total_Revenue;
+            $groupedTotals[$groupKey]['Total_Cost'] += $order->Total_Cost;
+            $groupedTotals[$groupKey]['Total_Profit'] += $order->Total_Profit;
+        }
+
+        return [
+            'totalProfitAll' => $totalProfitAll,
+            'totalRevenueAll' => $totalRevenueAll,
+            'totalCostAll' => $totalCostAll,
+            'groupedTotals' => $groupedTotals
+        ];
+    }
+
     public function getProfitByDateRange($startDate, $endDate)
     {
-
         if (strlen($startDate) === 10) {
             $startDate .= ' 00:00:00';
         }
@@ -77,28 +110,31 @@ class revenueModel extends CI_Model
             $endDate .= ' 23:59:59';
         }
 
-        // Truy vấn SQL
         $sql = "
-        SELECT 
-            DATE(o.Payment_date_successful) AS Payment_Date,
-            od.Order_Code,
-            SUM(od.Quantity * od.Selling_price) AS Total_Revenue,
-            SUM(ob.quantity * b.Import_price) AS Total_Cost,
-            SUM(od.Quantity * od.Selling_price) - SUM(ob.quantity * b.Import_price) AS Total_Profit
-        FROM orders o
-        JOIN order_detail od ON o.Order_Code = od.Order_Code
-        JOIN order_batches ob ON od.id = ob.order_detail_id
-        JOIN batches b ON ob.batch_id = b.Batch_ID
-        WHERE o.Payment_Status = 1
-        AND o.Payment_date_successful BETWEEN ? AND ?
-        GROUP BY DATE(o.Payment_date_successful), od.Order_Code
-        ORDER BY Payment_Date ASC, od.Order_Code ASC;
-    ";
+            SELECT 
+                DATE(o.Payment_date_successful) AS Payment_Date,
+                od.Order_Code,
+                CASE 
+                    WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+                    ELSE SUM(od.Quantity * od.Selling_price) 
+                END AS Total_Revenue,
+                SUM(ob.quantity * b.Import_price) AS Total_Cost,
+                CASE 
+                    WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+                    ELSE SUM(od.Quantity * od.Selling_price) 
+                END - SUM(ob.quantity * b.Import_price) AS Total_Profit
+            FROM orders o
+            JOIN order_detail od ON o.Order_Code = od.Order_Code
+            JOIN order_batches ob ON od.id = ob.order_detail_id
+            JOIN batches b ON ob.batch_id = b.Batch_ID
+            WHERE o.Payment_Status = 1
+            AND o.Payment_date_successful BETWEEN ? AND ?
+            GROUP BY DATE(o.Payment_date_successful), od.Order_Code
+            ORDER BY Payment_Date ASC, od.Order_Code ASC
+        ";
 
-        // Thực thi truy vấn
         $query = $this->db->query($sql, [$startDate, $endDate]);
         if (!$query) {
-            // Xử lý lỗi nếu truy vấn thất bại
             return [
                 'error' => 'Database query failed',
                 'orderProfits' => [],
@@ -110,47 +146,19 @@ class revenueModel extends CI_Model
         }
 
         $orderProfits = $query->result();
+        $totals = $this->calculateProfitTotals($orderProfits, 'Y-m-d');
 
-        // Tính toán tổng hợp
-        $totalProfitAll = 0;
-        $totalRevenueAll = 0;
-        $totalCostAll = 0;
-        $dailyTotals = [];
-
-        foreach ($orderProfits as $order) {
-            $totalProfitAll += $order->Total_Profit;
-            $totalRevenueAll += $order->Total_Revenue;
-            $totalCostAll += $order->Total_Cost;
-
-            // Tổng hợp theo ngày
-            $paymentDate = $order->Payment_Date;
-            if (!isset($dailyTotals[$paymentDate])) {
-                $dailyTotals[$paymentDate] = [
-                    'Total_Revenue' => 0,
-                    'Total_Cost' => 0,
-                    'Total_Profit' => 0
-                ];
-            }
-            $dailyTotals[$paymentDate]['Total_Revenue'] += $order->Total_Revenue;
-            $dailyTotals[$paymentDate]['Total_Cost'] += $order->Total_Cost;
-            $dailyTotals[$paymentDate]['Total_Profit'] += $order->Total_Profit;
-        }
-
-        // Trả về kết quả
         return [
             'orderProfits' => $orderProfits,
-            'dailyTotals' => $dailyTotals,
-            'totalProfitAll' => $totalProfitAll,
-            'totalRevenueAll' => $totalRevenueAll,
-            'totalCostAll' => $totalCostAll
+            'dailyTotals' => $totals['groupedTotals'],
+            'totalProfitAll' => $totals['totalProfitAll'],
+            'totalRevenueAll' => $totals['totalRevenueAll'],
+            'totalCostAll' => $totals['totalCostAll']
         ];
     }
 
-
-
     public function getProfitByMonthRange($startMonth, $endMonth)
     {
-        // Kiểm tra tham số đầu vào
         if (empty($startMonth) || empty($endMonth)) {
             return [
                 'error' => 'Invalid date range',
@@ -162,33 +170,36 @@ class revenueModel extends CI_Model
             ];
         }
 
-        // Thêm ngày đầu tiên và ngày cuối cùng của tháng
         $startDate = $startMonth . '-01 00:00:00';
         $endDate = date("Y-m-t 23:59:59", strtotime($endMonth . '-01'));
 
-        // Truy vấn SQL
         $sql = "
-        SELECT 
-            DATE(o.Payment_date_successful) AS Payment_Date,
-            od.Order_Code,
-            SUM(od.Quantity * od.Selling_price) AS Total_Revenue,
-            SUM(ob.quantity * b.Import_price) AS Total_Cost,
-            SUM(od.Quantity * od.Selling_price) - SUM(ob.quantity * b.Import_price) AS Total_Profit
-        FROM orders o
-        JOIN order_detail od ON o.Order_Code = od.Order_Code
-        JOIN order_batches ob ON od.id = ob.order_detail_id
-        JOIN batches b ON ob.batch_id = b.Batch_ID
-        WHERE o.Payment_Status = 1
-        AND o.Payment_date_successful BETWEEN ? AND ?
-        GROUP BY DATE(o.Payment_date_successful), od.Order_Code
-        ORDER BY Payment_Date ASC, od.Order_Code ASC;
-    ";
+            SELECT 
+                DATE(o.Payment_date_successful) AS Payment_Date,
+                od.Order_Code,
+                CASE 
+                    WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+                    ELSE SUM(od.Quantity * od.Selling_price) 
+                END AS Total_Revenue,
+                SUM(ob.quantity * b.Import_price) AS Total_Cost,
+                CASE 
+                    WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+                    ELSE SUM(od.Quantity * od.Selling_price) 
+                END - SUM(ob.quantity * b.Import_price) AS Total_Profit
+            FROM orders o
+            JOIN order_detail od ON o.Order_Code = od.Order_Code
+            JOIN order_batches ob ON od.id = ob.order_detail_id
+            JOIN batches b ON ob.batch_id = b.Batch_ID
+            WHERE o.Payment_Status = 1
+            AND o.Payment_date_successful BETWEEN ? AND ?
+            GROUP BY DATE(o.Payment_date_successful), od.Order_Code
+            ORDER BY Payment_Date ASC, od.Order_Code ASC
+        ";
 
-        // Thực thi truy vấn
         $query = $this->db->query($sql, [$startDate, $endDate]);
         if (!$query) {
             return [
-                'error' => 'Database query failed: ' . $this->db->error(),
+                'error' => 'Database query failed',
                 'orderProfits' => [],
                 'monthlyTotals' => [],
                 'totalProfitAll' => 0,
@@ -198,91 +209,47 @@ class revenueModel extends CI_Model
         }
 
         $orderProfits = $query->result();
+        $totals = $this->calculateProfitTotals($orderProfits, 'Y-m');
 
-        // Tạo danh sách tất cả các tháng trong khoảng thời gian
-        $allMonths = [];
-        $currentMonth = strtotime($startMonth . '-01');
-        $endMonthTimestamp = strtotime($endMonth . '-01');
-
-        while ($currentMonth <= $endMonthTimestamp) {
-            $allMonths[] = date('Y-m', $currentMonth);
-            $currentMonth = strtotime('+1 month', $currentMonth);
-        }
-
-        // Tính toán tổng hợp
-        $totalProfitAll = 0;
-        $totalRevenueAll = 0;
-        $totalCostAll = 0;
-        $monthlyTotals = [];
-
-        // Khởi tạo giá trị mặc định cho từng tháng
-        foreach ($allMonths as $month) {
-            $monthlyTotals[$month] = [
-                'Total_Revenue' => 0,
-                'Total_Cost' => 0,
-                'Total_Profit' => 0
-            ];
-        }
-
-        // Tổng hợp dữ liệu từ các đơn hàng
-        foreach ($orderProfits as $order) {
-            $paymentMonth = date('Y-m', strtotime($order->Payment_Date));
-            $totalProfitAll += $order->Total_Profit;
-            $totalRevenueAll += $order->Total_Revenue;
-            $totalCostAll += $order->Total_Cost;
-
-            // Cộng dồn vào tháng tương ứng
-            if (!isset($monthlyTotals[$paymentMonth])) {
-                $monthlyTotals[$paymentMonth] = [
-                    'Total_Revenue' => 0,
-                    'Total_Cost' => 0,
-                    'Total_Profit' => 0
-                ];
-            }
-            $monthlyTotals[$paymentMonth]['Total_Revenue'] += $order->Total_Revenue;
-            $monthlyTotals[$paymentMonth]['Total_Cost'] += $order->Total_Cost;
-            $monthlyTotals[$paymentMonth]['Total_Profit'] += $order->Total_Profit;
-        }
-
-        // Trả về kết quả
         return [
             'orderProfits' => $orderProfits,
-            'monthlyTotals' => $monthlyTotals,
-            'totalProfitAll' => $totalProfitAll,
-            'totalRevenueAll' => $totalRevenueAll,
-            'totalCostAll' => $totalCostAll
+            'monthlyTotals' => $totals['groupedTotals'],
+            'totalProfitAll' => $totals['totalProfitAll'],
+            'totalRevenueAll' => $totals['totalRevenueAll'],
+            'totalCostAll' => $totals['totalCostAll']
         ];
     }
 
-
     public function getProfitByYearRange($startYear, $endYear)
     {
-        // Thêm ngày đầu tiên và ngày cuối cùng của năm
-        $startDate = $startYear . '-01-01 00:00:00'; // Ngày đầu tiên của năm bắt đầu
-        $endDate = $endYear . '-12-31 23:59:59'; // Ngày cuối cùng của năm kết thúc
+        $startDate = $startYear . '-01-01 00:00:00';
+        $endDate = $endYear . '-12-31 23:59:59';
 
-        // Truy vấn SQL chi tiết từng đơn hàng
         $sql = "
-                SELECT 
-                    DATE(o.Payment_date_successful) AS Payment_Date,
-                    od.Order_Code,
-                    SUM(od.Quantity * od.Selling_price) AS Total_Revenue,
-                    SUM(ob.quantity * b.Import_price) AS Total_Cost,
-                    SUM(od.Quantity * od.Selling_price) - SUM(ob.quantity * b.Import_price) AS Total_Profit
-                FROM orders o
-                JOIN order_detail od ON o.Order_Code = od.Order_Code
-                JOIN order_batches ob ON od.id = ob.order_detail_id
-                JOIN batches b ON ob.batch_id = b.Batch_ID
-                WHERE o.Payment_Status = 1
-                AND o.Payment_date_successful BETWEEN ? AND ?
-                GROUP BY DATE(o.Payment_date_successful), od.Order_Code
-                ORDER BY Payment_Date ASC, od.Order_Code ASC;
-                ";
+            SELECT 
+                DATE(o.Payment_date_successful) AS Payment_Date,
+                od.Order_Code,
+                CASE 
+                    WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+                    ELSE SUM(od.Quantity * od.Selling_price) 
+                END AS Total_Revenue,
+                SUM(ob.quantity * b.Import_price) AS Total_Cost,
+                CASE 
+                    WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+                    ELSE SUM(od.Quantity * od.Selling_price) 
+                END - SUM(ob.quantity * b.Import_price) AS Total_Profit
+            FROM orders o
+            JOIN order_detail od ON o.Order_Code = od.Order_Code
+            JOIN order_batches ob ON od.id = ob.order_detail_id
+            JOIN batches b ON ob.batch_id = b.Batch_ID
+            WHERE o.Payment_Status = 1
+            AND o.Payment_date_successful BETWEEN ? AND ?
+            GROUP BY DATE(o.Payment_date_successful), od.Order_Code
+            ORDER BY Payment_Date ASC, od.Order_Code ASC
+        ";
 
-        // Thực thi truy vấn
         $query = $this->db->query($sql, [$startDate, $endDate]);
         if (!$query) {
-            // Xử lý lỗi nếu truy vấn thất bại
             return [
                 'error' => 'Database query failed',
                 'orderProfits' => [],
@@ -294,100 +261,332 @@ class revenueModel extends CI_Model
         }
 
         $orderProfits = $query->result();
+        $totals = $this->calculateProfitTotals($orderProfits, 'Y');
 
-        // Tạo danh sách tất cả các năm trong khoảng thời gian
-        $allYears = range($startYear, $endYear);
-
-        // Tính toán tổng hợp
-        $totalProfitAll = 0;
-        $totalRevenueAll = 0;
-        $totalCostAll = 0;
-        $yearlyTotals = [];
-
-        // Khởi tạo giá trị mặc định cho từng năm
-        foreach ($allYears as $year) {
-            $yearlyTotals[$year] = [
-                'Total_Revenue' => 0,
-                'Total_Cost' => 0,
-                'Total_Profit' => 0
-            ];
-        }
-
-        // Tổng hợp dữ liệu từ các đơn hàng
-        foreach ($orderProfits as $order) {
-            $paymentYear = date('Y', strtotime($order->Payment_Date)); // Lấy năm từ ngày thanh toán
-            $totalProfitAll += $order->Total_Profit;
-            $totalRevenueAll += $order->Total_Revenue;
-            $totalCostAll += $order->Total_Cost;
-
-            // Cộng dồn vào năm tương ứng
-            if (!isset($yearlyTotals[$paymentYear])) {
-                $yearlyTotals[$paymentYear] = [
-                    'Total_Revenue' => 0,
-                    'Total_Cost' => 0,
-                    'Total_Profit' => 0
-                ];
-            }
-            $yearlyTotals[$paymentYear]['Total_Revenue'] += $order->Total_Revenue;
-            $yearlyTotals[$paymentYear]['Total_Cost'] += $order->Total_Cost;
-            $yearlyTotals[$paymentYear]['Total_Profit'] += $order->Total_Profit;
-        }
-
-        // Trả về kết quả
         return [
-            'orderProfits' => $orderProfits, // Danh sách chi tiết từng đơn hàng
-            'yearlyTotals' => $yearlyTotals, // Tổng hợp theo năm
-            'totalProfitAll' => $totalProfitAll, // Tổng lợi nhuận
-            'totalRevenueAll' => $totalRevenueAll, // Tổng doanh thu
-            'totalCostAll' => $totalCostAll // Tổng chi phí
+            'orderProfits' => $orderProfits,
+            'yearlyTotals' => $totals['groupedTotals'],
+            'totalProfitAll' => $totals['totalProfitAll'],
+            'totalRevenueAll' => $totals['totalRevenueAll'],
+            'totalCostAll' => $totals['totalCostAll']
         ];
     }
 
 
 
 
+    // public function getProfitByDateRange($startDate, $endDate)
+    // {
+    //     if (strlen($startDate) === 10) {
+    //         $startDate .= ' 00:00:00';
+    //     }
+    //     if (strlen($endDate) === 10) {
+    //         $endDate .= ' 23:59:59';
+    //     }
 
+    //     $sql = "
+    //     SELECT 
+    //         DATE(o.Payment_date_successful) AS Payment_Date,
+    //         od.Order_Code,
+    //         CASE 
+    //             WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+    //             ELSE SUM(od.Quantity * od.Selling_price) 
+    //         END AS Total_Revenue,
+    //         SUM(ob.quantity * b.Import_price) AS Total_Cost,
+    //         CASE 
+    //             WHEN o.DiscountID IS NOT NULL THEN o.TotalAmount 
+    //             ELSE SUM(od.Quantity * od.Selling_price) 
+    //         END - SUM(ob.quantity * b.Import_price) AS Total_Profit
+    //     FROM orders o
+    //     JOIN order_detail od ON o.Order_Code = od.Order_Code
+    //     JOIN order_batches ob ON od.id = ob.order_detail_id
+    //     JOIN batches b ON ob.batch_id = b.Batch_ID
+    //     WHERE o.Payment_Status = 1
+    //     AND o.Payment_date_successful BETWEEN ? AND ?
+    //     GROUP BY DATE(o.Payment_date_successful), od.Order_Code
+    //     ORDER BY Payment_Date ASC, od.Order_Code ASC;";
+
+    //     $query = $this->db->query($sql, [$startDate, $endDate]);
+    //     if (!$query) {
+    //         return [
+    //             'error' => 'Database query failed',
+    //             'orderProfits' => [],
+    //             'dailyTotals' => [],
+    //             'totalProfitAll' => 0,
+    //             'totalRevenueAll' => 0,
+    //             'totalCostAll' => 0
+    //         ];
+    //     }
+
+    //     $orderProfits = $query->result();
+
+    //     $totalProfitAll = 0;
+    //     $totalRevenueAll = 0;
+    //     $totalCostAll = 0;
+    //     $dailyTotals = [];
+
+    //     foreach ($orderProfits as $order) {
+    //         $totalProfitAll += $order->Total_Profit;
+    //         $totalRevenueAll += $order->Total_Revenue;
+    //         $totalCostAll += $order->Total_Cost;
+
+    //         $paymentDate = $order->Payment_Date;
+    //         if (!isset($dailyTotals[$paymentDate])) {
+    //             $dailyTotals[$paymentDate] = [
+    //                 'Total_Revenue' => 0,
+    //                 'Total_Cost' => 0,
+    //                 'Total_Profit' => 0
+    //             ];
+    //         }
+    //         $dailyTotals[$paymentDate]['Total_Revenue'] += $order->Total_Revenue;
+    //         $dailyTotals[$paymentDate]['Total_Cost'] += $order->Total_Cost;
+    //         $dailyTotals[$paymentDate]['Total_Profit'] += $order->Total_Profit;
+    //     }
+
+    //     return [
+    //         'orderProfits' => $orderProfits,
+    //         'dailyTotals' => $dailyTotals,
+    //         'totalProfitAll' => $totalProfitAll,
+    //         'totalRevenueAll' => $totalRevenueAll,
+    //         'totalCostAll' => $totalCostAll
+    //     ];
+    // }
+
+
+    // public function getProfitByMonthRange($startMonth, $endMonth)
+    // {
+    //     // Kiểm tra tham số đầu vào
+    //     if (empty($startMonth) || empty($endMonth)) {
+    //         return [
+    //             'error' => 'Invalid date range',
+    //             'orderProfits' => [],
+    //             'monthlyTotals' => [],
+    //             'totalProfitAll' => 0,
+    //             'totalRevenueAll' => 0,
+    //             'totalCostAll' => 0
+    //         ];
+    //     }
+
+    //     // Thêm ngày đầu tiên và ngày cuối cùng của tháng
+    //     $startDate = $startMonth . '-01 00:00:00';
+    //     $endDate = date("Y-m-t 23:59:59", strtotime($endMonth . '-01'));
+
+    //     // Truy vấn SQL
+    //     $sql = "
+    //     SELECT 
+    //         DATE(o.Payment_date_successful) AS Payment_Date,
+    //         od.Order_Code,
+    //         SUM(od.Quantity * od.Selling_price) AS Total_Revenue,
+    //         SUM(ob.quantity * b.Import_price) AS Total_Cost,
+    //         SUM(od.Quantity * od.Selling_price) - SUM(ob.quantity * b.Import_price) AS Total_Profit
+    //     FROM orders o
+    //     JOIN order_detail od ON o.Order_Code = od.Order_Code
+    //     JOIN order_batches ob ON od.id = ob.order_detail_id
+    //     JOIN batches b ON ob.batch_id = b.Batch_ID
+    //     WHERE o.Payment_Status = 1
+    //     AND o.Payment_date_successful BETWEEN ? AND ?
+    //     GROUP BY DATE(o.Payment_date_successful), od.Order_Code
+    //     ORDER BY Payment_Date ASC, od.Order_Code ASC;";
+
+    //     // Thực thi truy vấn
+    //     $query = $this->db->query($sql, [$startDate, $endDate]);
+    //     if (!$query) {
+    //         return [
+    //             'error' => 'Database query failed: ' . $this->db->error(),
+    //             'orderProfits' => [],
+    //             'monthlyTotals' => [],
+    //             'totalProfitAll' => 0,
+    //             'totalRevenueAll' => 0,
+    //             'totalCostAll' => 0
+    //         ];
+    //     }
+
+    //     $orderProfits = $query->result();
+
+    //     // Tạo danh sách tất cả các tháng trong khoảng thời gian
+    //     $allMonths = [];
+    //     $currentMonth = strtotime($startMonth . '-01');
+    //     $endMonthTimestamp = strtotime($endMonth . '-01');
+
+    //     while ($currentMonth <= $endMonthTimestamp) {
+    //         $allMonths[] = date('Y-m', $currentMonth);
+    //         $currentMonth = strtotime('+1 month', $currentMonth);
+    //     }
+
+    //     // Tính toán tổng hợp
+    //     $totalProfitAll = 0;
+    //     $totalRevenueAll = 0;
+    //     $totalCostAll = 0;
+    //     $monthlyTotals = [];
+
+    //     // Khởi tạo giá trị mặc định cho từng tháng
+    //     foreach ($allMonths as $month) {
+    //         $monthlyTotals[$month] = [
+    //             'Total_Revenue' => 0,
+    //             'Total_Cost' => 0,
+    //             'Total_Profit' => 0
+    //         ];
+    //     }
+
+    //     // Tổng hợp dữ liệu từ các đơn hàng
+    //     foreach ($orderProfits as $order) {
+    //         $paymentMonth = date('Y-m', strtotime($order->Payment_Date));
+    //         $totalProfitAll += $order->Total_Profit;
+    //         $totalRevenueAll += $order->Total_Revenue;
+    //         $totalCostAll += $order->Total_Cost;
+
+    //         // Cộng dồn vào tháng tương ứng
+    //         if (!isset($monthlyTotals[$paymentMonth])) {
+    //             $monthlyTotals[$paymentMonth] = [
+    //                 'Total_Revenue' => 0,
+    //                 'Total_Cost' => 0,
+    //                 'Total_Profit' => 0
+    //             ];
+    //         }
+    //         $monthlyTotals[$paymentMonth]['Total_Revenue'] += $order->Total_Revenue;
+    //         $monthlyTotals[$paymentMonth]['Total_Cost'] += $order->Total_Cost;
+    //         $monthlyTotals[$paymentMonth]['Total_Profit'] += $order->Total_Profit;
+    //     }
+
+    //     // Trả về kết quả
+    //     return [
+    //         'orderProfits' => $orderProfits,
+    //         'monthlyTotals' => $monthlyTotals,
+    //         'totalProfitAll' => $totalProfitAll,
+    //         'totalRevenueAll' => $totalRevenueAll,
+    //         'totalCostAll' => $totalCostAll
+    //     ];
+    // }
+
+
+    // public function getProfitByYearRange($startYear, $endYear)
+    // {
+    //     // Thêm ngày đầu tiên và ngày cuối cùng của năm
+    //     $startDate = $startYear . '-01-01 00:00:00'; // Ngày đầu tiên của năm bắt đầu
+    //     $endDate = $endYear . '-12-31 23:59:59'; // Ngày cuối cùng của năm kết thúc
+
+    //     // Truy vấn SQL chi tiết từng đơn hàng
+    //     $sql = "
+    //             SELECT 
+    //                 DATE(o.Payment_date_successful) AS Payment_Date,
+    //                 od.Order_Code,
+    //                 SUM(od.Quantity * od.Selling_price) AS Total_Revenue,
+    //                 SUM(ob.quantity * b.Import_price) AS Total_Cost,
+    //                 SUM(od.Quantity * od.Selling_price) - SUM(ob.quantity * b.Import_price) AS Total_Profit
+    //             FROM orders o
+    //             JOIN order_detail od ON o.Order_Code = od.Order_Code
+    //             JOIN order_batches ob ON od.id = ob.order_detail_id
+    //             JOIN batches b ON ob.batch_id = b.Batch_ID
+    //             WHERE o.Payment_Status = 1
+    //             AND o.Payment_date_successful BETWEEN ? AND ?
+    //             GROUP BY DATE(o.Payment_date_successful), od.Order_Code
+    //             ORDER BY Payment_Date ASC, od.Order_Code ASC;
+    //             ";
+
+    //     // Thực thi truy vấn
+    //     $query = $this->db->query($sql, [$startDate, $endDate]);
+    //     if (!$query) {
+    //         // Xử lý lỗi nếu truy vấn thất bại
+    //         return [
+    //             'error' => 'Database query failed',
+    //             'orderProfits' => [],
+    //             'yearlyTotals' => [],
+    //             'totalProfitAll' => 0,
+    //             'totalRevenueAll' => 0,
+    //             'totalCostAll' => 0
+    //         ];
+    //     }
+
+    //     $orderProfits = $query->result();
+
+    //     // Tạo danh sách tất cả các năm trong khoảng thời gian
+    //     $allYears = range($startYear, $endYear);
+
+    //     // Tính toán tổng hợp
+    //     $totalProfitAll = 0;
+    //     $totalRevenueAll = 0;
+    //     $totalCostAll = 0;
+    //     $yearlyTotals = [];
+
+    //     // Khởi tạo giá trị mặc định cho từng năm
+    //     foreach ($allYears as $year) {
+    //         $yearlyTotals[$year] = [
+    //             'Total_Revenue' => 0,
+    //             'Total_Cost' => 0,
+    //             'Total_Profit' => 0
+    //         ];
+    //     }
+
+    //     // Tổng hợp dữ liệu từ các đơn hàng
+    //     foreach ($orderProfits as $order) {
+    //         $paymentYear = date('Y', strtotime($order->Payment_Date)); // Lấy năm từ ngày thanh toán
+    //         $totalProfitAll += $order->Total_Profit;
+    //         $totalRevenueAll += $order->Total_Revenue;
+    //         $totalCostAll += $order->Total_Cost;
+
+    //         // Cộng dồn vào năm tương ứng
+    //         if (!isset($yearlyTotals[$paymentYear])) {
+    //             $yearlyTotals[$paymentYear] = [
+    //                 'Total_Revenue' => 0,
+    //                 'Total_Cost' => 0,
+    //                 'Total_Profit' => 0
+    //             ];
+    //         }
+    //         $yearlyTotals[$paymentYear]['Total_Revenue'] += $order->Total_Revenue;
+    //         $yearlyTotals[$paymentYear]['Total_Cost'] += $order->Total_Cost;
+    //         $yearlyTotals[$paymentYear]['Total_Profit'] += $order->Total_Profit;
+    //     }
+
+    //     // Trả về kết quả
+    //     return [
+    //         'orderProfits' => $orderProfits, // Danh sách chi tiết từng đơn hàng
+    //         'yearlyTotals' => $yearlyTotals, // Tổng hợp theo năm
+    //         'totalProfitAll' => $totalProfitAll, // Tổng lợi nhuận
+    //         'totalRevenueAll' => $totalRevenueAll, // Tổng doanh thu
+    //         'totalCostAll' => $totalCostAll // Tổng chi phí
+    //     ];
+    // }
 
     public function getBatchProfitStatus()
     {
         $sql = "
-            SELECT 
-                b.Batch_ID,
-                b.ProductID,
-                p.Name AS Product_Name,
-                p.Product_Code AS Product_Code, -- Thêm Product_Code
-                b.Import_date,
-                b.Import_price,
-                b.Quantity AS Total_Quantity,
-                (b.Quantity * b.Import_price) AS Total_Cost,
-                IFNULL(SUM(ob.quantity), 0) AS Total_Sold,
-                IFNULL(SUM(ob.quantity * od.Selling_price), 0) AS Total_Revenue,
-                (b.Quantity * b.Import_price) - IFNULL(SUM(ob.quantity * od.Selling_price), 0) AS Remaining_Amount
-            FROM batches b
-            LEFT JOIN product p ON b.ProductID = p.ProductID
-            LEFT JOIN order_batches ob ON b.Batch_ID = ob.batch_id
-            LEFT JOIN order_detail od ON ob.order_detail_id = od.id
-            GROUP BY b.Batch_ID, b.ProductID, p.Name, p.Product_Code, b.Import_date, b.Import_price, b.Quantity
-        ";
+    SELECT 
+        b.Batch_ID,
+        b.ProductID,
+        p.Name AS Product_Name,
+        p.Product_Code AS Product_Code,
+        b.Import_date,
+        b.Import_price,
+        b.Quantity AS Total_Quantity,
+        (b.Quantity * b.Import_price) AS Total_Cost,
+        IFNULL(SUM(CASE WHEN o.Order_Status = 4 AND o.Payment_Status = 1 THEN ob.quantity ELSE 0 END), 0) AS Total_Sold,
+        IFNULL(SUM(CASE WHEN o.Order_Status = 4 AND o.Payment_Status = 1 THEN (ob.quantity * od.Selling_price - IFNULL(od.discount_amount, 0)) ELSE 0 END), 0) AS Total_Revenue,
+        (b.Quantity * b.Import_price) - 
+        IFNULL(SUM(CASE WHEN o.Order_Status = 4 AND o.Payment_Status = 1 THEN (ob.quantity * od.Selling_price - IFNULL(od.discount_amount, 0)) ELSE 0 END), 0) AS Remaining_Amount
+    FROM batches b
+    LEFT JOIN product p ON b.ProductID = p.ProductID
+    LEFT JOIN order_batches ob ON b.Batch_ID = ob.batch_id
+    LEFT JOIN order_detail od ON ob.order_detail_id = od.id
+    LEFT JOIN orders o ON od.Order_Code = o.Order_Code
+    GROUP BY b.Batch_ID, b.ProductID, p.Name, p.Product_Code, b.Import_date, b.Import_price, b.Quantity;
+    ";
+
         $query = $this->db->query($sql);
         $result = $query->result();
 
-        // Xử lý dữ liệu để nhóm theo sản phẩm
         $groupedData = [];
         foreach ($result as $row) {
             $productID = $row->ProductID;
 
-            // Nếu sản phẩm chưa tồn tại trong mảng, khởi tạo
             if (!isset($groupedData[$productID])) {
                 $groupedData[$productID] = [
                     'ProductID' => $row->ProductID,
                     'Product_Name' => $row->Product_Name,
-                    'Product_Code' => $row->Product_Code, // Thêm Product_Code vào đây
-                    'Batches' => [] // Danh sách các lô hàng
+                    'Product_Code' => $row->Product_Code,
+                    'Batches' => []
                 ];
             }
 
-            // Thêm thông tin lô hàng vào danh sách Batches
             $groupedData[$productID]['Batches'][] = [
                 'Batch_ID' => $row->Batch_ID,
                 'Import_date' => $row->Import_date,
@@ -400,7 +599,6 @@ class revenueModel extends CI_Model
             ];
         }
 
-        // Trả về dữ liệu đã được nhóm
-        return array_values($groupedData); // Chuyển mảng thành danh sách chỉ số
+        return array_values($groupedData);
     }
 }

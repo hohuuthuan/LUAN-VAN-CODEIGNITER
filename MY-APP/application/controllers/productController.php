@@ -53,7 +53,7 @@ class productController extends CI_Controller
 		$keyword  = $this->input->get('keyword', true);
 		$status   = $this->input->get('status', true);
 		$perpage  = (int) $this->input->get('perpage');
-		$perpage  = $perpage > 0 ? $perpage : 1;
+		$perpage  = $perpage > 0 ? $perpage : 10;
 
 		$total_products = $this->indexModel->countAllProduct($keyword, $status);
 

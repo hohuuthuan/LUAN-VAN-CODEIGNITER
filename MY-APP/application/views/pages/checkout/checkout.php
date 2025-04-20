@@ -6,15 +6,10 @@
 				<li class="active">Checkout</li>
 			</ol>
 		</div>
-		<?php if ($this->session->flashdata('success')) { ?>
-			<div class="alert alert-success"><?php echo $this->session->flashdata('success') ?></div>
-		<?php } elseif ($this->session->flashdata('error')) { ?>
-			<div class="alert alert-danger"><?php echo $this->session->flashdata('error') ?></div>
-		<?php } ?>
 		<div class="table-responsive cart_info">
 			<?php
 			if ($this->cart->contents()) {
-				?>
+			?>
 				<table class="table table-condensed">
 					<thead>
 						<tr class="cart_menu">
@@ -34,7 +29,7 @@
 						foreach ($this->cart->contents() as $items) {
 							$subtotal = $items['qty'] * $items['price'];
 							$total += $subtotal;
-							?>
+						?>
 							<tr>
 								<td style="width: 200px;" class="cart_product">
 									<img src="<?php echo base_url('uploads/product/' . $items['options']['image']) ?>"
@@ -70,25 +65,56 @@
 
 							</tr>
 
-							<?php
+						<?php
 						}
 						?>
 					</tbody>
 				</table>
-				<div style="position: relative; width: 100%; height: 100px">
-
-
-					<div style=" display: flex; position: absolute; right: 15px; top: -10px;">
-						<h3>TỔNG THANH TOÁN:<h3 style="color: #FE980F; margin-left: 10px">
-								<?php echo number_format($total, 0, ',', '.') ?> VNĐ
+				<div class="coupon_wrapper">
+					<div class="coupon_code">
+						<form method="POST" action="<?php echo base_url('apply-coupon'); ?>">
+							<div class="display-flex">
+								<div class="mt15">
+									<input type="text" name="coupon_code" placeholder="Nhập mã giảm giá" class="form-control" style="width: 200px;">
+								</div>
+								<div class="">
+									<button type="submit" class="btn btn-primary">Áp dụng</button>
+								</div>
+								<?php if ($this->session->flashdata('coupon_success')): ?>
+									<p class="text-success mt-2"><?php echo $this->session->flashdata('coupon_success'); ?></p>
+								<?php elseif ($this->session->flashdata('coupon_error')): ?>
+									<p class="text-danger mt-2"><?php echo $this->session->flashdata('coupon_error'); ?></p>
+								<?php endif; ?>
+							</div>
+						</form>
+						<div>
+							<h3>
+								TỔNG THANH TOÁN:
+								<span style="color: #FE980F;">
+									<?php echo number_format($total, 0, ',', '.') ?> VNĐ
+								</span>
 							</h3>
-						</h3>
+
+							<?php if ($this->session->userdata('coupon_discount')): ?>
+								<h4>
+									Giảm giá:
+									<span style="color: green;">
+										-<?php echo number_format($this->session->userdata('coupon_discount'), 0, ',', '.') ?> VNĐ
+									</span>
+								</h4>
+								<h3>
+									TỔNG SAU GIẢM:
+									<span style="color: #FE980F;">
+										<?php echo number_format($total - $this->session->userdata('coupon_discount'), 0, ',', '.') ?> VNĐ
+									</span>
+								</h3>
+							<?php endif; ?>
+						</div>
 
 					</div>
-
-
 				</div>
-				<?php
+
+			<?php
 			} else {
 				echo '<span class="text text-danger">Hãy thêm sản phẩm vào giỏ hàng</span>';
 			}
@@ -123,11 +149,11 @@
 								</select>
 								<button type="submit" class="btn btn-default">Xác nhận thanh toán</button>
 							</form>
-						</div><!--/login form-->
+						</div>
 					</div>
 				</div>
 			</div>
-		</section><!--/form-->
+		</section>
 	</div>
 
-</section><!--/#cart_items-->
+</section>

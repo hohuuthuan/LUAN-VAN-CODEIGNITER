@@ -79,6 +79,13 @@ $sidebar_menu = [
             ['label' => 'Danh sách bình luận', 'url' => 'comment', 'current' => 'comment'],
         ]
     ],
+    'review' => [
+        'label' => 'Quản lý đánh giá',
+        'icon' => 'fa-comments',
+        'children' => [
+            ['label' => 'Danh sách đánh giá', 'url' => 'review-list', 'current' => 'review-list'],
+        ]
+    ],
 ];
 ?>
 
