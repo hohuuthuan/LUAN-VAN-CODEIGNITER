@@ -462,6 +462,32 @@ class indexModel extends CI_Model
         return $query->result();
     }
 
+    public function getReviewStatusOfOrder($Order_Code, $user_id)
+    {
+        // Đếm tổng số sản phẩm trong đơn hàng
+        $this->db->select('COUNT(*) as total_products');
+        $this->db->from('order_detail');
+        $this->db->join('orders', 'orders.Order_Code = order_detail.Order_Code');
+        $this->db->join('shipping', 'orders.ShippingID = shipping.id');
+        $this->db->where('orders.Order_Code', $Order_Code);
+        $this->db->where('shipping.user_id', $user_id);
+        $total = $this->db->get()->row()->total_products;
+    
+        // Đếm số sản phẩm đã được user đánh giá
+        $this->db->select('COUNT(DISTINCT reviews.ProductID) as reviewed_count');
+        $this->db->from('order_detail');
+        $this->db->join('orders', 'orders.Order_Code = order_detail.Order_Code');
+        $this->db->join('shipping', 'orders.ShippingID = shipping.id');
+        $this->db->join('reviews', 'reviews.ProductID = order_detail.ProductID AND reviews.UserID = '.$this->db->escape($user_id));
+        $this->db->where('orders.Order_Code', $Order_Code);
+        $this->db->where('shipping.user_id', $user_id);
+        $reviewed = $this->db->get()->row()->reviewed_count;
+    
+        return ($reviewed >= $total); // true nếu đã đánh giá hết
+    }
+    
+
+
     public function insertReviews($reviews)
     {
         if (!empty($reviews)) {

@@ -52,13 +52,26 @@
                                     }
                                     ?>
                                 </td>
+                                <!-- <td>
+                                    <a href="<?php echo base_url('order_customer/viewOrder/' . $order_item->Order_Code) ?>" class="btn btn-warning btn-sm">Xem chi tiết</a>
+                                    <?php if ($order_item->Order_Status == 4): ?>
+                                        <a href="<?php echo base_url('review/order/' . $order_item->Order_Code) ?>" class="btn btn-success btn-sm mt-1">Đánh giá</a>
+                                    <?php endif; ?>
+                                </td> -->
+
                                 <td>
                                     <a href="<?php echo base_url('order_customer/viewOrder/' . $order_item->Order_Code) ?>" class="btn btn-warning btn-sm">Xem chi tiết</a>
-
+                                </td>
+                                <td>
                                     <?php if ($order_item->Order_Status == 4): ?>
-                                        <a href="<?php echo base_url('review/order/'.$order_item->Order_Code) ?>" class="btn btn-success btn-sm mt-1">Đánh giá</a>
+                                        <?php if (empty($order_item->has_reviewed_all_products)): ?>
+                                            <a href="<?= base_url('review/order/' . $order_item->Order_Code) ?>" class="btn btn-success btn-sm mt-1">Đánh giá</a>
+                                        <?php else: ?>
+                                            <span class="btn btn-success btn-sm mt-1">Đã đánh giá</span>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
+
 
                             </tr>
                         <?php } ?>

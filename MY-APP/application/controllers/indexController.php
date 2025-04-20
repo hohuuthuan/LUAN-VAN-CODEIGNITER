@@ -153,33 +153,74 @@ class indexController extends CI_Controller
 			redirect(base_url() . 'gio-hang');
 		}
 	}
+	// public function listOrder()
+	// {
+	// 	$this->config->config['pageTitle'] = 'List Order';
+	// 	$user_id = $this->getUserOnSession();
+
+
+	// 	$this->load->model('orderModel');
+	// 	$this->load->model('productModel');
+	// 	$data['order_items'] = $this->orderModel->getOrderByUserId($user_id['id']);
+
+	// 	echo '<pre>';
+	// 	print_r($data['order_items']);
+	// 	echo '</pre>';
+
+	// 	if (!empty($data['order_items'])) {
+	// 		foreach ($data['order_items'] as $order_item) {
+	// 			$product_details = $this->productModel->selectProductById($order_item->ProductID);
+	// 			$order_item->product_details = $product_details;
+	// 		}
+	// 	} else {
+	// 		$this->session->set_flashdata('error', 'Không có đơn hàng nào');
+	// 	}
+
+	// 	$this->data['order_items'] = $data['order_items'];
+	// 	$this->data['template'] = 'pages/order/listOrder';
+	// 	$this->load->view("pages/layout/index", $this->data);
+	// }
+
 	public function listOrder()
 	{
 		$this->config->config['pageTitle'] = 'List Order';
 		$user_id = $this->getUserOnSession();
 
-
+		// Load model
 		$this->load->model('orderModel');
 		$this->load->model('productModel');
-		$data['order_items'] = $this->orderModel->getOrderByUserId($user_id['id']);
-
-		// echo '<pre>';
-		// print_r($data['order_items']);
-		// echo '</pre>';
+		$this->load->model('indexModel');
 
 
-		if (!empty($data['order_items'])) {
-			foreach ($data['order_items'] as $order_item) {
+		$order_items = $this->orderModel->getOrderByUserId($user_id['id']);
+
+		if (!empty($order_items)) {
+			foreach ($order_items as $order_item) {
 				$product_details = $this->productModel->selectProductById($order_item->ProductID);
 				$order_item->product_details = $product_details;
+			
+				// Thêm cờ đánh giá
+				if ($order_item->Order_Status == 4) {
+					$order_item->has_reviewed_all_products = $this->indexModel->getReviewStatusOfOrder($order_item->Order_Code, $user_id['id']);
+				} else {
+					$order_item->has_reviewed_all_products = false;
+				}
 			}
+			
 		} else {
 			$this->session->set_flashdata('error', 'Không có đơn hàng nào');
 		}
 
-		$this->data['order_items'] = $data['order_items'];
+		// Truyền dữ liệu cho view
+		$this->data['order_items'] = $order_items;
 		$this->data['template'] = 'pages/order/listOrder';
-		$this->load->view("pages/layout/index", $this->data);
+
+		// echo '<pre>';
+		// print_r($this->data);
+		// echo '</pre>'; die();
+
+
+		$this->load->view('pages/layout/index', $this->data);
 	}
 
 
