@@ -19,45 +19,53 @@ class orderModel extends CI_Model
         return $order_detail_id = $this->db->insert_id();
     }
 
-    public function get_qty_product_insert_to_order_batches($product_id, $quantity)
+    // public function get_qty_product_insert_to_order_batches($product_id, $quantity)
+    // {
+
+    //     $sql = "
+    //         WITH BatchPriority AS (
+    //             SELECT 
+    //                 Batch_ID, 
+    //                 ProductID, 
+    //                 Expiry_date, 
+    //                 remaining_quantity,
+    //                 ROW_NUMBER() OVER (ORDER BY Expiry_date ASC) AS RowNum
+    //             FROM batches
+    //             WHERE ProductID = ? AND remaining_quantity > 0
+    //         ),
+    //         SelectedBatches AS (
+    //             SELECT 
+    //                 Batch_ID, 
+    //                 ProductID, 
+    //                 Expiry_date, 
+    //                 remaining_quantity,
+    //                 RowNum,
+    //                 SUM(remaining_quantity) OVER (ORDER BY RowNum) AS AccumulatedQuantity
+    //             FROM BatchPriority
+    //         )
+    //         SELECT 
+    //             Batch_ID, 
+    //             CASE 
+    //                 WHEN AccumulatedQuantity <= ? THEN remaining_quantity
+    //                 ELSE ? - (AccumulatedQuantity - remaining_quantity)
+    //             END AS QuantityToTake
+    //         FROM SelectedBatches
+    //         WHERE AccumulatedQuantity - remaining_quantity < ?
+    //     ";
+
+    //     $query = $this->db->query($sql, [$product_id, $quantity, $quantity, $quantity]);
+    //     return $query->result_array();
+    // }
+
+
+    public function getOrderStatus($order_code)
     {
-
-        $sql = "
-            WITH BatchPriority AS (
-                SELECT 
-                    Batch_ID, 
-                    ProductID, 
-                    Expiry_date, 
-                    remaining_quantity,
-                    ROW_NUMBER() OVER (ORDER BY Expiry_date ASC) AS RowNum
-                FROM batches
-                WHERE ProductID = ? AND remaining_quantity > 0
-            ),
-            SelectedBatches AS (
-                SELECT 
-                    Batch_ID, 
-                    ProductID, 
-                    Expiry_date, 
-                    remaining_quantity,
-                    RowNum,
-                    SUM(remaining_quantity) OVER (ORDER BY RowNum) AS AccumulatedQuantity
-                FROM BatchPriority
-            )
-            SELECT 
-                Batch_ID, 
-                CASE 
-                    WHEN AccumulatedQuantity <= ? THEN remaining_quantity
-                    ELSE ? - (AccumulatedQuantity - remaining_quantity)
-                END AS QuantityToTake
-            FROM SelectedBatches
-            WHERE AccumulatedQuantity - remaining_quantity < ?
-        ";
-
-        $query = $this->db->query($sql, [$product_id, $quantity, $quantity, $quantity]);
-        return $query->result_array();
+        return $this->db->select('Order_Status')
+            ->where('Order_Code', $order_code)
+            ->get('orders')
+            ->row()
+            ->Order_Status;
     }
-
-
 
 
     public function get_qty_product_in_batches($product_id, $quantity)
@@ -95,8 +103,7 @@ class orderModel extends CI_Model
                 ELSE ? - (AccumulatedQuantity - remaining_quantity)
             END AS QuantityToTake
         FROM SelectedBatches
-        WHERE AccumulatedQuantity - remaining_quantity < ?
-    ";
+        WHERE AccumulatedQuantity - remaining_quantity < ?";
 
         $query = $this->db->query($sql, [$product_id, $quantity, $quantity, $quantity]);
 
@@ -122,12 +129,6 @@ class orderModel extends CI_Model
         $this->db->set('remaining_quantity', 'remaining_quantity - ' . (int) $quantity_to_deduct, false);
         $this->db->where('Batch_ID', $batch_id);
         $this->db->update('batches');
-
-        // if ($this->db->affected_rows() > 0) {
-        //     log_message('error', "Batch_ID: $batch_id - Giảm số lượng thành công: $quantity_to_deduct");
-        // } else {
-        //     log_message('error', "Lỗi: Không thể cập nhật Batch_ID: $batch_id với số lượng $quantity_to_deduct");
-        // }
     }
 
 
@@ -135,6 +136,98 @@ class orderModel extends CI_Model
     {
         return $this->db->insert('order_batches', $data_order_batches);
     }
+
+
+
+
+    public function process_order_status_update($value, $order_codes, $product_qty_in_batch = [])
+    {
+        $this->load->library('session');
+        $invalid_orders = [];
+        $missing_batch_data = [];
+
+        foreach ($order_codes as $order_code) {
+            $current_status = $this->getOrderStatus($order_code);
+            if ($current_status > $value) {
+                $invalid_orders[] = $order_code;
+            }
+        }
+
+        if (!empty($invalid_orders)) {
+            return [
+                'success' => false,
+                'message' => 'Không thể cập nhật trạng thái cho các đơn hàng đã ở trạng thái cao hơn: ' . implode(', ', $invalid_orders),
+            ];
+        }
+
+        $timenow = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
+
+        foreach ($order_codes as $order_code) {
+            $order_details = $this->selectOrderDetails($order_code);
+            // echo '<pre>';
+            // print_r($order_details);
+            // echo '</pre>';
+            // die();
+            if ((int)$value === 4) {
+                $found = false;
+
+                // Duyệt qua từng sản phẩm trong đơn hàng
+                foreach ($order_details as $order_detail) {
+                    $product_id = $order_detail->ProductID;
+                    $quantity = $order_detail->qty;
+                    $order_detail_id = $order_detail->order_detail_id;
+
+
+                    $batch_data = $this->get_qty_product_in_batches($product_id, $quantity);
+
+                    if (!empty($batch_data['batches'])) {
+                        foreach ($batch_data['batches'] as $batch) {
+                            $batch_id = $batch['Batch_ID'];
+                            $quantity_to_take = $batch['QuantityToTake'];
+                            // Cập nhật số lượng cho batch
+                            $this->deductBatchQuantity($batch_id, $quantity_to_take);
+                            $this->insert_order_batches([
+                                'order_detail_id' => $order_detail_id,
+                                'batch_id' => $batch_id,
+                                'quantity' => $quantity_to_take
+                            ]);
+                            $found = true;
+                        }
+                    }
+                }
+
+                if ($found) {
+                    $data_order = [
+                        'Order_Status' => 4,
+                        'Payment_Status' => 1,
+                        'Date_delivered' => $timenow,
+                        'Payment_date_successful' => $timenow
+                    ];
+                    $this->updateOrder($data_order, $order_code);
+                } else {
+                    $missing_batch_data[] = $order_code;
+                }
+            } else {
+                // Các trạng thái khác
+                $this->updateOrder(['Order_Status' => $value], $order_code);
+            }
+        }
+
+        if (!empty($missing_batch_data)) {
+            return [
+                'success' => false,
+                'message' => 'Thiếu dữ liệu lô hàng cho đơn: ' . implode(', ', $missing_batch_data)
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Cập nhật trạng thái đơn hàng thành công.'
+        ];
+    }
+
+
+
 
 
     // public function selectOrder($limit, $start, $filter = [])
@@ -148,7 +241,8 @@ class orderModel extends CI_Model
 
     //     if (!empty($filter['keyword'])) {
     //         $this->db->group_start()
-    //             ->like('shipping.Name', $filter['keyword'])
+    //             ->like('orders.Order_code', $filter['keyword'])
+    //             ->or_like('shipping.Name', $filter['keyword'])
     //             ->or_like('shipping.Phone', $filter['keyword'])
     //             ->or_like('shipping.Email', $filter['keyword'])
     //             ->or_like('shipping.Address', $filter['keyword'])
@@ -158,45 +252,38 @@ class orderModel extends CI_Model
     //     if ($filter['status'] !== '' && $filter['status'] !== null) {
     //         $this->db->where('orders.Order_Status', $filter['status']);
     //     }
+
+    //     if (!empty($filter['checkout_method'])) {
+    //         $this->db->where('shipping.checkout_method', $filter['checkout_method']);
+    //     }
+    //     if (!empty($filter['date_from'])) {
+    //         $this->db->where('orders.Date_Order >=', $filter['date_from'] . ' 00:00:00');
+    //     }
+
+    //     if (!empty($filter['date_to'])) {
+    //         $this->db->where('orders.Date_Order <=', $filter['date_to'] . ' 23:59:59');
+    //     }
+
+    //     if (!empty($filter['sort_order']) && in_array($filter['sort_order'], ['asc', 'desc'])) {
+    //         $this->db->order_by('orders.Date_Order', $filter['sort_order']);
+    //     } else {
+    //         $this->db->order_by('orders.Date_Order', 'desc');
+    //     }
+
+
 
     //     $this->db->limit($limit, $start);
 
     //     return $this->db->get()->result();
     // }
 
-
-    // public function countOrder($filter = [])
-    // {
-    //     $this->db->from('orders')
-    //         ->join('shipping', 'orders.ShippingID = shipping.id');
-
-    //     if (!empty($filter['keyword'])) {
-    //         $this->db->group_start()
-    //             ->like('shipping.Name', $filter['keyword'])
-    //             ->or_like('shipping.Phone', $filter['keyword'])
-    //             ->or_like('shipping.Email', $filter['keyword'])
-    //             ->or_like('shipping.Address', $filter['keyword'])
-    //             ->group_end();
-    //     }
-
-    //     if ($filter['status'] !== '' && $filter['status'] !== null) {
-    //         $this->db->where('orders.Order_Status', $filter['status']);
-    //     }
-
-    //     return $this->db->count_all_results();
-    // }
-
-
-
     public function selectOrder($limit, $start, $filter = [])
     {
         $this->db->select('orders.*, shipping.*')
             ->from('orders')
-            ->join('shipping', 'orders.ShippingID = shipping.id')
-            ->order_by('(CASE WHEN orders.Order_Status = -1 THEN 0 ELSE 1 END)', 'ASC')
-            ->order_by('orders.Order_Status', 'ASC')
-            ->order_by('orders.Date_Order', 'DESC');
+            ->join('shipping', 'orders.ShippingID = shipping.id');
 
+        // Các điều kiện filter
         if (!empty($filter['keyword'])) {
             $this->db->group_start()
                 ->like('orders.Order_code', $filter['keyword'])
@@ -214,6 +301,7 @@ class orderModel extends CI_Model
         if (!empty($filter['checkout_method'])) {
             $this->db->where('shipping.checkout_method', $filter['checkout_method']);
         }
+
         if (!empty($filter['date_from'])) {
             $this->db->where('orders.Date_Order >=', $filter['date_from'] . ' 00:00:00');
         }
@@ -222,11 +310,33 @@ class orderModel extends CI_Model
             $this->db->where('orders.Date_Order <=', $filter['date_to'] . ' 23:59:59');
         }
 
+        // ⚠️ Ưu tiên sắp xếp theo tổng tiền nếu có chọn
+        if (!empty($filter['sort_total_amount'])) {
+            $direction = strtolower($filter['sort_total_amount']) === 'asc' ? 'asc' : 'desc';
+            $this->db->order_by('orders.TotalAmount', $direction);
+        } else {
+            // Mặc định sắp theo trạng thái thông minh (nếu KHÔNG có sort theo tổng tiền)
+            $this->db->order_by('(CASE 
+            WHEN orders.Order_Status = -1 THEN 0
+            WHEN orders.Order_Status = 1 THEN 1
+            WHEN orders.Order_Status = 2 THEN 2
+            WHEN orders.Order_Status = 3 THEN 3
+            WHEN orders.Order_Status = 4 THEN 4
+            WHEN orders.Order_Status = 5 THEN 5
+            ELSE 6
+        END)', 'ASC');
 
+            // Sau đó sắp theo ngày tạo
+            $this->db->order_by('orders.Date_Order', $filter['sort_order'] ?? 'desc');
+        }
+
+        // Áp dụng phân trang
         $this->db->limit($limit, $start);
 
         return $this->db->get()->result();
     }
+
+
 
     public function countOrder($filter = [])
     {
@@ -273,29 +383,6 @@ class orderModel extends CI_Model
             ->get();
         return $query->result();
     }
-
-
-
-
-    // public function selectOrderDetails($orderCode)
-    // {
-    //     $query = $this->db->select('orders.Order_Code, orders.TotalAmount, order_detail.id as order_detail_id,
-    //                                 orders.Order_Status as order_status,
-    //                                 orders.Payment_Status as payment_status,
-    //                                 order_detail.Subtotal as sub, 
-    //                                 order_detail.Quantity as qty, 
-    //                                 order_detail.Order_Code, 
-    //                                 order_detail.ProductID, 
-    //                                 product.*, shipping.*')
-    //         ->from('order_detail')
-    //         ->join('product', 'order_detail.ProductID = product.ProductID', 'left')
-    //         ->join('orders', 'orders.Order_Code = order_detail.Order_Code')
-    //         ->join('shipping', 'orders.ShippingID = shipping.id')
-    //         ->where('order_detail.Order_Code', $orderCode)
-    //         ->get();
-
-    //     return $query->result();
-    // }
 
 
     public function selectOrderDetails($orderCode)

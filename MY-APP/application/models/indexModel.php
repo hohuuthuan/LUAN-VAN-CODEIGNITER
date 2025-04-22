@@ -82,6 +82,8 @@ class indexModel extends CI_Model
     }
 
 
+
+
     public function countAllProduct($keyword = null, $status = null)
     {
         $this->db->from('product');
@@ -126,7 +128,44 @@ class indexModel extends CI_Model
     }
 
 
-    public function getProductPagination($limit, $start, $keyword = null, $status = null)
+    // public function getProductPagination($limit, $start, $keyword = null, $status = null)
+    // {
+    //     $this->db->select('category.Name as tendanhmuc, 
+    //                    product.*, 
+    //                    brand.Name as tenthuonghieu, 
+    //                    COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining')
+    //         ->from('category')
+    //         ->join('product', 'product.CategoryID = category.CategoryID')
+    //         ->join('brand', 'brand.BrandID = product.BrandID')
+    //         ->join('batches', 'batches.ProductID = product.ProductID', 'left')
+    //         ->group_by('product.ProductID')
+    //         ->order_by('total_remaining', 'DESC')
+    //         ->limit($limit, $start);
+
+    //     if ($keyword) {
+    //         $this->db->group_start()
+    //             ->like('product.Name', $keyword)
+    //             ->or_like('product.Product_Code', $keyword)
+    //             ->group_end();
+    //     }
+
+    //     if ($status !== null && $status !== '') {
+    //         $this->db->where('product.Status', $status);
+    //     }
+
+    //     $query = $this->db->get();
+    //     $products = $query->result();
+
+    //     // Lấy chi tiết số lượng tồn kho theo từng lô
+    //     foreach ($products as $product) {
+    //         $product->batches = $this->get_batches_by_product($product->ProductID);
+    //     }
+
+    //     return $products;
+    // }
+
+
+    public function getProductPagination($limit, $start, $keyword = null, $status = null, $sort_stock = null)
     {
         $this->db->select('category.Name as tendanhmuc, 
                        product.*, 
@@ -136,9 +175,7 @@ class indexModel extends CI_Model
             ->join('product', 'product.CategoryID = category.CategoryID')
             ->join('brand', 'brand.BrandID = product.BrandID')
             ->join('batches', 'batches.ProductID = product.ProductID', 'left')
-            ->group_by('product.ProductID')
-            ->order_by('total_remaining', 'DESC')
-            ->limit($limit, $start);
+            ->group_by('product.ProductID');
 
         if ($keyword) {
             $this->db->group_start()
@@ -151,16 +188,26 @@ class indexModel extends CI_Model
             $this->db->where('product.Status', $status);
         }
 
+        // Sắp xếp theo tồn kho nếu có chọn
+        if ($sort_stock == 'asc') {
+            $this->db->order_by('total_remaining', 'ASC');
+        } elseif ($sort_stock == 'desc') {
+            $this->db->order_by('total_remaining', 'DESC');
+        } else {
+            $this->db->order_by('product.Date_created', 'DESC');
+        }
+
+        $this->db->limit($limit, $start);
         $query = $this->db->get();
         $products = $query->result();
 
-        // Lấy chi tiết số lượng tồn kho theo từng lô
         foreach ($products as $product) {
             $product->batches = $this->get_batches_by_product($product->ProductID);
         }
 
         return $products;
     }
+
 
 
 
@@ -189,6 +236,142 @@ class indexModel extends CI_Model
 
         return $products;
     }
+
+    public function countSearchProduct($keyword)
+    {
+        $this->db->from('product');
+        $this->db->join('category', 'category.CategoryID = product.CategoryID');
+        $this->db->join('brand', 'brand.BrandID = product.BrandID');
+        $this->db->where('product.Status', 1);
+
+        if (!empty($keyword)) {
+            $this->db->group_start()
+                ->like('product.Name', $keyword)
+                ->or_like('product.Product_uses', $keyword)
+                ->or_like('brand.Name', $keyword)
+                ->or_like('category.Name', $keyword)
+                ->group_end();
+        }
+
+        return $this->db->count_all_results();
+    }
+
+    public function getSearchProductPagination($keyword, $limit, $start)
+    {
+        $this->db->select('category.Name as tendanhmuc, 
+                       product.*, 
+                       brand.Name as tenthuonghieu, 
+                       COALESCE(SUM(batches.remaining_quantity), 0) as total_remaining');
+        $this->db->from('category');
+        $this->db->join('product', 'product.CategoryID = category.CategoryID');
+        $this->db->join('brand', 'brand.BrandID = product.BrandID');
+        $this->db->join('batches', 'batches.ProductID = product.ProductID', 'left');
+        $this->db->where('product.Status', 1);
+
+        if (!empty($keyword)) {
+            $this->db->group_start()
+                ->like('product.Name', $keyword)
+                ->or_like('product.Product_uses', $keyword)
+                ->or_like('brand.Name', $keyword)
+                ->or_like('category.Name', $keyword)
+                ->group_end();
+        }
+
+        $this->db->group_by('product.ProductID');
+        $this->db->order_by('total_remaining', 'DESC');
+        $this->db->limit($limit, $start);
+
+        $query = $this->db->get();
+        $products = $query->result();
+
+        // Gắn thêm lô hàng
+        foreach ($products as $product) {
+            $product->batches = $this->get_batches_by_product($product->ProductID);
+        }
+
+        return $products;
+    }
+
+
+    // Đếm tổng sản phẩm có khuyến mãi
+    public function countProductOnSale($keyword = null)
+    {
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('product');
+        $this->db->where('Status', 1);
+        $this->db->where('Deleted_at IS NULL');
+        $this->db->where('Promotion >', 0);
+
+        if (!empty($keyword)) {
+            $this->db->group_start();
+            $this->db->like('Name', $keyword);
+            $this->db->or_like('Product_uses', $keyword);
+            $this->db->or_like('product.Description', $keyword);
+            $this->db->group_end();
+        }
+
+        $query = $this->db->get()->row();
+        return $query ? (int)$query->total : 0;
+    }
+
+    // Lấy sản phẩm có khuyến mãi có phân trang
+    public function getProductOnSalePagination($limit, $offset, $keyword = null)
+    {
+        $this->db->select('product.*, category.Name as tendanhmuc, brand.Name as tenthuonghieu');
+        $this->db->from('product');
+        $this->db->join('category', 'category.CategoryID = product.CategoryID', 'left');
+        $this->db->join('brand', 'brand.BrandID = product.BrandID', 'left');
+        $this->db->where('product.Status', 1);
+        $this->db->where('product.Deleted_at IS NULL');
+        $this->db->where('product.Promotion >', 0);
+
+        if (!empty($keyword)) {
+            $this->db->group_start();
+            $this->db->like('product.Name', $keyword);
+            $this->db->or_like('product.Product_uses', $keyword);
+            $this->db->or_like('product.Description', $keyword);
+            $this->db->or_like('category.Name', $keyword);
+            $this->db->or_like('brand.Name', $keyword);
+            $this->db->group_end();
+        }
+
+        $this->db->limit($limit, $offset);
+        $this->db->order_by('product.Date_created', 'DESC');
+
+        $result = $this->db->get()->result();
+        return $this->attachBatchesToProducts($result);
+    }
+
+    private function attachBatchesToProducts($products)
+    {
+        if (empty($products)) return [];
+
+        $product_ids = array_map(function ($p) {
+            return $p->ProductID;
+        }, $products);
+
+        $this->db->select('*');
+        $this->db->from('batches');
+        $this->db->where_in('ProductID', $product_ids);
+        // $this->db->where('Deleted_at IS NULL');
+        $query = $this->db->get()->result();
+
+        // Gom batches theo ProductID
+        $batches_by_product = [];
+        foreach ($query as $batch) {
+            $batches_by_product[$batch->ProductID][] = $batch;
+        }
+
+        // Gắn lại vào mảng products
+        foreach ($products as &$product) {
+            $product->batches = $batches_by_product[$product->ProductID] ?? [];
+        }
+
+        return $products;
+    }
+
+
+
 
 
     public function getProductsByDiseaseType($disease_type, $limit = 10, $offset = 0)

@@ -73,8 +73,8 @@ class sliderController extends CI_Controller
 
 	public function storeSlider()
 	{
-		$this->form_validation->set_rules('title', 'Title', 'trim|required', ['required' => 'Bạn cần diền %s']);
-
+		$this->form_validation->set_rules('title', 'title', 'trim|required', ['required' => 'Bạn cần nhập tên banner']);
+		$this->form_validation->set_rules('image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
 
 		if ($this->form_validation->run()) {
 
@@ -109,6 +109,8 @@ class sliderController extends CI_Controller
 		}
 	}
 
+
+	
 	public function editSlider($id)
 	{
 		$this->config->config['pageTitle'] = 'Update Banner';
@@ -129,6 +131,12 @@ class sliderController extends CI_Controller
 		$this->form_validation->set_rules('title', 'Title', 'trim|required', ['required' => 'Bạn cần điền %s']);
 
 		if ($this->form_validation->run()) {
+			if (empty($_FILES['image']['name'])) {
+				$this->session->set_flashdata('errors', ['Image' => 'Bạn cần chọn hình ảnh']);
+				$this->session->set_flashdata('input', $this->input->post());
+				redirect(base_url('slider/create'));
+				return;
+			}
 			if (!empty($_FILES['image']['name'])) {
 				// Upload Image
 				$ori_filename = $_FILES['image']['name'];

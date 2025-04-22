@@ -4,7 +4,7 @@
             <div class="perpage">
                 <div class="uk-flex uk-flex-middle uk-flex-space-between">
                     <?php
-                        $perpage = isset($_GET['perpage']) ? (int)$_GET['perpage'] : 1;
+                    $perpage = isset($_GET['perpage']) ? (int)$_GET['perpage'] : 1;
                     ?>
                     <div class="uk-flex uk-flex-middle uk-flex-space-between">
                         <select name="perpage" class="form-control input-sm perpage filter mr10 setupSelect2">
@@ -20,6 +20,13 @@
 
             <div class="action">
                 <div class="uk-flex uk-flex-middle">
+                    <div class="mr10">
+                        <select name="sort_stock" class="form-control setupSelect2">
+                            <option value="">-- Sắp xếp số lượng tồn kho --</option>
+                            <option value="desc" <?= ($this->input->get('sort_stock') == 'desc') ? 'selected' : '' ?>>Cao đến thấp</option>
+                            <option value="asc" <?= ($this->input->get('sort_stock') == 'asc') ? 'selected' : '' ?>>Thấp đến cao</option>
+                        </select>
+                    </div>
                     <div class="mr20">
                         <?php
                         $status = isset($status) ? $status : '';
@@ -51,7 +58,7 @@
                             </span>
                         </div>
                     </div>
-                    <a style="border-radius: 5px;" href="<?php echo base_url('product/create')?>" class="btn btn-danger mb0 btn-sm">
+                    <a style="border-radius: 5px;" href="<?php echo base_url('product/create') ?>" class="btn btn-danger mb0 btn-sm">
                         <i class="fa fa-plus mr5"></i>Thêm mới sản phẩm
                     </a>
                 </div>

@@ -4,7 +4,7 @@ $sub_page = $this->uri->segment(2);
 
 $sidebar_menu = [
     'dashboard' => [
-        'label' => 'Dashboard',
+        'label' => 'Thống kê',
         'icon' => 'fa-home',
         'url' => 'dashboard',
     ],
@@ -72,13 +72,7 @@ $sidebar_menu = [
             ['label' => 'DS sản phẩm trong kho', 'url' => 'warehouse/list', 'sub' => 'list'],
         ]
     ],
-    'comment' => [
-        'label' => 'Quản lý bình luận',
-        'icon' => 'fa-comments',
-        'children' => [
-            ['label' => 'Danh sách bình luận', 'url' => 'comment', 'current' => 'comment'],
-        ]
-    ],
+
     'review' => [
         'label' => 'Quản lý đánh giá',
         'icon' => 'fa-comments',
@@ -87,7 +81,9 @@ $sidebar_menu = [
         ]
     ],
 ];
+
 ?>
+
 
 <nav class="navbar-default navbar-static-side" role="navigation">
     <div class="sidebar-collapse">

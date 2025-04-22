@@ -20,6 +20,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property page $page
  * @property customerModel $customerModel
  * @property loginModel $loginModel
+ * @property reviewModel $reviewModel 
  * @property upload $upload
  */
 
@@ -64,51 +65,180 @@ class indexController extends CI_Controller
 		$user_data = $this->session->userdata('logged_in_customer');
 		return $user_data;
 	}
+	// public function index()
+	// {
+	// 	$this->load->library('pagination');
+	// 	$total_products = $this->indexModel->countAllProduct();
+	// 	$config["total_rows"] = !empty($total_products) ? (int) $total_products : 0;
+
+
+	// 	$config = array();
+	// 	$config["base_url"] = base_url() . '/pagination/index';
+	// 	$config['total_rows'] = $total_products;
+	// 	$config["per_page"] = 10;
+	// 	$config["uri_segment"] = 3;
+	// 	$config['use_page_numbers'] = TRUE;
+	// 	$config['full_tag_open'] = '<ul class="pagination">';
+	// 	$config['full_tag_close'] = '</ul>';
+	// 	$config['first_link'] = 'First';
+	// 	$config['first_tag_open'] = '<li>';
+	// 	$config['first_tag_close'] = '</li>';
+	// 	$config['last_link'] = 'Last';
+	// 	$config['last_tag_open'] = '<li>';
+	// 	$config['last_tag_close'] = '</li>';
+	// 	$config['cur_tag_open'] = '<li class="active"><a>';
+	// 	$config['cur_tag_close'] = '</a></li>';
+	// 	$config['num_tag_open'] = '<li>';
+	// 	$config['num_tag_close'] = '</li>';
+	// 	$config['next_tag_open'] = '<li>';
+	// 	$config['next_tag_close'] = '</li>';
+	// 	$config['prev_tag_open'] = '<li>';
+	// 	$config['prev_tag_close'] = '</li>';
+
+
+	// 	$this->pagination->initialize($config);
+	// 	$page_segment = $this->uri->segment(3);
+	// 	$page = (!empty($page_segment) && is_numeric($page_segment)) ? (int) $page_segment : 1;
+	// 	$start = ($page - 1) * $config["per_page"];
+	// 	$this->data["links"] = $this->pagination->create_links();
+	// 	$this->data['allproduct_pagination'] = $this->indexModel->getIndexPagination($config["per_page"], $start);
+	// 	// $this->data['items_category'] = $this->indexModel->getItemsCategoryHome();
+	// 	$this->data['sliders'] = $this->sliderModel->selectAllSlider();
+	// 	// echo '<pre>';
+	// 	// print_r($this->data);
+	// 	// echo '</pre>';
+	// 	$this->data['template'] = "pages/home/home";
+	// 	$this->load->view("pages/layout/index", $this->data);
+	// }
+
+
 	public function index()
 	{
+		$this->load->helper('pagination');
 		$this->load->library('pagination');
+
 		$total_products = $this->indexModel->countAllProduct();
-		$config["total_rows"] = !empty($total_products) ? (int) $total_products : 0;
+		$per_page = 6;
+		$uri_segment = 3;
+		$base_url = base_url('pagination/index'); // hoặc base_url('home/index') nếu controller là Home
 
+		$this->data['links'] = init_pagination($base_url, $total_products, $per_page, $uri_segment);
 
-		$config = array();
-		$config["base_url"] = base_url() . '/pagination/index';
-		$config['total_rows'] = $total_products;
-		$config["per_page"] = 10;
-		$config["uri_segment"] = 3;
-		$config['use_page_numbers'] = TRUE;
-		$config['full_tag_open'] = '<ul class="pagination">';
-		$config['full_tag_close'] = '</ul>';
-		$config['first_link'] = 'First';
-		$config['first_tag_open'] = '<li>';
-		$config['first_tag_close'] = '</li>';
-		$config['last_link'] = 'Last';
-		$config['last_tag_open'] = '<li>';
-		$config['last_tag_close'] = '</li>';
-		$config['cur_tag_open'] = '<li class="active"><a>';
-		$config['cur_tag_close'] = '</a></li>';
-		$config['num_tag_open'] = '<li>';
-		$config['num_tag_close'] = '</li>';
-		$config['next_tag_open'] = '<li>';
-		$config['next_tag_close'] = '</li>';
-		$config['prev_tag_open'] = '<li>';
-		$config['prev_tag_close'] = '</li>';
+		$page = (int) $this->uri->segment($uri_segment);
+		$page = ($page > 0) ? $page : 1;
+		$start = ($page - 1) * $per_page;
 
+		$this->data['allproduct_pagination'] = $this->indexModel->getIndexPagination($per_page, $start);
 
-		$this->pagination->initialize($config);
-		$page_segment = $this->uri->segment(3);
-		$page = (!empty($page_segment) && is_numeric($page_segment)) ? (int) $page_segment : 1;
-		$start = ($page - 1) * $config["per_page"];
-		$this->data["links"] = $this->pagination->create_links();
-		$this->data['allproduct_pagination'] = $this->indexModel->getIndexPagination($config["per_page"], $start);
-		// $this->data['items_category'] = $this->indexModel->getItemsCategoryHome();
-		$this->data['sliders'] = $this->sliderModel->selectAllSlider();
 		// echo '<pre>';
-		// print_r($this->data);
+		// print_r($this->data['allproduct_pagination']);
 		// echo '</pre>';
+
+
+		$this->data['sliders'] = $this->sliderModel->selectAllSlider();
 		$this->data['template'] = "pages/home/home";
+
 		$this->load->view("pages/layout/index", $this->data);
 	}
+
+	// public function search_product()
+	// {
+	// 	if (isset($_GET['keyword']) && $_GET['keyword'] != '') {
+	// 		$keyword = $_GET['keyword'];
+	// 	} else {
+	// 		$keyword = '';
+	// 	}
+
+	// 	// Custom config link
+	// 	$config = array();
+	// 	$config["base_url"] = base_url('search-product');
+	// 	$config['reuse_query_string'] = TRUE;
+	// 	$config['total_rows'] = ceil($this->indexModel->countAllProductByKeyword($keyword));
+	// 	$config["per_page"] = 1; // Number of products per page
+	// 	$config["uri_segment"] = 2;
+	// 	$config['use_page_numbers'] = TRUE;
+	// 	$config['full_tag_open'] = '<ul class="pagination">';
+	// 	$config['full_tag_close'] = '</ul>';
+	// 	$config['first_link'] = 'First';
+	// 	$config['first_tag_open'] = '<li>';
+	// 	$config['first_tag_close'] = '</li>';
+	// 	$config['last_link'] = 'Last';
+	// 	$config['last_tag_open'] = '<li>';
+	// 	$config['last_tag_close'] = '</li>';
+	// 	$config['cur_tag_open'] = '<li class="active"><a>';
+	// 	$config['cur_tag_close'] = '</a></li>';
+	// 	$config['num_tag_open'] = '<li>';
+	// 	$config['num_tag_close'] = '</li>';
+	// 	$config['next_tag_open'] = '<li>';
+	// 	$config['next_tag_close'] = '</li>';
+	// 	$config['prev_tag_open'] = '<li>';
+	// 	$config['prev_tag_close'] = '</li>';
+
+	// 	$this->pagination->initialize($config);
+
+	// 	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+
+	// 	$this->data["links"] = $this->pagination->create_links();
+
+	// 	// Limit the number of products per page
+	// 	$this->data['allproductbykeyword_pagination'] = $this->indexModel->getSearchPagination($keyword, $config["per_page"], $page);
+
+	// 	$this->data['title'] = $keyword;
+	// 	$this->config->config['pageTitle'] = "Search product: " . $keyword;
+
+	// 	$this->data['template'] = "pages/search/search";
+	// 	$this->load->view("pages/layout/index", $this->data);
+	// }
+
+
+	public function search_product()
+	{
+		$this->load->helper('pagination');
+		$this->load->library('pagination');
+
+		$keyword = $this->input->get('keyword', TRUE);
+		$per_page = 6;
+		$uri_segment = 3;
+		$base_url = base_url('search-product');
+
+		$total_products = $this->indexModel->countSearchProduct($keyword);
+		$this->data['links'] = init_pagination($base_url, $total_products, $per_page, $uri_segment);
+
+		$page = (int) $this->uri->segment($uri_segment);
+		$page = ($page > 0) ? $page : 1;
+		$start = ($page - 1) * $per_page;
+
+		$this->data['allproduct_pagination'] = $this->indexModel->getSearchProductPagination($keyword, $per_page, $start);
+		$this->data['sliders'] = $this->sliderModel->selectAllSlider();
+		$this->data['template'] = "pages/home/home";
+
+		$this->load->view("pages/layout/index", $this->data);
+	}
+
+
+
+	public function product_on_sale()
+	{
+		$this->load->library('pagination');
+
+		$keyword = $this->input->get('keyword'); // nếu muốn thêm tìm kiếm
+		$total_rows = $this->indexModel->countProductOnSale($keyword); // hàm mới
+
+		$per_page = 6;
+		$uri_segment = 3;
+		$base_url = base_url('product-on-sale');
+
+		$this->data['links'] = init_pagination($base_url, $total_rows, $per_page, $uri_segment);
+
+		$page_segment = $this->uri->segment($uri_segment);
+		$page = (!empty($page_segment) && is_numeric($page_segment)) ? (int)$page_segment : 1;
+		$start = ($page - 1) * $per_page;
+
+		$this->data['products_sale'] = $this->indexModel->getProductOnSalePagination($per_page, $start, $keyword);
+		$this->data['template'] = 'pages/home/productSale';
+		$this->load->view('pages/layout/index', $this->data);
+	}
+
 
 
 	public function send_mail($to_mail, $subject, $message)
@@ -153,49 +283,6 @@ class indexController extends CI_Controller
 			redirect(base_url() . 'gio-hang');
 		}
 	}
-
-
-	// public function applyCoupon()
-	// {
-
-	// 	$this->load->model('indexModel');
-	// 	$coupon_code = $this->input->post('coupon_code', TRUE);
-	// 	$cart_total = $this->cart->total();
-
-	// 	$coupon = $this->indexModel->getValidCoupon($coupon_code);
-
-	// 	echo '<pre>';
-	// 	print_r($coupon);
-	// 	echo '</pre>'; die();
-
-
-	// 	if (!$coupon) {
-	// 		$this->session->set_flashdata('coupon_error', 'Mã giảm giá không hợp lệ hoặc đã hết hạn');
-	// 		redirect($_SERVER['HTTP_REFERER']);
-	// 	}
-
-	// 	if ($cart_total < $coupon->Min_order_value) {
-	// 		$this->session->set_flashdata('coupon_error', 'Đơn hàng chưa đạt giá trị tối thiểu để sử dụng mã giảm giá này');
-	// 		redirect($_SERVER['HTTP_REFERER']);
-	// 	}
-
-	// 	$discount = 0;
-
-	// 	if ($coupon->Discount_type == 'Percentage') {
-	// 		$discount = ($cart_total * $coupon->Discount_value) / 100;
-	// 		if ($coupon->Max_discount && $discount > $coupon->Max_discount) {
-	// 			$discount = $coupon->Max_discount;
-	// 		}
-	// 	} elseif ($coupon->Discount_type == 'Fixed') {
-	// 		$discount = $coupon->Discount_value;
-	// 	}
-
-	// 	$this->session->set_userdata('coupon_code', $coupon_code);
-	// 	$this->session->set_userdata('coupon_discount', $discount);
-	// 	$this->session->set_flashdata('coupon_success', 'Áp dụng mã giảm giá thành công');
-
-	// 	redirect($_SERVER['HTTP_REFERER']);
-	// }
 
 
 	public function applyCoupon()
@@ -383,56 +470,6 @@ class indexController extends CI_Controller
 	}
 
 
-
-	// public function submitReviews()
-	// {
-	// 	$user = $this->getUserOnSession();
-	// 	$user_id = $user['id'];
-
-	// 	$reviews = $this->input->post('reviews');
-
-	// 	// echo '<pre>';
-	// 	// print_r($Order_Code);
-	// 	// echo '</pre>'; die();
-
-
-	// 	if (empty($reviews)) {
-	// 		$this->session->set_flashdata('error', 'Không có đánh giá nào được gửi.');
-	// 		redirect($_SERVER['HTTP_REFERER']);
-	// 	}
-
-	// 	$data_to_insert = [];
-	// 	$time_now = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
-
-	// 	foreach ($reviews as $review) {
-	// 		$product_id = (int)$review['ProductID'];
-	// 		$rating = (int)$review['rating'];
-	// 		$comment = trim($review['comment']);
-
-	// 		// Bỏ qua nếu rating không hợp lệ
-	// 		if ($rating < 1 || $rating > 5) continue;
-
-	// 		$data_to_insert[] = [
-	// 			'ProductID' => $product_id,
-	// 			'UserID' => $user_id,
-	// 			'rating' => $rating,
-	// 			'comment' => $comment,
-	// 			'created_at' => $time_now,
-	// 			'is_active' => 0,
-	// 		];
-	// 	}
-
-	// 	if (!empty($data_to_insert)) {
-	// 		$this->indexModel->insertReviews($data_to_insert);
-	// 		$this->session->set_flashdata('success', 'Cảm ơn bạn đã đánh giá sản phẩm!');
-	// 	} else {
-	// 		$this->session->set_flashdata('error', 'Đánh giá không hợp lệ hoặc thiếu điểm số.');
-	// 	}
-	// 	redirect('order_customer/listOrder');
-	// }
-
-
-
 	public function viewOrder($order_code)
 	{
 
@@ -567,66 +604,22 @@ class indexController extends CI_Controller
 
 
 
-	public function search_product()
-	{
-		if (isset($_GET['keyword']) && $_GET['keyword'] != '') {
-			$keyword = $_GET['keyword'];
-		} else {
-			$keyword = '';
-		}
 
-		// Custom config link
-		$config = array();
-		$config["base_url"] = base_url('search-product');
-		$config['reuse_query_string'] = TRUE;
-		$config['total_rows'] = ceil($this->indexModel->countAllProductByKeyword($keyword));
-		$config["per_page"] = 1; // Number of products per page
-		$config["uri_segment"] = 2;
-		$config['use_page_numbers'] = TRUE;
-		$config['full_tag_open'] = '<ul class="pagination">';
-		$config['full_tag_close'] = '</ul>';
-		$config['first_link'] = 'First';
-		$config['first_tag_open'] = '<li>';
-		$config['first_tag_close'] = '</li>';
-		$config['last_link'] = 'Last';
-		$config['last_tag_open'] = '<li>';
-		$config['last_tag_close'] = '</li>';
-		$config['cur_tag_open'] = '<li class="active"><a>';
-		$config['cur_tag_close'] = '</a></li>';
-		$config['num_tag_open'] = '<li>';
-		$config['num_tag_close'] = '</li>';
-		$config['next_tag_open'] = '<li>';
-		$config['next_tag_close'] = '</li>';
-		$config['prev_tag_open'] = '<li>';
-		$config['prev_tag_close'] = '</li>';
-
-		$this->pagination->initialize($config);
-
-		$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
-
-		$this->data["links"] = $this->pagination->create_links();
-
-		// Limit the number of products per page
-		$this->data['allproductbykeyword_pagination'] = $this->indexModel->getSearchPagination($keyword, $config["per_page"], $page);
-
-		$this->data['title'] = $keyword;
-		$this->config->config['pageTitle'] = "Search product: " . $keyword;
-
-		$this->data['template'] = "pages/search/search";
-		$this->load->view("pages/layout/index", $this->data);
-	}
 
 	public function product($ProductID)
 	{
 		$this->load->model("indexModel");
+		$this->load->model("reviewModel");
 		$this->data['product_details'] = $this->indexModel->getProductDetails($ProductID);
 
-		$this->data['product_comments'] = $this->indexModel->getListConmment($ProductID);
+		$this->data['product_reviews'] = $this->reviewModel->getActiveReviewsByProductId($ProductID);
+		// echo '<pre>';
+		// print_r($this->data['product_reviews']);
+		// echo '</pre>';
+
 		$this->data['title'] = $this->indexModel->getProductName($ProductID);
 		$this->config->config['pageTitle'] = $this->data['title'];
-		// echo '<pre>';
-		// print_r($this->data['product_details']);
-		// echo '</pre>';
+
 		$this->data['template'] = "pages/product-detail/product-detail";
 		$this->load->view("pages/layout/index", $this->data);
 	}
@@ -749,13 +742,11 @@ class indexController extends CI_Controller
 
 		$user_id = $this->getUserOnSession();
 
-		// Kiểm tra nếu user_id hợp lệ
 		if ($user_id) {
 			$this->load->model('customerModel');
 			$profile_user = $this->customerModel->selectCustomerById($user_id['id']);
 
 			if ($profile_user) {
-				// echo $profile_user->id;
 				$this->load->view('pages/customer/editCustomer', ['profile_user' => $profile_user]);
 			} else {
 				echo 'Không tìm thấy thông tin người dùng';
@@ -767,9 +758,7 @@ class indexController extends CI_Controller
 
 	public function updateAvatarCustomer($user_id)
 	{
-		$this->form_validation->set_rules('Avatar', 'Avatar', 'trim|required', ['required' => 'Bạn cần tải %s']);
-
-		if (!empty($_FILES['Avatar']['name']) && $this->form_validation->run()) {
+		if (!empty($_FILES['Avatar']['name'])) {
 			// Upload Image
 			$ori_filename = $_FILES['Avatar']['name'];
 			$new_name = time() . "-" . str_replace(' ', '-', $ori_filename);
@@ -783,30 +772,26 @@ class indexController extends CI_Controller
 
 			if (!$this->upload->do_upload('Avatar')) {
 				$error = ['error' => $this->upload->display_errors()];
-				$this->load->view('pages/customer/profile_Customer', $error);
-				return; // Thêm return để dừng việc thực thi tiếp tục
+				$this->session->set_flashdata('error', $error['error']);
+				redirect(base_url('profile-user'));
+				return;
 			} else {
 				$avatar_filename = $this->upload->data('file_name');
-				$data = [
-					'Avatar' => $avatar_filename
-				];
+				$data = ['Avatar' => $avatar_filename];
 			}
 		} else {
-			$data = [];
+			$this->session->set_flashdata('error', 'Vui lòng chọn ảnh hợp lệ.');
+			redirect(base_url('profile-user'));
+			return;
 		}
-
-
-
-		// Kiểm tra giá trị của $data trước khi cập nhật
-		// echo '<pre>';
-		// print_r($data);
-		// echo '</pre>';
 
 		$this->load->model('customerModel');
 		$this->customerModel->updateCustomer($user_id, $data);
-		$this->session->set_flashdata('success', 'Đã chỉnh sửa thông tin thành công');
+		$this->session->set_flashdata('success', 'Đã cập nhật ảnh đại diện thành công.');
 		redirect(base_url('profile-user'));
 	}
+
+
 
 
 

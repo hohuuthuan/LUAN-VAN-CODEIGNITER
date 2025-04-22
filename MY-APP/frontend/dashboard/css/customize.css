@@ -21,6 +21,9 @@ input::placeholder {
 .mt20 {
 	margin-top: 20px;
 }
+.mt40 {
+	margin-top: 20px;
+}
 .ml20 {
 	margin-left: 20px;
 }
@@ -568,4 +571,21 @@ th.payment-method {
 
 .list-review-wrapper{
 	border-top: 1px solid rgb(210, 208, 208);
+}
+
+
+
+.table-active {
+	background-color: #f4e3ad !important;
+}
+
+
+
+
+.update-multi-order-select{
+	display: flex;
+}
+
+.update-multi-order-select select{
+	width: 300px;
 }

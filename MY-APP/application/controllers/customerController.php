@@ -48,13 +48,15 @@ class customerController extends CI_Controller
 		$keyword = $this->input->get('keyword', TRUE);
 		$status = $this->input->get('status', TRUE);
 		$role_id = $this->input->get('role_id', TRUE);
+		$sort_totalamount = $this->input->get('sort_totalamount', TRUE);
 		$perpage = (int) $this->input->get('perpage');
-		$perpage = ($perpage > 0) ? $perpage : 2;
+		$perpage = ($perpage > 0) ? $perpage : 10;
 
 		$filter = [
 			'keyword' => $keyword,
 			'status' => $status,
 			'role_id' => $role_id,
+			'sort_totalamount' => $sort_totalamount
 		];
 
 
@@ -74,12 +76,18 @@ class customerController extends CI_Controller
 
 		$data['customers'] = $this->customerModel->getCustomers($perpage, $start, $filter);
 
-		$data['links'] = init_pagination(base_url('manage-customer/list'), $total, $perpage, $page);
+		// echo '<pre>';
+		// print_r($data['customers']);
+		// echo '</pre>';
+
+
+		$data['links'] = init_pagination(base_url('manage-customer/list'), $total, $perpage, 3);
 
 		// Trả filter về view
 		$data['keyword']   = $keyword;
 		$data['status']    = $status;
 		$data['role_id']   = $role_id;
+		$data['sort_totalamount'] = $sort_totalamount;
 		$data['perpage']   = $perpage;
 
 		$data['title'] = "Danh sách người dùng";
@@ -102,7 +110,7 @@ class customerController extends CI_Controller
 		// --- Lấy filter từ GET ---
 		$keyword  = $this->input->get('keyword', TRUE);
 		$perpage  = (int)$this->input->get('perpage');
-		$perpage  = ($perpage > 0) ? $perpage : 1;
+		$perpage  = ($perpage > 0) ? $perpage : 10;
 
 		$filter = [
 			'keyword' => $keyword,
@@ -253,6 +261,16 @@ class customerController extends CI_Controller
 		} else {
 			$this->editCustomer($UserID);
 		}
+	}
+
+
+	public function bulkUpdateCustomer(){
+		$customer_ids = $this->input->post('customer_ids');
+		$new_status = (int) $this->input->post('new_status');
+
+		$this->load->model('customerModel');
+		$this->customerModel->bulkupdateCustomer($customer_ids, $new_status);
+
 	}
 
 	// public function deleteCustomer($UserID)

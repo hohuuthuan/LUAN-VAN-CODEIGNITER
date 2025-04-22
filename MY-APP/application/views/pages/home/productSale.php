@@ -4,33 +4,33 @@
             <?php $this->load->view('pages/component/sidebar'); ?>
             <div class="col-sm-9 padding-right">
                 <div class="features_items">
-                    <h2 class="title text-center">Danh sách sản phẩm</h2>
+                    <h2 class="title text-center">Danh sách sản phẩm giảm giá</h2>
                     <?php
-                    foreach ($allproduct_pagination as $key => $allPro) {
+                    foreach ($products_sale as $key => $allProOnSale) {
                         ?>
                         <form action="<?php echo base_url('add-to-cart') ?>" method="POST">
                             <div class="col-sm-4">
                                 <div class="product-image-wrapper">
-                                    <input type="hidden" value="<?php echo $allPro->ProductID ?>" name="ProductID">
+                                    <input type="hidden" value="<?php echo $allProOnSale->ProductID ?>" name="ProductID">
                                     <input type="hidden" value="1" name="Quantity">
                                     <div class="single-products">
                                         <div class="productinfo text-center">
                                             <!-- <div
-                                                class="view-product <?php echo ($allPro->total_remaining == 0) ? 'out-of-stock' : ''; ?>">
+                                                class="view-product <?php echo ($allProOnSale->total_remaining == 0) ? 'out-of-stock' : ''; ?>">
                                                 <img style="width: 300px; height: 300px"
-                                                    src="<?php echo base_url('uploads/product/' . $allPro->Image) ?>"
-                                                    alt="<?php echo $allPro->Name ?>" />
+                                                    src="<?php echo base_url('uploads/product/' . $allProOnSale->Image) ?>"
+                                                    alt="<?php echo $allProOnSale->Name ?>" />
                                             </div> -->
-                                            <img src="<?php echo base_url('uploads/product/' . $allPro->Image) ?>"
-                                                alt="<?php echo $allPro->Name ?>" />
+                                            <img src="<?php echo base_url('uploads/product/' . $allProOnSale->Image) ?>"
+                                                alt="<?php echo $allProOnSale->Name ?>" />
 
                                             <h2>
                                                 <?php
                                                 // Kiểm tra nếu có giảm giá
-                                                if (isset($allPro->Promotion) && $allPro->Promotion != 0) {
+                                                if (isset($allProOnSale->Promotion) && $allProOnSale->Promotion != 0) {
                                                     // Tính giá sau giảm
-                                                    $price_no_Promotion = $allPro->Selling_price;
-                                                    $Selling_price = $allPro->Selling_price * (1 - $allPro->Promotion / 100);
+                                                    $price_no_Promotion = $allProOnSale->Selling_price;
+                                                    $Selling_price = $allProOnSale->Selling_price * (1 - $allProOnSale->Promotion / 100);
                                                     ?>
                                                     <span style="color: red" class="sale-label">Sale: </span>
                                                     <span
@@ -39,13 +39,13 @@
                                                     <?php
                                                 } else {
                                                     // Nếu không có giảm giá
-                                                    echo number_format($allPro->Selling_price, 0, ',', '.') . " VND";
+                                                    echo number_format($allProOnSale->Selling_price, 0, ',', '.') . " VND";
                                                 }
                                                 ?>
                                             </h2>
 
-                                            <p><?php echo $allPro->Name ?></p>
-                                            <a href="<?php echo base_url('san-pham/' . $allPro->ProductID . '/' . $allPro->Slug) ?>"
+                                            <p><?php echo $allProOnSale->Name ?></p>
+                                            <a href="<?php echo base_url('san-pham/' . $allProOnSale->ProductID . '/' . $allProOnSale->Slug) ?>"
                                                 class="btn btn-default add-to-cart"><i class="fa fa-eye"></i>Details</a>
                                             <button type="submit" class="btn btn-default cart">
                                                 <i class="fa fa-shopping-cart"></i>

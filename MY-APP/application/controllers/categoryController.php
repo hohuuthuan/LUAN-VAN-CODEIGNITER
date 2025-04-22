@@ -103,7 +103,9 @@ class categoryController extends CI_Controller
 		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần điền tên danh mục']);
 		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền mô tả']);
 		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
+		$this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
 
+		
 		if ($this->form_validation->run()) {
 			if (empty($_FILES['Image']['name'])) {
 				$this->session->set_flashdata('errors', ['Image' => 'Bạn cần chọn hình ảnh']);
@@ -214,6 +216,15 @@ class categoryController extends CI_Controller
 
 			$this->editcategory($CategoryID);
 		}
+	}
+
+	public function bulkUpdateCategory(){
+		$category_ids = $this->input->post('category_ids');
+		$new_status = (int) $this->input->post('new_status');
+
+		$this->load->model('categoryModel');
+		$this->categoryModel->bulkupdateCategory($category_ids, $new_status);
+
 	}
 
 	public function deleteCategory($CategoryID)

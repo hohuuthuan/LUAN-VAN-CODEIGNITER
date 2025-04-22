@@ -240,7 +240,7 @@ class reviewController extends CI_Controller
     
         $data['breadcrumb'] = [
             ['label' => 'Dashboard', 'url' => 'dashboard'],
-            ['label' => 'Đánh giá sản phẩm', 'url' => 'review-list'],
+            ['label' => 'Danh sách đánh giá sản phẩm', 'url' => 'review-list'],
             ['label' => 'Chi tiết đánh giá']
         ];
     

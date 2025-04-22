@@ -21,6 +21,13 @@
             <div class="action">
                 <div class="uk-flex uk-flex-middle">
                     <div class="mr20">
+                        <select name="sort_totalamount" class="form-control setupSelect2">
+                            <option value="">-- Sắp xếp lượng chi tiêu --</option>
+                            <option value="desc" <?= ($this->input->get('sort_totalamount') == 'desc') ? 'selected' : '' ?>>Cao đến thấp</option>
+                            <option value="asc" <?= ($this->input->get('sort_totalamount') == 'asc') ? 'selected' : '' ?>>Thấp đến cao</option>
+                        </select>
+                    </div>
+                    <div class="mr20">
                         <?php
                         $status = isset($status) ? $status : '';
                         $statusOptions = [
@@ -37,7 +44,7 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="mr20">
+                    <div class="">
                         <?php
                         $this->load->model('customerModel');
                         $roles = $this->customerModel->getAllRole();
@@ -51,7 +58,7 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="uk-search uk-flex uk-flex-middle mr20">
+                    <div class="uk-search uk-flex uk-flex-middle">
                         <div class="input-group">
                             <?php
                             $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';

@@ -381,7 +381,7 @@
 
         <hr>
         <div class="text-right mb15">
-            <button type="submit" name="" value="" class="btn btn-primary">Tiến hành nhập kho</button>
+            <button type="submit" name="" value="" class="btn btn-primary">Tiến hành nhập kho và xuất file PDF</button>
         </div>
     </div>
 </form>

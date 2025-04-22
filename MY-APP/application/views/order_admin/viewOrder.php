@@ -228,7 +228,7 @@
                                                                     đã giao cho đơn vị vận chuyển</option>
                                                                 <option value="4" <?= ($ord->order_status == 4) ? 'selected' : ''; ?>>Đã
                                                                     thanh toán, giao hàng thành công</option>
-                                                                <option value="5" <?= ($ord->order_status == 5) ? 'selected' : ''; ?>>Hủy
+                                                                <option value="5" <?= ($ord->order_status == 5) ? 'selected' : ''; ?>>Hủy đơn
                                                                 </option>
                                                             </select>
                                                             <button style="float: right;"
@@ -303,9 +303,37 @@
             // console.log('Order Code:', orderCode);
             // console.log('Order Status:', value);
 
+            // $.ajax({
+            //     url: '/order_admin/update-order-status',
+            //     method: 'POST',
+            //     data: {
+            //         value: value,
+            //         Order_Code: orderCode,
+            //         product_qty_in_batch: product_qty_in_batch
+            //     },
+            //     beforeSend: function() {
+            //         button.prop('disabled', true).text('Đang lưu...');
+            //     },
+            //     // success: function(response) {
+            //     //     alert('Cập nhật trạng thái đơn hàng thành công');
+            //     //     // location.reload();
+            //     // },
+            //     success: function(response) {
+            //         alert(response.message);
+            //         location.reload();
+            //     },
+
+            //     error: function(xhr, status, error) {
+            //         alert('Có lỗi xảy ra khi cập nhật trạng thái đơn hàng');
+            //         button.prop('disabled', false).text('Lưu');
+            //     }
+            // });
+
+
             $.ajax({
                 url: '/order_admin/update-order-status',
                 method: 'POST',
+                dataType: 'json',
                 data: {
                     value: value,
                     Order_Code: orderCode,
@@ -315,14 +343,21 @@
                     button.prop('disabled', true).text('Đang lưu...');
                 },
                 success: function(response) {
-                    alert('Cập nhật trạng thái đơn hàng thành công');
-                    location.reload();
+                    if (response.success) {
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert('Lỗi: ' + response.message);
+                        button.prop('disabled', false).text('Lưu');
+                    }
                 },
+
                 error: function(xhr, status, error) {
                     alert('Có lỗi xảy ra khi cập nhật trạng thái đơn hàng');
                     button.prop('disabled', false).text('Lưu');
                 }
             });
+
         }
     });
 </script>

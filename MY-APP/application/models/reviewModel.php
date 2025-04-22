@@ -72,6 +72,18 @@ class reviewModel extends CI_Model
         return $this->db->get()->result();
     }
 
+    public function getActiveReviewsByProductId($productId)
+    {
+        $this->db->select('r.*, u.Name as reviewer_name');
+        $this->db->from('reviews r');
+        $this->db->join('users u', 'r.UserID = u.UserID', 'left');
+        $this->db->where('r.ProductID', $productId);
+        $this->db->where('r.is_active', 1);
+        $this->db->order_by('r.created_at', 'DESC');
+        return $this->db->get()->result();
+    }
+
+    
 
     // public function countReviewByProduct($product_id)
     // {

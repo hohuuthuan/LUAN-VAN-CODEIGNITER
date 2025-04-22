@@ -6,16 +6,16 @@
                 <thead style="border-bottom: 3px solid #FE980F;" class="thead-light">
                     <tr>
                         <th scope="col">#</th>
-                        <th scope="col">Order Code</th>
-                        <th scope="col">Product Image</th>
-                        <th scope="col">Product Name</th>
-                        <th scope="col">Original Price</th>
-                        <th scope="col">Sale</th>
-                        <th scope="col">Discounted Price</th>
-                        <th scope="col">Quantity</th>
-                        <th scope="col">Hình thức thanh toán</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Manage</th>
+                        <th scope="col">Mã đơn</th>
+                        <th scope="col">Hình ảnh</th>
+                        <th scope="col">tên SP</th>
+                        <th scope="col">Giá gốc</th>
+                        <th scope="col">Giảm</th>
+                        <th scope="col">Giá bán</th>
+                        <th scope="col">Số lượng</th>
+                        <th scope="col">Phương thức thanh toán</th>
+                        <th class="width100" scope="col">Trạng thái</th>
+                        <th scope="col">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>

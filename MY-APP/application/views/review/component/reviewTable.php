@@ -23,8 +23,8 @@
                 <td><?php echo $review->Name; ?></td>
 
                 <td><?php echo $review->total_reviews ?></td>
-                <td><?php echo $review->total_reviews ?></td>
                 <td><?php echo $review->pending_reviews ?></td>
+                <td><?php echo $review->avg_rating ?></td>
                 <td><?php echo date('d/m/Y H:i:s', strtotime($review->last_review_time)); ?></td>
                 <td class="text-center">
                     <a href="<?php echo base_url('review-list/detail/'.$review->ProductID)?>" title="Xem chi tiết">

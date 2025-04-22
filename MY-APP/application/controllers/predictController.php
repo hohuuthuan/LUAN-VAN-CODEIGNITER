@@ -85,13 +85,13 @@ class predictController extends CI_Controller
         $this->load->model('indexModel');
         $this->load->library(['pagination', 'session']);
 
-        $perpage = 1;
+        $perpage = 6;
         $is_post = $this->input->method() === 'post';
 
         // Xoá dữ liệu khi người dùng truy cập lại trang web
-        // if (!$is_post && $page == 1) {
-        //     $this->session->unset_userdata('ai_result');
-        // }
+        if (!$is_post && $page == 1) {
+            $this->session->unset_userdata('ai_result');
+        }
 
         $data = [
             'title'             => "Yolo Predict",

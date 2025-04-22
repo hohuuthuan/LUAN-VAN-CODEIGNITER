@@ -44,16 +44,62 @@ class productController extends CI_Controller
 	}
 
 
+	// public function index($page = 1)
+	// {
+	// 	$this->config->config['pageTitle'] = 'List Products';
+	// 	$this->load->model('indexModel');
+	// 	$this->load->library('pagination');
+
+	// 	$keyword  = $this->input->get('keyword', true);
+	// 	$status   = $this->input->get('status', true);
+	// 	$sort_stock = $this->input->get('sort_stock', true);
+	// 	$perpage  = (int) $this->input->get('perpage');
+	// 	$perpage  = $perpage > 0 ? $perpage : 10;
+
+	// 	$total_products = $this->indexModel->countAllProduct($keyword, $status);
+
+	// 	$page  = (int)$page;
+	// 	$page  = ($page > 0) ? $page : 1;
+	// 	$max_page = ceil($total_products / $perpage);
+	// 	if ($page > $max_page && $total_products > 0) {
+	// 		$query = http_build_query($this->input->get());
+	// 		redirect(base_url('product/list') . ($query ? '?' . $query : ''));
+	// 	}
+
+	// 	$start = ($page - 1) * $perpage;
+
+
+	// 	$data['products'] = $this->indexModel->getProductPagination($perpage, $start, $keyword, $status);
+	// 	// echo '<pre>';
+	// 	// print_r($data['products']);
+	// 	// echo '</pre>';
+	// 	$data['links'] = init_pagination(base_url('product/list'), $total_products, $perpage, 3);
+
+	// 	$data['keyword'] = $keyword;
+	// 	$data['status'] = $status;
+	// 	$data['perpage'] = $perpage;
+	// 	$data['title'] = "Danh sách sản phẩm";
+	// 	$data['breadcrumb'] = [
+	// 		['label' => 'Dashboard', 'url' => 'dashboard'],
+	// 		['label' => 'Danh sách sản phẩm']
+	// 	];
+	// 	$data['start'] = $start;
+	// 	$data['template'] = "product/index";
+	// 	$this->load->view("admin-layout/admin-layout", $data);
+	// }
+
+
 	public function index($page = 1)
 	{
 		$this->config->config['pageTitle'] = 'List Products';
 		$this->load->model('indexModel');
 		$this->load->library('pagination');
 
-		$keyword  = $this->input->get('keyword', true);
-		$status   = $this->input->get('status', true);
-		$perpage  = (int) $this->input->get('perpage');
-		$perpage  = $perpage > 0 ? $perpage : 10;
+		$keyword     = $this->input->get('keyword', true);
+		$status      = $this->input->get('status', true);
+		$sort_stock  = $this->input->get('sort_stock', true); // Lấy giá trị sắp xếp tồn kho
+		$perpage     = (int) $this->input->get('perpage');
+		$perpage     = $perpage > 0 ? $perpage : 10;
 
 		$total_products = $this->indexModel->countAllProduct($keyword, $status);
 
@@ -67,14 +113,16 @@ class productController extends CI_Controller
 
 		$start = ($page - 1) * $perpage;
 
+		// Truyền thêm $sort_stock vào model
+		$data['products'] = $this->indexModel->getProductPagination($perpage, $start, $keyword, $status, $sort_stock);
 
-		$data['products'] = $this->indexModel->getProductPagination($perpage, $start, $keyword, $status);
 		$data['links'] = init_pagination(base_url('product/list'), $total_products, $perpage, 3);
 
+		$data['keyword']     = $keyword;
+		$data['status']      = $status;
+		$data['perpage']     = $perpage;
+		$data['sort_stock']  = $sort_stock; // Gửi về view để giữ lại lựa chọn lọc
 
-		$data['keyword'] = $keyword;
-		$data['status'] = $status;
-		$data['perpage'] = $perpage;
 		$data['title'] = "Danh sách sản phẩm";
 		$data['breadcrumb'] = [
 			['label' => 'Dashboard', 'url' => 'dashboard'],
@@ -82,8 +130,10 @@ class productController extends CI_Controller
 		];
 		$data['start'] = $start;
 		$data['template'] = "product/index";
+
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
+
 
 
 
@@ -109,15 +159,20 @@ class productController extends CI_Controller
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
+	
+
+
+
 	public function storeProduct()
 	{
-		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('Product_Code', 'Product_Code', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
-		$this->form_validation->set_rules('Selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('Product_uses', 'Product_uses', 'trim|required', ['required' => 'Bạn cần diền %s']);
-		$this->form_validation->set_rules('Unit', 'Unit', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần điền tên sản phẩm']);
+		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Product_Code', 'Product_Code', 'trim|required', ['required' => 'Bạn cần điền mã sản phẩm']);
+		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền mô tả sản phẩm']);
+		$this->form_validation->set_rules('Selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần điền giá bán']);
+		$this->form_validation->set_rules('Product_uses', 'Product_uses', 'trim|required', ['required' => 'Bạn cần điền công dụng sản phẩm']);
+		$this->form_validation->set_rules('Unit', 'Unit', 'trim|required', ['required' => 'Bạn cần điền đơn vị tính']);
+		$this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
 
 		if ($this->form_validation->run()) {
 
@@ -165,6 +220,18 @@ class productController extends CI_Controller
 			$this->createProduct();
 		}
 	}
+
+	// private function loadProductForm($data = [])
+	// {
+	// 	$this->load->model('brandModel');
+	// 	$this->load->model('categoryModel');
+	// 	$data['brand'] = $this->brandModel->getAllBrands();
+	// 	$data['category'] = $this->categoryModel->getAllCategories();
+	// 	$data['template'] = "product/storeProduct";
+	// 	$data['title'] = "Thêm mới sản phẩm";
+	// 	$this->load->view("admin-layout/admin-layout", $data);
+	// }
+
 
 	public function editProduct($ProductID)
 	{
@@ -255,6 +322,18 @@ class productController extends CI_Controller
 		} else {
 			$this->editProduct($ProductID);
 		}
+	}
+
+
+
+	public function bulkUpdateProduct()
+	{
+		$product_ids = $this->input->post('product_ids');
+		$new_status = (int) $this->input->post('new_status');
+
+
+		$this->load->model('productModel');
+		$this->productModel->bulkUpdateProduct($product_ids, $new_status);
 	}
 	// public function deleteProduct($id)
 	// {

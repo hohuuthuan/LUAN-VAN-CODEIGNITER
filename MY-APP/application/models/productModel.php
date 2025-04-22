@@ -16,11 +16,11 @@ class productModel extends CI_Model
 
     public function selectAllProduct()
     {
-        $query = $this->db->select('categories.title as tendanhmuc, products.*, warehouses.*, brands.title as tenthuonghieu')
+        $query = $this->db->select('categories.title as tendanhmuc, product.*, warehouses.*, brands.title as tenthuonghieu')
             ->from('categories')
-            ->join('products', 'products.category_id = categories.id')
-            ->join('warehouses', 'products.id = warehouses.product_id')
-            ->join('brands', 'brands.id = products.brand_id')
+            ->join('product', 'product.category_id = categories.id')
+            ->join('warehouses', 'product.id = warehouses.product_id')
+            ->join('brands', 'brands.id = product.brand_id')
             ->get();
         return $query->result();
     }
@@ -41,6 +41,18 @@ class productModel extends CI_Model
         return $this->db->update('product', $data, ['ProductID' => $ProductID]);
     }
 
+
+    public function bulkUpdateProduct($product_ids, $new_status)
+    {
+        foreach ($product_ids as $product_id) {
+            $data = [
+                'Status' => $new_status,
+            ];
+            $this->db->update('product', $data, ['ProductID' => $product_id]);
+        }
+        $this->session->set_flashdata('success', 'Cập nhật thành công');
+        redirect(base_url('product/list'));
+    }
 
 
 
@@ -76,8 +88,8 @@ class productModel extends CI_Model
     //     // Xóa các bản ghi liên quan trong bảng warehouses
     //     $this->db->delete('warehouses', ['product_id' => $id]);
 
-    //     // Sau đó, xóa sản phẩm trong bảng products
-    //     $this->db->delete('products', ['id' => $id]);
+    //     // Sau đó, xóa sản phẩm trong bảng product
+    //     $this->db->delete('product', ['id' => $id]);
 
     //     return ['status' => true, 'message' => 'Đã xóa sản phẩm thành công.'];
     // }
@@ -90,7 +102,7 @@ class productModel extends CI_Model
         // $this->db->like('description', $disease_name);
         $this->db->like('description', $disease_name);
         $this->db->where('status', 1);
-        $query = $this->db->get('products');
+        $query = $this->db->get('product');
 
         return $query->result();
     }
@@ -100,17 +112,12 @@ class productModel extends CI_Model
     public function getProductsPagination($limit, $start)
     {
         $this->db->limit($limit, $start);
-        $query = $this->db->get_where('products', ['status' => 1]);
+        $query = $this->db->get_where('product', ['status' => 1]);
         return $query->result();
     }
 
     public function countAllProduct()
     {
-        return $this->db->where(['status' => 1])->count_all_results('products');
+        return $this->db->where(['status' => 1])->count_all_results('product');
     }
-
-
 }
-
-
-?>

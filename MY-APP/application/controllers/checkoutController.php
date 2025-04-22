@@ -417,17 +417,7 @@ class CheckoutController extends CI_Controller
             ];
             $detail_id = $this->orderModel->insert_order_detail($detail);
 
-            // Lưu thông tin batch (kho)
-            $batches = $this->orderModel->get_qty_product_in_batches($item['id'], $item['qty']);
-            if (!empty($batches['batches'])) {
-                foreach ($batches['batches'] as $batch) {
-                    $this->orderModel->insert_order_batches([
-                        'order_detail_id' => $detail_id,
-                        'batch_id' => $batch['Batch_ID'],
-                        'quantity' => $batches['totalQuantity']
-                    ]);
-                }
-            }
+            
         }
 
         // Clear session sau khi đặt hàng

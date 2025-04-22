@@ -106,8 +106,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                     <!-- Profile picture card-->
                     <div class="card mb-4 mb-xl-0">
                         <div class="card-header">Profile Picture</div>
-                        <form action="<?php echo base_url('customer/update-avatar/' . $profile_user->UserID) ?>"
-                            method="POST" enctype="multipart/form-data">
+                        <form action="<?php echo base_url('customer/update-avatar/' . $profile_user->UserID) ?>" method="post" enctype="multipart/form-data">
                             <div class="card-body text-center">
                                 <img class="img-account-profile rounded-circle mb-2"
                                     src="<?php echo base_url('uploads/user/' . $profile_user->Avatar) ?>"

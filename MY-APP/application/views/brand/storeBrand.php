@@ -19,7 +19,7 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <label for="" class="control-label text-left">Tên thương hiệu<span
-                                            class="text-danger" required>(*)</span></label>
+                                            class="text-danger">(*)</span></label>
                                     <input name="Name" type="text" class="form-control"
                                         id="slug" onkeyup="ChangeToSlug();" placeholder="Nhập tên thương hiệu"
                                         value="<?php echo set_value('Name', isset($input['Name']) ? $input['Name'] : ''); ?>">
@@ -35,7 +35,8 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="Description">Mô tả</label>
+                                        <label for="Description">Mô tả<span
+                                                class="text-danger">(*)</span></label>
                                         <textarea name="Description" type="text" class="form-control" rows="4"
                                             placeholder="Nhập mô tả thương hiệu"><?php echo set_value('Description', isset($input['Description']) ? $input['Description'] : ''); ?></textarea>
                                         <span class="text-danger"><?php echo isset($errors['Description']) ? $errors['Description'] : ''; ?></span>
@@ -52,15 +53,13 @@
                                         <option value="1" <?php echo set_select('Status', '1', isset($input['Status']) && $input['Status'] == '1'); ?>>Active</option>
                                         <option value="0" <?php echo set_select('Status', '0', isset($input['Status']) && $input['Status'] == '0'); ?>>Inactive</option>
                                     </select>
-
                                 </div>
-
                             </div>
-
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="Image">Hình ảnh</label>
+                                        <label for="Image">Hình ảnh<span
+                                        class="text-danger">(*)</span></label>
                                         <input name="Image" type="file" class="form-control-file">
                                         <span class="text-danger">
                                             <?php

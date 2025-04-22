@@ -17,13 +17,13 @@
                     <div class="col-md-6">
                         <?php foreach ($predictions as $prediction): ?>
                             <div class="alert alert-success p-2 mb-2">
-                                ✅ Nhãn: <strong>
+                                Loại bệnh: <strong>
                                     <?php
                                     $label_id = $prediction['label'];
                                     echo isset($label_map[$label_id]) ? $label_map[$label_id] : 'Không rõ';
                                     ?>
                                 </strong><br>
-                                🎯 Độ chính xác: <strong><?php echo round($prediction['confidence'] * 100, 2); ?>%</strong>
+                                Độ chính xác: <strong><?php echo round($prediction['confidence'] * 100, 2); ?>%</strong>
                             </div>
                         <?php endforeach; ?>
                     </div>

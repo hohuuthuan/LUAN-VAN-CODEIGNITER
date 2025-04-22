@@ -107,9 +107,9 @@ class brandController extends CI_Controller
 	public function storageBrand()
 	{
 		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần điền tên thương hiệu']);
-		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền %s']);
+		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền mô tả']);
 		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
-
+		$this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
 
 		if ($this->form_validation->run()) {
 			if (empty($_FILES['Image']['name'])) {
@@ -294,6 +294,16 @@ class brandController extends CI_Controller
 		}
 
 		redirect(base_url('brand/list'));
+	}
+
+
+	public function bulkUpdateBrand(){
+		$brand_ids = $this->input->post('brand_ids');
+		$new_status = (int) $this->input->post('new_status');
+
+		$this->load->model('brandModel');
+		$this->brandModel->bulkupdateBrand($brand_ids, $new_status);
+
 	}
 
 	private function _is_same_data($old, $new)

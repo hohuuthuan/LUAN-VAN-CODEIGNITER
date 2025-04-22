@@ -41,13 +41,18 @@ $route['danh-muc/(:any)/(:any)']['GET'] = 'indexController/category/$1/$2';
 $route['thuong-hieu/(:any)/(:any)']['GET'] = 'indexController/brand/$1/$2';
 $route['san-pham/(:any)/(:any)']['GET'] = 'indexController/product/$1/$2';
 
-/* PAGINATINO */
-$route['pagination/index']['GET'] = 'indexController/index/';
+/* PAGINATION HOME */
+$route['pagination/index']['GET'] = 'indexController/index';
 $route['pagination/index/(:num)']['GET'] = 'indexController/index/$1';
 $route['pagination/danh-muc/(:any)/(:any)']['GET'] = 'indexController/category/$1/$2';
 $route['pagination/danh-muc/(:any)/(:any)/(:any)']['GET'] = 'indexController/category/$1/$2/$3';
 $route['pagination/thuong-hieu/(:any)/(:any)/(:any)']['GET'] = 'indexController/brand/$1/$2/$3';
 $route['pagination/thuong-hieu/(:any)/(:any)']['GET'] = 'indexController/brand/$1/$2';
+
+
+/* PRODUCT ON SALE */
+$route['product-on-sale']['GET'] = 'indexController/product_on_sale';
+
 
 /* CART */
 $route['gio-hang']['GET'] = 'indexController/cart';
@@ -71,6 +76,7 @@ $route['order_customer/listOrder']['GET'] = 'indexController/listOrder';
 $route['order_customer/update-order-status']['POST'] = 'orderController/update_order_status_COD';
 $route['order_customer/viewOrder/(:any)']['GET'] = 'indexController/viewOrder/$1';
 $route['order_customer/deleteOrder/(:any)']['GET'] = 'indexController/deleteOrder/$1';
+
 
 
 /* REVIEW PRODUCT */
@@ -120,6 +126,8 @@ $route['manage-customer/list']['GET'] = 'customerController/index';
 $route['manage-customer/list/(:num)']['GET'] = 'customerController/index/$1';
 $route['manage-customer/list/edit/(:any)']['GET'] = 'customerController/editCustomer/$1';
 $route['manage-customer/update/(:any)']['POST'] = 'customerController/updateCustomer/$1';
+$route['manage-customer/bulkUpdate']['POST'] = 'customerController/bulkUpdateCustomer';
+
 $route['manage-customer/delete/(:any)']['GET'] = 'customerController/deleteCustomer/$1';
 
 
@@ -141,6 +149,7 @@ $route['brand/list/edit/(:any)']['GET'] = 'brandController/editBrand/$1';
 $route['brand/create']['GET'] = 'brandController/createBrand';
 $route['brand/storage']['POST'] = 'brandController/storageBrand';
 $route['brand/update/(:any)']['POST'] = 'brandController/updateBrand/$1';
+$route['brand/list/bulkUpdate']['POST'] = 'brandController/bulkUpdateBrand';
 // $route['brand/delete/(:any)']['GET'] = 'brandController/deleteBrand/$1';
 
 /* MANAGE CATEGORY */
@@ -150,7 +159,8 @@ $route['category/list/edit/(:any)']['GET'] = 'categoryController/editCategory/$1
 $route['category/create']['GET'] = 'categoryController/createCategory';
 $route['category/storage']['POST'] = 'categoryController/storageCategory';
 $route['category/update/(:any)']['POST'] = 'categoryController/updateCategory/$1';
-$route['category/delete/(:any)']['GET'] = 'categoryController/deleteCategory/$1';
+$route['category/list/bulkUpdate']['POST'] = 'categoryController/bulkUpdateCategory';
+// $route['category/delete/(:any)']['GET'] = 'categoryController/deleteCategory/$1';
 
 /* MANAGE SLIDER */
 $route['slider/list']['GET'] = 'sliderController/index';
@@ -167,6 +177,8 @@ $route['product/list/edit/(:any)']['GET'] = 'productController/editProduct/$1';
 $route['product/create']['GET'] = 'productController/createProduct';
 $route['product/store']['POST'] = 'productController/storeProduct';
 $route['product/update/(:any)']['POST'] = 'productController/updateProduct/$1';
+$route['product/list/bulkUpdate']['POST'] = 'productController/bulkUpdateProduct';
+
 $route['product/delete/(:any)']['GET'] = 'productController/deleteProduct/$1';
 
 /* MANAGE WAREHOUSE */
@@ -177,16 +189,18 @@ $route['warehouse/receive-goods/enter-into-warehouse']['POST'] = 'warehouseContr
 $route['warehouse/receive-goods-history']['GET'] = 'warehouseController/receipt_goods_history';
 $route['warehouse/receive-goods-history/(:num)']['GET'] = 'warehouseController/receipt_goods_history/$1';
 $route['warehouse/receive-goods-history/receipt_detail/(:any)']['GET'] = 'warehouseController/receipt_detail/$1';
-
+$route['receive-goods/bulkPrint']['POST'] = 'warehouseController/bulkPrintReceipts';
 
 
 /* MANAGE ORDER */
 $route['order_admin/listOrder']['GET'] = 'orderController/index';
 $route['order_admin/listOrder/(:num)']['GET'] = 'orderController/index/$1';
 $route['order_admin/update-order-status']['POST'] = 'orderController/update_order_status';
+$route['order_admin/bulkUpdate']['POST'] = 'orderController/bulkUpdate';
 $route['order_admin/viewOrder/(:any)']['GET'] = 'orderController/viewOrder/$1';
-$route['order_admin/deleteOrder/(:any)']['GET'] = 'orderController/deleteOrder/$1';
 $route['order_admin/printOrder/(:any)']['GET'] = 'orderController/printOrder/$1';
+$route['order_admin/bulkPrint']['POST'] = 'orderController/bulkPrint';
+// $route['order_admin/deleteOrder/(:any)']['GET'] = 'orderController/deleteOrder/$1';
 
 /* MANAGE COMMENT */
 $route['comment/send']['POST'] = 'dashboardController/comment_send';

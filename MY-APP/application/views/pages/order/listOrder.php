@@ -20,7 +20,7 @@
                             <th scope="col">Số lượng</th>
                             <th scope="col">Tổng tiền</th>
                             <th scope="col">Trạng thái</th>
-                            <th scope="col"></th>
+                            <th scope="col">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>

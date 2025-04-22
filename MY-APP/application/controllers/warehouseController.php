@@ -245,6 +245,10 @@ class warehouseController extends CI_Controller
 	}
 
 
+
+
+
+
 	public function receipt_goods_history($page = 1)
 	{
 		$this->config->config['pageTitle'] = 'Lịch sử nhập hàng';
@@ -289,6 +293,13 @@ class warehouseController extends CI_Controller
 
 		// Đổ dữ liệu ra view
 		$data['receive_history'] = $receipts;
+
+		// echo "<pre>";
+		// print_r($data['receive_history']);
+		// echo "</pre>";
+
+
+
 		$data['suppliers'] = $this->indexModel->getAllSupplier();
 		$data['links'] = init_pagination(base_url('warehouse/receive-goods-history'), $total, $limit, 3);
 
@@ -372,7 +383,8 @@ class warehouseController extends CI_Controller
 
 		// echo "<pre>";
 		// print_r($data['receipt_detail']);
-		// echo "</pre>"; die();
+		// echo "</pre>";
+		// die();
 
 
 		$data['title'] = "Chi tiết phiếu nhập kho";
@@ -383,5 +395,218 @@ class warehouseController extends CI_Controller
 		];
 		$data['template'] = "warehouse/receipt-detail";
 		$this->load->view("admin-layout/admin-layout", $data);
+	}
+
+
+
+
+
+
+	public function printReceiptDetail($id)
+	{
+		$this->load->library('Pdf');
+		$this->load->model('warehouseModel');
+
+		// Lấy dữ liệu phiếu nhập kho
+		$data['receipt_detail'] = $this->warehouseModel->get_warehouse_receipt_by_id($id);
+		if (!$data['receipt_detail']) {
+			show_error('Không tìm thấy phiếu nhập kho.');
+		}
+
+		// Khởi tạo PDF
+		$pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
+		$pdf->SetTitle('Phiếu nhập kho: ' . $data['receipt_detail']['delivery_note_number']);
+		$pdf->SetFont('dejavusans', '', 12);
+		$pdf->AddPage();
+
+		// Nội dung PDF
+		$html = '
+	    <h2 style="text-align: center;">PHIẾU NHẬP KHO</h2>
+	    <p><strong>Mã phiếu nhập:</strong> ' . $data['receipt_detail']['delivery_note_number'] . '</p>
+	    <p><strong>Ngày nhập:</strong> ' . date('d/m/Y', strtotime($data['receipt_detail']['created_at'])) . '</p>
+	    <p><strong>Nhà cung cấp:</strong> ' . $data['receipt_detail']['supplier_name'] . '</p>
+	    <p><strong>Địa chỉ:</strong> ' . $data['receipt_detail']['address'] . '</p>
+	    <p><strong>Người giao:</strong> ' . $data['receipt_detail']['name_of_delivery_person'] . '</p>
+	    <p><strong>Kho nhập:</strong> ' . $data['receipt_detail']['warehouse_from'] . '</p>
+	    <p><strong>Mã số thuế:</strong> ' . $data['receipt_detail']['tax_identification_number'] . '</p>
+	    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+	        <thead>
+	            <tr style="background-color: #f2f2f2; text-align: center;">
+	                <th>STT</th>
+	                <th>Tên sản phẩm</th>
+	                <th>Mã sản phẩm</th>
+	                <th>Đơn vị</th>
+	                <th>Đơn giá</th>
+	                <th>Số lượng</th>
+	                <th>Thành tiền</th>
+	            </tr>
+	        </thead>
+	        <tbody>';
+
+		$total = 0;
+		foreach ($data['receipt_detail']['product_items'] as $key => $product) {
+			$subtotal = $product['quantity_actual'] * $product['unit_import_price'];
+			$total += $subtotal;
+
+			$html .= '
+	        <tr style="text-align: center;">
+	            <td>' . ($key + 1) . '</td>
+	            <td style="text-align: left;">' . $product['product_name'] . '</td>
+	            <td>' . $product['product_code'] . '</td>
+	            <td>' . $product['product_unit'] . '</td>
+	            <td>' . number_format($product['unit_import_price'], 0, ',', '.') . 'đ</td>
+	            <td>' . $product['quantity_actual'] . '</td>
+	            <td>' . number_format($subtotal, 0, ',', '.') . 'đ</td>
+	        </tr>
+	    ';
+		}
+
+		$html .= '
+	    <tr style="font-weight: bold; text-align: right;">
+	        <td colspan="6">Tổng cộng:</td>
+	        <td style="text-align: center;">' . number_format($total, 0, ',', '.') . 'đ</td>
+	    </tr>
+	    </tbody>
+	    </table>';
+
+		// Viết HTML vào PDF
+		$pdf->writeHTML($html, true, false, true, false, '');
+		$pdf_path = FCPATH . 'downloads/receipt_' . $data['receipt_detail']['delivery_note_number'] . '.pdf';
+		$pdf->Output($pdf_path, 'F');
+
+		// Sau khi tạo PDF, gửi file về cho người dùng
+		if (file_exists($pdf_path)) {
+			// Dọn dẹp bộ đệm đầu ra trước khi gửi header
+			if (ob_get_length()) ob_end_clean();
+
+			// Gửi file PDF về cho trình duyệt
+			header('Content-Type: application/pdf');
+			header('Content-Disposition: attachment; filename="' . basename($pdf_path) . '"');
+			header('Content-Length: ' . filesize($pdf_path));
+			header('Pragma: public');
+			header('Cache-Control: must-revalidate');
+			header('Expires: 0');
+			readfile($pdf_path);
+
+			// Xóa file PDF sau khi gửi xong
+			unlink($pdf_path);
+			exit;
+		} else {
+			show_error('Không tìm thấy file PDF để tải về.');
+		}
+	}
+
+	public function bulkPrintReceipts()
+	{
+		$this->load->library('Pdf');
+		$this->load->model('warehouseModel');
+
+		$receipt_ids = $this->input->post('warehouse_receipt_ids');
+
+		if (empty($receipt_ids)) {
+			show_error("Không có phiếu nhập kho nào được chọn.");
+		}
+
+		$download_dir = FCPATH . 'downloads/';
+		if (!is_dir($download_dir)) {
+			mkdir($download_dir, 0777, true);
+		}
+
+		$zip = new ZipArchive();
+		$zip_filename = $download_dir . 'receipts_' . time() . '.zip';
+		$zip->open($zip_filename, ZipArchive::CREATE);
+
+		$pdf_paths = []; // lưu đường dẫn các file để xóa sau
+
+		foreach ($receipt_ids as $id) {
+			$data['receipt_detail'] = $this->warehouseModel->get_warehouse_receipt_by_id($id);
+			if (!$data['receipt_detail']) continue;
+
+			$pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
+			$pdf->SetTitle('Phiếu nhập kho: ' . $data['receipt_detail']['delivery_note_number']);
+			$pdf->SetFont('dejavusans', '', 12);
+			$pdf->AddPage();
+
+			$html = '
+			<h2 style="text-align: center;">PHIẾU NHẬP KHO</h2>
+			<p><strong>Mã phiếu nhập:</strong> ' . $data['receipt_detail']['delivery_note_number'] . '</p>
+			<p><strong>Ngày nhập:</strong> ' . date('d/m/Y', strtotime($data['receipt_detail']['created_at'])) . '</p>
+			<p><strong>Nhà cung cấp:</strong> ' . $data['receipt_detail']['supplier_name'] . '</p>
+			<p><strong>Địa chỉ:</strong> ' . $data['receipt_detail']['address'] . '</p>
+			<p><strong>Người giao:</strong> ' . $data['receipt_detail']['name_of_delivery_person'] . '</p>
+			<p><strong>Kho nhập:</strong> ' . $data['receipt_detail']['warehouse_from'] . '</p>
+			<p><strong>Mã số thuế:</strong> ' . $data['receipt_detail']['tax_identification_number'] . '</p>
+			<table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+				<thead>
+					<tr style="background-color: #f2f2f2; text-align: center;">
+						<th>STT</th>
+						<th>Tên sản phẩm</th>
+						<th>Mã sản phẩm</th>
+						<th>Đơn vị</th>
+						<th>Đơn giá</th>
+						<th>Số lượng</th>
+						<th>Thành tiền</th>
+					</tr>
+				</thead>
+				<tbody>';
+
+			$total = 0;
+			foreach ($data['receipt_detail']['product_items'] as $key => $product) {
+				$subtotal = $product['quantity_actual'] * $product['unit_import_price'];
+				$total += $subtotal;
+
+				$html .= '
+				<tr style="text-align: center;">
+					<td>' . ($key + 1) . '</td>
+					<td style="text-align: left;">' . $product['product_name'] . '</td>
+					<td>' . $product['product_code'] . '</td>
+					<td>' . $product['product_unit'] . '</td>
+					<td>' . number_format($product['unit_import_price'], 0, ',', '.') . 'đ</td>
+					<td>' . $product['quantity_actual'] . '</td>
+					<td>' . number_format($subtotal, 0, ',', '.') . 'đ</td>
+				</tr>';
+			}
+
+			$html .= '
+				<tr style="font-weight: bold; text-align: right;">
+					<td colspan="6">Tổng cộng:</td>
+					<td style="text-align: center;">' . number_format($total, 0, ',', '.') . 'đ</td>
+				</tr>
+				</tbody>
+			</table>';
+
+			$pdf->writeHTML($html, true, false, true, false, '');
+
+			// tên file không trùng lặp
+			$filename = 'receipt_' . $id . '_' . $data['receipt_detail']['delivery_note_number'] . '.pdf';
+			$pdf_path = $download_dir . $filename;
+			$pdf->Output($pdf_path, 'F');
+
+			$zip->addFile($pdf_path, $filename);
+			$pdf_paths[] = $pdf_path;
+		}
+
+		$zip->close();
+
+		// Xoá các file PDF sau khi nén
+		foreach ($pdf_paths as $file) {
+			if (file_exists($file)) unlink($file);
+		}
+
+		// Gửi file zip về trình duyệt
+		if (file_exists($zip_filename)) {
+			if (ob_get_length()) ob_end_clean();
+			header('Content-Type: application/zip');
+			header('Content-Disposition: attachment; filename="' . basename($zip_filename) . '"');
+			header('Content-Length: ' . filesize($zip_filename));
+			header('Pragma: public');
+			header('Cache-Control: must-revalidate');
+			header('Expires: 0');
+			readfile($zip_filename);
+			unlink($zip_filename);
+			exit;
+		} else {
+			show_error('Không tìm thấy file zip để tải về.');
+		}
 	}
 }

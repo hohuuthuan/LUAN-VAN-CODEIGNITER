@@ -1,5 +1,5 @@
 <form id="filterForm" action="" method="get" class="mt20">
-    <div class="filter-wapper">
+    <div class="filter-wapper mb10  ">
         <div class="uk-flex uk-flex-middle uk-flex-space-between">
 
             <!-- Bộ lọc số bản ghi -->
@@ -49,6 +49,29 @@
                         </select>
                     </div>
 
+                    <div>
+                        <select name="sort_order" class="form-control setupSelect2">
+                            <option value="">-- Sắp xếp theo thời gian --</option>
+                            <option value="desc" <?= ($this->input->get('sort_order') == 'desc') ? 'selected' : '' ?>>Mới nhất đến cũ nhất</option>
+                            <option value="asc" <?= ($this->input->get('sort_order') == 'asc') ? 'selected' : '' ?>>Cũ nhất đến mới nhất</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="filter-wapper float-right">
+        <div class="uk-flex uk-flex-middle uk-flex-space-between">
+            <div class="action">
+                <div class="uk-flex uk-flex-middle mb10">
+                    <div class="mr10">
+                        <select name="sort_total_amount" class="form-control setupSelect2">
+                            <option value="">-- Sắp xếp tổng tiền --</option>
+                            <option value="asc" <?= ($this->input->get('sort_total_amount') == 'asc') ? 'selected' : '' ?>>Tổng tiền tăng dần</option>
+                            <option value="desc" <?= ($this->input->get('sort_total_amount') == 'desc') ? 'selected' : '' ?>>Tổng tiền giảm dần</option>
+                        </select>
+                    </div>
                     <div class="uk-search uk-flex uk-flex-middle">
                         <div class="input-group">
                             <?php $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : ''; ?>
@@ -66,4 +89,3 @@
         </div>
     </div>
 </form>
-

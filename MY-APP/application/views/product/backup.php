@@ -1,4 +1,3 @@
-<?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 <form action="<?php echo base_url('product/store') ?>" method="post" class="box" enctype="multipart/form-data">
     <div class="wrapper wrapper-content animated fadeInRight">
     
