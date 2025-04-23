@@ -26,9 +26,9 @@
 
                                             <h2>
                                                 <?php
-                                                // Kiểm tra nếu có giảm giá
+                                          
                                                 if (isset($allPro->Promotion) && $allPro->Promotion != 0) {
-                                                    // Tính giá sau giảm
+                                                    
                                                     $price_no_Promotion = $allPro->Selling_price;
                                                     $Selling_price = $allPro->Selling_price * (1 - $allPro->Promotion / 100);
                                                     ?>
@@ -38,7 +38,7 @@
                                                         VND</span>
                                                     <?php
                                                 } else {
-                                                    // Nếu không có giảm giá
+                                                 
                                                     echo number_format($allPro->Selling_price, 0, ',', '.') . " VND";
                                                 }
                                                 ?>
@@ -57,9 +57,9 @@
                             </div>
                         </form>
                     <?php } ?>
-                </div>
-                <?php echo $links; ?>
+                </div> 
             </div>
+            <?php echo $links; ?>
         </div>
     </div>
 </section>

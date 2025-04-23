@@ -42,17 +42,20 @@ class productModel extends CI_Model
     }
 
 
-    public function bulkUpdateProduct($product_ids, $new_status)
+    public function bulkUpdateStatus($product_ids, $new_status)
     {
         foreach ($product_ids as $product_id) {
-            $data = [
-                'Status' => $new_status,
-            ];
-            $this->db->update('product', $data, ['ProductID' => $product_id]);
+            $this->db->update('product', ['Status' => $new_status], ['ProductID' => $product_id]);
         }
-        $this->session->set_flashdata('success', 'Cập nhật thành công');
-        redirect(base_url('product/list'));
     }
+
+    public function bulkUpdatePromotion($product_ids, $promotion)
+    {
+        foreach ($product_ids as $product_id) {
+            $this->db->update('product', ['Promotion' => $promotion], ['ProductID' => $product_id]);
+        }
+    }
+
 
 
 

@@ -404,7 +404,7 @@ class orderModel extends CI_Model
             discount.Discount_type,
             discount.Discount_value,
             discount.Min_order_value,
-            discount.Max_discount
+         
         ')
             ->from('order_detail')
             ->join('product', 'order_detail.ProductID = product.ProductID', 'left')
@@ -451,10 +451,6 @@ class orderModel extends CI_Model
         return $this->db->delete('order_detail');
     }
 
-    // public function deleteOrder($Order_Code)
-    // {
-    //     return $this->db->delete('orders', ['Order_Code' => $Order_Code]);
-    // }
 
     public function deleteShipping($ShippingID)
     {
@@ -486,12 +482,172 @@ class orderModel extends CI_Model
         return $this->db->update('order_detail', $data_order_details, ['Order_Code' => $Order_Code]);
     }
 
-    public function insertRevenue($data)
+
+    public function selectDiscountCode($filter, $limit, $start)
     {
-        $this->db->insert('revenue', $data);
+        $this->db->select('*')->from('discount');
+
+        // Lọc theo từ khóa (keyword)
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start();
+            $this->db->like('Coupon_code', $filter['keyword']);
+            $this->db->or_like('Discount_type', $filter['keyword']);
+            $this->db->group_end();
+        }
+
+
+        if (isset($filter['status']) && $filter['status'] !== null) {
+            $this->db->group_start();
+            if ($filter['status'] == 1) {
+                $this->db->where('Status', 1);
+                $this->db->where('End_date >=', date('Y-m-d'));
+            } elseif ($filter['status'] == 0) {
+                $this->db->group_start();
+                $this->db->where('Status', 0);
+                $this->db->or_where('End_date <', date('Y-m-d'));
+                $this->db->group_end();
+            }
+            $this->db->group_end();
+        }
+
+        if (!empty($filter['discount_type'])) {
+            $this->db->where('Discount_type', $filter['discount_type']);
+        }
+
+        if (!empty($filter['date_from'])) {
+            $this->db->where('Start_date >=', $filter['date_from']);
+        }
+
+        // Lọc theo ngày kết thúc (date_to)
+        if (!empty($filter['date_to'])) {
+            $this->db->where('End_date <=', $filter['date_to']);
+        }
+
+        // Giới hạn số bản ghi và bắt đầu từ đâu
+        $this->db->limit($limit, $start);
+
+        return $this->db->get()->result();
     }
-    public function insertWarehouse($data)
+
+    public function countDiscountCode($filter)
     {
-        $this->db->insert('revenue', $data);
+        $this->db->from('discount');
+
+        // Lọc theo từ khóa (keyword)
+        if (!empty($filter['keyword'])) {
+            $this->db->group_start();
+            $this->db->like('Coupon_code', $filter['keyword']);
+            $this->db->or_like('Discount_type', $filter['keyword']);
+            $this->db->group_end();
+        }
+
+        // Lọc theo trạng thái (status)
+        if (isset($filter['status']) && $filter['status'] !== null) {
+            $this->db->group_start();
+            if ($filter['status'] == 1) {
+                $this->db->where('Status', 1);
+                $this->db->where('End_date >=', date('Y-m-d'));
+            } elseif ($filter['status'] == 0) {
+                $this->db->group_start();
+                $this->db->where('Status', 0);
+                $this->db->or_where('End_date <', date('Y-m-d'));
+                $this->db->group_end();
+            }
+            $this->db->group_end();
+        }
+
+        if (!empty($filter['discount_type'])) {
+            $this->db->where('Discount_type', $filter['discount_type']);
+        }
+
+        // Lọc theo ngày bắt đầu (date_from)
+        if (!empty($filter['date_from'])) {
+            $this->db->where('Start_date >=', $filter['date_from']);
+        }
+
+        // Lọc theo ngày kết thúc (date_to)
+        if (!empty($filter['date_to'])) {
+            $this->db->where('End_date <=', $filter['date_to']);
+        }
+
+        return $this->db->count_all_results();
     }
+
+
+
+
+    public function getDiscountSummaryByType()
+    {
+        $sql = "
+    SELECT 
+        Discount_type,
+        COUNT(*) as total,
+        SUM(CASE WHEN Status = 1 AND End_date >= CURDATE() THEN 1 ELSE 0 END) as active,
+        SUM(CASE WHEN Status = 1 AND End_date < CURDATE() THEN 1 ELSE 0 END) as expired
+    FROM discount
+    GROUP BY Discount_type
+    ";
+
+        return $this->db->query($sql)->result();
+    }
+
+
+
+
+    public function insertDiscountCode($data)
+    {
+        return $this->db->insert('discount', $data);
+    }
+    
+    public function markCouponAsUsed($coupon_id)
+    {
+        $this->db->where('DiscountID', $coupon_id);
+        return $this->db->update('discount', ['Status' => 0]);
+    }
+    
+
+
+    public function selectDiscountById($DiscountID)
+    {
+        $query = $this->db->get_where('discount', ['DiscountID' => $DiscountID]);
+        return $query->row();
+    }
+
+    public function updateDiscountCode($DiscountID, $new_data)
+    {
+        return $this->db->update('discount', $new_data, ['DiscountID' => $DiscountID]);
+        if ($this->db->affected_rows() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public function checkCouponCodeExists($code)
+    {
+        return $this->db->where('Coupon_code', $code)->count_all_results('discount') > 0;
+    }
+
+
+    public function deleteDiscountCode($DiscountID)
+    {
+        return $this->db->delete('discount', ['DiscountID' => $DiscountID]);
+    }
+
+
+    public function bulkupdateDiscount($discount_code_ids, $new_status)
+    {
+        foreach ($discount_code_ids as $discount_code_id) {
+            $data = [
+                'Status' => $new_status,
+            ];
+            $this->db->update('discount', $data, ['DiscountID' => $discount_code_id]);
+        }
+        $this->session->set_flashdata('success', 'Cập nhật thành công');
+        redirect(base_url('discount-code/list'));
+    }
+
+
+    
+
+
 }

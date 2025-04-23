@@ -4,8 +4,8 @@ class customerModel extends CI_Model
 
     public function countCustomer($filter = [])
     {
-        $this->db->from('users')
-            ->where('users.Deleted_at IS NULL');
+        $this->db->from('users');
+            // ->where('users.Deleted_at IS NULL');
 
         if (isset($filter['status']) && $filter['status'] !== '') {
             $this->db->where('users.Status', $filter['status']);
@@ -63,8 +63,8 @@ class customerModel extends CI_Model
             ->from('users')
             ->join('role', 'users.Role_ID = role.Role_ID', 'left')
             ->join('shipping', 'shipping.user_id = users.UserID', 'left')
-            ->join('orders', 'orders.ShippingID = shipping.id AND orders.Order_Status = 4 AND orders.Payment_Status = 1', 'left')
-            ->where('users.Deleted_at IS NULL');
+            ->join('orders', 'orders.ShippingID = shipping.id AND orders.Order_Status = 4 AND orders.Payment_Status = 1', 'left');
+            // ->where('users.Deleted_at IS NULL');
 
         if (isset($filter['status']) && $filter['status'] !== '') {
             $this->db->where('users.Status', $filter['status']);

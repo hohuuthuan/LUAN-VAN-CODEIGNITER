@@ -181,6 +181,19 @@ $route['product/list/bulkUpdate']['POST'] = 'productController/bulkUpdateProduct
 
 $route['product/delete/(:any)']['GET'] = 'productController/deleteProduct/$1';
 
+
+
+/* MANAGE SUPPLIERS */
+$route['supplier/list']['GET'] = 'supplierController/index';
+$route['supplier/list/(:num)']['GET'] = 'supplierController/index/$1';
+$route['supplier/list/edit/(:any)']['GET'] = 'supplierController/editSupplier/$1';
+$route['supplier/create']['GET'] = 'supplierController/createSupplier';
+$route['supplier/storage']['POST'] = 'supplierController/storageSupplier';
+$route['supplier/update/(:any)']['POST'] = 'supplierController/updateSupplier/$1';
+$route['supplier/list/bulkUpdate']['POST'] = 'supplierController/bulkUpdateSupplier';
+
+
+
 /* MANAGE WAREHOUSE */
 $route['warehouse/list']['GET'] = 'warehouseController/index';
 $route['warehouse/list/(:num)']['GET'] = 'warehouseController/index/$1';
@@ -218,14 +231,31 @@ $route['review-list/detail/(:num)/(:num)']['GET'] = 'reviewController/reviewProd
 $route['reply-comment']['POST'] = 'reviewController/updateReview';
 
 
+/* MANAGE DISCOUNT CODE */
+
+
+$route['discount-code/list']['GET'] = 'dashboardController/discount_code_list';
+$route['discount-code/list/(:num)']['GET'] = 'dashboardController/discount_code_list/$1';
+$route['discount-code/list/edit/(:any)']['GET'] = 'dashboardController/discount_code_edit/$1';
+$route['discount-code/create']['GET'] = 'dashboardController/createDiscountCode';
+$route['discount-code/storage']['POST'] = 'dashboardController/storageDiscountCode';
+$route['discount-code/update/(:any)']['POST'] = 'dashboardController/updateDiscountCode/$1';
+$route['discount-code/list/bulkUpdate']['POST'] = 'dashboardController/bulkUpdateDiscountCode';
+$route['discount-code/delete/(:any)']['GET'] = 'dashboardController/deleteDiscountCode/$1';
+// $route['discount-code-list']['GET'] = 'dashboardController/discount_code_list';
+// $route['discount-code-list/(:num)']['GET'] = 'dashboardController/discount_code_list/$1';
+
+
+
+
 
 
 
 /* REVENUE */
-$route['revenue']['GET'] = 'revenueController/index';
-$route['revenue-custom']['POST'] = 'revenueController/customRevenue';
-$route['revenuee']['GET'] = 'revenueController/revenuee';
-$route['revenueee']['POST'] = 'revenueController/revenueee';
+// $route['revenue']['GET'] = 'revenueController/index';
+// $route['revenue-custom']['POST'] = 'revenueController/customRevenue';
+// $route['revenuee']['GET'] = 'revenueController/revenuee';
+// $route['revenueee']['POST'] = 'revenueController/revenueee';
 
 $route['revenueReport']['GET'] = 'revenueController/revenueReportPage';
 $route['revenueBatches']['GET'] = 'revenueController/revenueBatchesPage';

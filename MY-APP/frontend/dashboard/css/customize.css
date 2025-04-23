@@ -12,6 +12,11 @@ input::placeholder {
 	font-weight: normal;
 }
 
+
+.mt10{
+	margin-top: 10px;
+}
+
 .mb20 {
 	margin-bottom: 20px;
 }
@@ -29,6 +34,10 @@ input::placeholder {
 }
 .mr20 {
 	margin-right: 20px;
+}
+
+.mr30{
+	margin-right: 30px;
 }
 
 .border-radius5 {

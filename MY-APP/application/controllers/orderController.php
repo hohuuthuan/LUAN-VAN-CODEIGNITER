@@ -245,7 +245,7 @@ class orderController extends CI_Controller
 	{
 		$this->load->model('orderModel');
 
-		$order_ids = $this->input->post('order_ids'); // Mảng Order_Code
+		$order_ids = $this->input->post('order_ids');
 		$new_status = (int) $this->input->post('new_status');
 
 		if (empty($order_ids)) {
@@ -265,23 +265,23 @@ class orderController extends CI_Controller
 	}
 
 
-
-
-
-
-
-
 	public function printOrder($order_code)
 	{
-
-		// echo $order_code; die();
 		$this->load->library('Pdf');
 		$this->load->model('orderModel');
 
-		$order_details = $this->orderModel->printOrderDetails($order_code);
-		// echo '<pre>';
-		// print_r($order_details);
-		// echo '</pre>';
+		$order_details = $this->orderModel->selectOrderDetails($order_code);
+
+		if (empty($order_details)) {
+			show_error('Không tìm thấy đơn hàng.', 404);
+		}
+
+		// Lấy thông tin khách hàng và mã giảm giá từ phần tử đầu tiên
+		$first = $order_details[0];
+		$customer_name = $first->name;
+		$customer_phone = $first->phone;
+		$customer_address = $first->address;
+		$checkout_method = $first->checkout_method;
 
 		$pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
 		$pdf->SetTitle('Hóa đơn: ' . $order_code);
@@ -293,67 +293,94 @@ class orderController extends CI_Controller
 		$pdf->SetDisplayMode('real', 'default');
 		$pdf->AddPage();
 
-		// Tạo tiêu đề hóa đơn
 		$html = '
-	    <h2 style="text-align: center;">HÓA ĐƠN MUA HÀNG</h2>
-	    <p style="text-align: center;">Cảm ơn bạn đã mua sắm tại <strong>Pesticide Shop</strong></p>
-	    <p><strong>Mã đơn hàng:</strong> ' . $order_code . '</p>
-	    <p><strong>Ngày in:</strong> ' . date('d/m/Y') . '</p>
+		<h2 style="text-align: center;">HÓA ĐƠN MUA HÀNG</h2>
+		<p style="text-align: center;">Cảm ơn bạn đã mua sắm tại <strong>Pesticide Shop</strong></p>
+		<p><strong>Mã đơn hàng:</strong> ' . $order_code . '</p>
+		<p><strong>Ngày in:</strong> ' . date('d/m/Y') . '</p>
+		<p><strong>Khách hàng:</strong> ' . $customer_name . '</p>
+		<p><strong>SĐT:</strong> ' . $customer_phone . '</p>
+		<p><strong>Địa chỉ:</strong> ' . $customer_address . '</p>
+		<p><strong>Phương thức thanh toán:</strong> ' . $checkout_method . '</p>
 	';
 
-		// Bảng chi tiết sản phẩm
 		$html .= '
-	    <table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
-	        <thead>
-	            <tr style="background-color: #f2f2f2; text-align: center;">
-	                <th>STT</th>
-	                <th>Mã đơn hàng</th>
-	                <th>Tên sản phẩm</th>
-	                <th>Giá</th>
-	                <th>Số lượng</th>
-	                <th>Chiết khấu</th>
-	                <th>Thành tiền</th>
-	            </tr>
-	        </thead>
-	        <tbody>
+		<table border="1" cellpadding="5" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+			<thead>
+				<tr style="background-color: #f2f2f2; text-align: center;">
+					<th>STT</th>
+					<th>Mã SP</th>
+					<th>Tên sản phẩm</th>
+					<th>Giá</th>
+					<th>Số lượng</th>
+					<th>Chiết khấu SP</th>
+					<th>Thành tiền</th>
+				</tr>
+			</thead>
+			<tbody>
 	';
 
 		$total = 0;
 		foreach ($order_details as $key => $product) {
 			$discounted_price = $product->Selling_price * (1 - $product->Promotion / 100);
-			$subtotal = $product->qty * $discounted_price;
+			$subtotal = $discounted_price * $product->qty;
 			$total += $subtotal;
 
 			$html .= '
 			<tr style="text-align: center;">
 				<td>' . ($key + 1) . '</td>
-				<td>' . $product->Order_Code . '</td>
+				<td>' . $product->Product_Code . '</td>
 				<td style="text-align: left;">' . $product->Name . '</td>
 				<td>' . number_format($product->Selling_price, 0, ',', '.') . 'đ</td>
 				<td>' . $product->qty . '</td>
 				<td>' . $product->Promotion . '%</td>
 				<td>' . number_format($subtotal, 0, ',', '.') . 'đ</td>
-			</tr>
-			';
+			</tr>';
 		}
 
+		// Tính giảm giá hóa đơn
+		$discount_value = 0;
+		if (!empty($first->DiscountID)) {
+			if ($first->Discount_type == 'Fixed') {
+				$discount_value = $first->Discount_value;
+			} elseif ($first->Discount_type == 'Percent') {
+				$discount_value = $total * ($first->Discount_value / 100);
+				if (!empty($first->Max_discount)) {
+					$discount_value = min($discount_value, $first->Max_discount);
+				}
+			}
+		}
 
-		// Tổng cộng
+		$final_total = $total - $discount_value;
+
+		// Hiển thị tổng tiền
 		$html .= '
-	        <tr style="font-weight: bold; text-align: right;">
-	            <td colspan="6">Tổng cộng:</td>
-	            <td style="text-align: center;">' . number_format($total, 0, ',', '.') . 'đ</td>
-	        </tr>
-	    </tbody>
-	    </table>
+		<tr style="font-weight: bold; text-align: right;">
+			<td colspan="6">Tạm tính:</td>
+			<td style="text-align: center;">' . number_format($total, 0, ',', '.') . 'đ</td>
+		</tr>';
+
+		if ($discount_value > 0) {
+			$html .= '
+		<tr style="font-weight: bold; text-align: right;">
+			<td colspan="6">Mã giảm giá (' . $first->Coupon_code . '):</td>
+			<td style="text-align: center;">- ' . number_format($discount_value, 0, ',', '.') . 'đ</td>
+		</tr>';
+		}
+
+		$html .= '
+		<tr style="font-weight: bold; text-align: right;">
+			<td colspan="6">Tổng cộng:</td>
+			<td style="text-align: center;">' . number_format($final_total, 0, ',', '.') . 'đ</td>
+		</tr>
+	</tbody>
+	</table>
 	';
 
-		// Lời cảm ơn
 		$html .= '
-	    <p style="text-align: center; margin-top: 20px;">Cảm ơn bạn đã ủng hộ. Mọi thắc mắc vui lòng liên hệ hotline: <strong>1900 1900</strong>.</p>
+		<p style="text-align: center; margin-top: 20px;">Cảm ơn bạn đã ủng hộ. Mọi thắc mắc vui lòng liên hệ hotline: <strong>1900 1900</strong>.</p>
 	';
 
-		// Xuất PDF
 		$pdf->SetFont('dejavusans', '', 10);
 		$pdf->writeHTML($html, true, false, true, false, '');
 		$pdf->Output('Order_' . $order_code . '.pdf', 'I');

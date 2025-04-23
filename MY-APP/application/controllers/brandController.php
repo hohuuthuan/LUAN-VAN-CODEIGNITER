@@ -109,7 +109,6 @@ class brandController extends CI_Controller
 		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần điền tên thương hiệu']);
 		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền mô tả']);
 		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
-		$this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
 
 		if ($this->form_validation->run()) {
 			if (empty($_FILES['Image']['name'])) {
@@ -297,14 +296,31 @@ class brandController extends CI_Controller
 	}
 
 
-	public function bulkUpdateBrand(){
+
+
+	public function bulkUpdateBrand()
+	{
 		$brand_ids = $this->input->post('brand_ids');
 		$new_status = (int) $this->input->post('new_status');
 
-		$this->load->model('brandModel');
-		$this->brandModel->bulkupdateBrand($brand_ids, $new_status);
+		if (empty($brand_ids) || !is_array($brand_ids)) {
+			$this->session->set_flashdata('error', 'Cần chọn ít nhất một nhà cung cấp');
+			redirect(base_url('brand/list'));
+			return;
+		}
 
+		if (empty($new_status)) {
+			$this->session->set_flashdata('error', 'Cần chọn trạng thái');
+			redirect(base_url('brand/list'));
+			return;
+		}
+
+		$this->load->model('supplierModel');
+		$this->brandModel->bulkupdateBrand($brand_ids, $new_status);
+		$this->session->set_flashdata('success', 'Cập nhật trạng thái thành công');
+		redirect(base_url('brand/list'));
 	}
+
 
 	private function _is_same_data($old, $new)
 	{

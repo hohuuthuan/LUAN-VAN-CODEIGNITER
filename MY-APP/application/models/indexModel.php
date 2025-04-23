@@ -223,13 +223,13 @@ class indexModel extends CI_Model
             ->join('batches', 'batches.ProductID = product.ProductID', 'left')
             ->where('product.Status', 1)
             ->group_by('product.ProductID')
-            ->order_by('total_remaining', 'DESC')
+            ->order_by('RAND()')
+            // ->order_by('total_remaining', 'DESC')
             ->limit($limit, $start)
             ->get();
 
         $products = $query->result();
 
-        // Lấy chi tiết số lượng tồn kho theo từng lô
         foreach ($products as $product) {
             $product->batches = $this->get_batches_by_product($product->ProductID);
         }

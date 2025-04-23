@@ -159,7 +159,7 @@ class productController extends CI_Controller
 		$this->load->view("admin-layout/admin-layout", $data);
 	}
 
-	
+
 
 
 
@@ -172,7 +172,7 @@ class productController extends CI_Controller
 		$this->form_validation->set_rules('Selling_price', 'Price', 'trim|required', ['required' => 'Bạn cần điền giá bán']);
 		$this->form_validation->set_rules('Product_uses', 'Product_uses', 'trim|required', ['required' => 'Bạn cần điền công dụng sản phẩm']);
 		$this->form_validation->set_rules('Unit', 'Unit', 'trim|required', ['required' => 'Bạn cần điền đơn vị tính']);
-		$this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
+		// $this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
 
 		if ($this->form_validation->run()) {
 
@@ -329,12 +329,60 @@ class productController extends CI_Controller
 	public function bulkUpdateProduct()
 	{
 		$product_ids = $this->input->post('product_ids');
-		$new_status = (int) $this->input->post('new_status');
+		$action = $this->input->post('action');
 
+		// echo '<pre>';
+		// print_r($action);
+		// echo '</pre>';
+
+
+		if (empty($product_ids)) {
+			$this->session->set_flashdata('error', 'Vui lòng chọn ít nhất một sản phẩm.');
+			redirect(base_url('product/list'));
+		}
+		if (empty((int) $this->input->post('new_status'))) {
+			$this->session->set_flashdata('error', 'Cần chọn trạng thái');
+			redirect(base_url('product/list'));
+			return;
+		}
 
 		$this->load->model('productModel');
-		$this->productModel->bulkUpdateProduct($product_ids, $new_status);
+
+		if ($action === 'update_status') {
+			$new_status = (int) $this->input->post('new_status');
+			$this->productModel->bulkUpdateStatus($product_ids, $new_status);
+			$this->session->set_flashdata('success', 'Cập nhật trạng thái thành công');
+		} elseif ($action === 'update_promotion') {
+			$promotion = (int) $this->input->post('promotion');
+			if ($promotion >= 0 && $promotion <= 100) {
+				$this->productModel->bulkUpdatePromotion($product_ids, $promotion);
+				$this->session->set_flashdata('success', 'Cập nhật giảm giá thành công');
+			} else {
+				$this->session->set_flashdata('error', 'Giảm giá phải từ 0 đến 100');
+			}
+		}
+
+		redirect(base_url('product/list'));
 	}
+
+
+
+
+
+	// public function bulkUpdateProduct()
+	// {
+
+	// 	$product_ids = $this->input->post('product_ids');
+	// 	$new_status = (int) $this->input->post('new_status');
+
+
+
+	// 	$this->load->model('productModel');
+	// 	$this->productModel->bulkUpdateProduct($product_ids, $new_status);
+	// }
+
+
+
 	// public function deleteProduct($id)
 	// {
 	// 	$this->load->model('productModel');

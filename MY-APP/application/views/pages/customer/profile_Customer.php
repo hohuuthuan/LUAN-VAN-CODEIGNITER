@@ -105,7 +105,7 @@ defined('BASEPATH') or exit('No direct script access allowed');
                 <div class="col-xl-6">
                     <!-- Profile picture card-->
                     <div class="card mb-4 mb-xl-0">
-                        <div class="card-header">Profile Picture</div>
+                        <div class="card-header">Ảnh đại diện</div>
                         <div class="card-body text-center">
                             <!-- Profile picture image-->
                             <img class="img-account-profile rounded-circle mb-2"

@@ -108,7 +108,7 @@
 							<div class="col-sm-12">
 								<?php if (!empty($product_reviews)): ?>
 									<?php foreach ($product_reviews as $review): ?>
-										<!-- <div class="review-box mb20 p15" style="border: 1px solid #eee; border-radius: 8px; background: #fafafa;">
+										<div class="review-box mb20 p15" style="border: 1px solid #eee; border-radius: 8px; background: #fafafa;">
 											<div class="review-header mb10">
 												<strong><i class="fa fa-user"></i> <?php echo htmlspecialchars($review->reviewer_name); ?></strong>
 												<span class="ml10 text-muted"><i class="fa fa-clock-o"></i> <?php echo date('d/m/Y H:i', strtotime($review->created_at)); ?></span>
@@ -128,7 +128,7 @@
 													<p class="mb0"><?php echo nl2br(htmlspecialchars($review->reply)); ?></p>
 												</div>
 											<?php endif; ?>
-										</div> -->
+										</div>
 
 
 										<div class="review-box mb-4 p-3 border rounded shadow-sm bg-white">

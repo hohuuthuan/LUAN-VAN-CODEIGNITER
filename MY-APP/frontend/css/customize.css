@@ -276,3 +276,37 @@ textarea {
 	margin-bottom: 5px;
 	font-weight: bold;
 }
+
+
+.thankyou-container {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.thankyou-container h1 {
+    font-size: 2.5rem;
+    color: #4caf50;
+    margin-bottom: 20px;
+}
+.thankyou-container p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+}
+.thankyou-container a {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #4caf50;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+.thankyou-container a:hover {
+    background-color: #388e3c;
+}
+

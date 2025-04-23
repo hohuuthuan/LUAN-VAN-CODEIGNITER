@@ -1,11 +1,17 @@
 <form method="post" action="<?= base_url('product/list/bulkUpdate') ?>" class="">
     <div class="mb-2 update-multi-order-select mb20 mt20 float-right">
-        <select name="new_status" class="form-control d-inline-block w-auto setupSelect2" required>
-            <option>-- Cập nhật trạng thái --</option>
+        <select name="new_status" class="form-control d-inline-block w-auto setupSelect2">
+            <option value="">-- Cập nhật trạng thái --</option>
             <option value="1">Kích hoạt</option>
             <option value="0">Ẩn sản phẩm</option>
         </select>
-        <button type="submit" class="btn btn-primary ml10">Cập nhật trạng thái</button>
+        <button type="submit" name="action" value="update_status" class="btn btn-primary ml10">Cập nhật trạng thái</button>
+
+    </div>
+    <div class="mb-2 update-multi-order-select mb20 mt20 float-right ">
+        <input style="width: 150px" type="number" name="promotion" value=""
+            placeholder="Giảm giá %" class="form-control ml20" min='0' max='100'>
+        <button type="submit" name="action" value="update_promotion" class="btn btn-primary mr30 ml10">Giảm giá đồng loạt</button>
     </div>
     <table class="table table-striped table-bordered mt20 mb20">
         <thead>

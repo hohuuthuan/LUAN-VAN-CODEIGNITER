@@ -6,7 +6,7 @@ class brandModel extends CI_Model
         return $this->db->insert('brand', $data);
     }
 
-   
+
 
     // public function selectBrand($keyword = null, $status = null, $limit = 20)
     // {
@@ -74,7 +74,8 @@ class brandModel extends CI_Model
 
 
 
-    public function bulkupdateBrand($brand_ids, $new_status){
+    public function bulkupdateBrand($brand_ids, $new_status)
+    {
         foreach ($brand_ids as $brand_id) {
             $data = [
                 'Status' => $new_status,

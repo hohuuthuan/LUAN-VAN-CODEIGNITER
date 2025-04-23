@@ -93,7 +93,6 @@ class reviewController extends CI_Controller
 
         $start = ($page - 1) * $perpage;
 
-        // Lấy danh sách sản phẩm + đánh giá
         $data['reviews'] = $this->reviewModel->getProductsWithReview($keyword, $perpage, $start);
 
         // echo '<pre>';

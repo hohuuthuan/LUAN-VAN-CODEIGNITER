@@ -32,8 +32,8 @@
                         $status = isset($status) ? $status : '';
                         $statusOptions = [
                             '' => 'Tất cả trạng thái',
-                            '1' => 'Active',
-                            '0' => 'Inactive'
+                            '1' => 'Bình thường',
+                            '0' => 'Bị khoá'
                         ];
                         ?>
                         <select name="status" class="form-control setupSelect2">
@@ -64,7 +64,7 @@
                             $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
                             ?>
                             <input style="width: 250px" type="text" name="keyword" value="<?php echo htmlspecialchars($keyword, ENT_QUOTES, 'UTF-8'); ?>"
-                                placeholder="Nhập từ khóa bạn muốn tìm kiếm..." class="form-control ml20">
+                                placeholder="Tên / Email / SĐT" class="form-control ml20">
                             <span class="input-group-btn">
                                 <button style="border-radius: 0 5px 5px 0;" type="submit" class="btn btn-primary mb0 btn-sm">
                                     Tìm Kiếm

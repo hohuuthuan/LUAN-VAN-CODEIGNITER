@@ -65,51 +65,6 @@ class indexController extends CI_Controller
 		$user_data = $this->session->userdata('logged_in_customer');
 		return $user_data;
 	}
-	// public function index()
-	// {
-	// 	$this->load->library('pagination');
-	// 	$total_products = $this->indexModel->countAllProduct();
-	// 	$config["total_rows"] = !empty($total_products) ? (int) $total_products : 0;
-
-
-	// 	$config = array();
-	// 	$config["base_url"] = base_url() . '/pagination/index';
-	// 	$config['total_rows'] = $total_products;
-	// 	$config["per_page"] = 10;
-	// 	$config["uri_segment"] = 3;
-	// 	$config['use_page_numbers'] = TRUE;
-	// 	$config['full_tag_open'] = '<ul class="pagination">';
-	// 	$config['full_tag_close'] = '</ul>';
-	// 	$config['first_link'] = 'First';
-	// 	$config['first_tag_open'] = '<li>';
-	// 	$config['first_tag_close'] = '</li>';
-	// 	$config['last_link'] = 'Last';
-	// 	$config['last_tag_open'] = '<li>';
-	// 	$config['last_tag_close'] = '</li>';
-	// 	$config['cur_tag_open'] = '<li class="active"><a>';
-	// 	$config['cur_tag_close'] = '</a></li>';
-	// 	$config['num_tag_open'] = '<li>';
-	// 	$config['num_tag_close'] = '</li>';
-	// 	$config['next_tag_open'] = '<li>';
-	// 	$config['next_tag_close'] = '</li>';
-	// 	$config['prev_tag_open'] = '<li>';
-	// 	$config['prev_tag_close'] = '</li>';
-
-
-	// 	$this->pagination->initialize($config);
-	// 	$page_segment = $this->uri->segment(3);
-	// 	$page = (!empty($page_segment) && is_numeric($page_segment)) ? (int) $page_segment : 1;
-	// 	$start = ($page - 1) * $config["per_page"];
-	// 	$this->data["links"] = $this->pagination->create_links();
-	// 	$this->data['allproduct_pagination'] = $this->indexModel->getIndexPagination($config["per_page"], $start);
-	// 	// $this->data['items_category'] = $this->indexModel->getItemsCategoryHome();
-	// 	$this->data['sliders'] = $this->sliderModel->selectAllSlider();
-	// 	// echo '<pre>';
-	// 	// print_r($this->data);
-	// 	// echo '</pre>';
-	// 	$this->data['template'] = "pages/home/home";
-	// 	$this->load->view("pages/layout/index", $this->data);
-	// }
 
 
 	public function index()
@@ -120,7 +75,7 @@ class indexController extends CI_Controller
 		$total_products = $this->indexModel->countAllProduct();
 		$per_page = 6;
 		$uri_segment = 3;
-		$base_url = base_url('pagination/index'); // hoặc base_url('home/index') nếu controller là Home
+		$base_url = base_url('pagination/index');
 
 		$this->data['links'] = init_pagination($base_url, $total_products, $per_page, $uri_segment);
 
@@ -141,54 +96,7 @@ class indexController extends CI_Controller
 		$this->load->view("pages/layout/index", $this->data);
 	}
 
-	// public function search_product()
-	// {
-	// 	if (isset($_GET['keyword']) && $_GET['keyword'] != '') {
-	// 		$keyword = $_GET['keyword'];
-	// 	} else {
-	// 		$keyword = '';
-	// 	}
 
-	// 	// Custom config link
-	// 	$config = array();
-	// 	$config["base_url"] = base_url('search-product');
-	// 	$config['reuse_query_string'] = TRUE;
-	// 	$config['total_rows'] = ceil($this->indexModel->countAllProductByKeyword($keyword));
-	// 	$config["per_page"] = 1; // Number of products per page
-	// 	$config["uri_segment"] = 2;
-	// 	$config['use_page_numbers'] = TRUE;
-	// 	$config['full_tag_open'] = '<ul class="pagination">';
-	// 	$config['full_tag_close'] = '</ul>';
-	// 	$config['first_link'] = 'First';
-	// 	$config['first_tag_open'] = '<li>';
-	// 	$config['first_tag_close'] = '</li>';
-	// 	$config['last_link'] = 'Last';
-	// 	$config['last_tag_open'] = '<li>';
-	// 	$config['last_tag_close'] = '</li>';
-	// 	$config['cur_tag_open'] = '<li class="active"><a>';
-	// 	$config['cur_tag_close'] = '</a></li>';
-	// 	$config['num_tag_open'] = '<li>';
-	// 	$config['num_tag_close'] = '</li>';
-	// 	$config['next_tag_open'] = '<li>';
-	// 	$config['next_tag_close'] = '</li>';
-	// 	$config['prev_tag_open'] = '<li>';
-	// 	$config['prev_tag_close'] = '</li>';
-
-	// 	$this->pagination->initialize($config);
-
-	// 	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
-
-	// 	$this->data["links"] = $this->pagination->create_links();
-
-	// 	// Limit the number of products per page
-	// 	$this->data['allproductbykeyword_pagination'] = $this->indexModel->getSearchPagination($keyword, $config["per_page"], $page);
-
-	// 	$this->data['title'] = $keyword;
-	// 	$this->config->config['pageTitle'] = "Search product: " . $keyword;
-
-	// 	$this->data['template'] = "pages/search/search";
-	// 	$this->load->view("pages/layout/index", $this->data);
-	// }
 
 
 	public function search_product()
@@ -314,7 +222,7 @@ class indexController extends CI_Controller
 			$discount = $coupon->Discount_value;
 		}
 
-		// Lưu đầy đủ vào session
+		
 		$this->session->set_userdata('coupon_code', $coupon->Coupon_code);
 		$this->session->set_userdata('coupon_discount', $discount);
 		$this->session->set_userdata('coupon_id', $coupon->DiscountID);

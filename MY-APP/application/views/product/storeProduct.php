@@ -43,7 +43,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="Product_Code">Mã sản phẩm<span class="text-danger">(*)</span></label>
-                                    <input name="Product_Code" type="text" class="form-control" placeholder="Nhập mã sản phẩm" value="<?php echo set_value('Product_Code'); ?>">
+                                    <input name="Product_Code" type="text" class="form-control" placeholder="Ví dụ: Selecron500EC" value="<?php echo set_value('Product_Code'); ?>">
                                     <span class="text-danger"><?php echo form_error('Product_Code'); ?></span>
                                 </div>
                             </div>
@@ -65,7 +65,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="Unit">Đơn vị tính<span class="text-danger">(*)</span></label>
-                                    <input name="Unit" type="text" class="form-control" placeholder="Nhập đơn vị tính" value="<?php echo set_value('Unit'); ?>">
+                                    <input name="Unit" type="text" class="form-control" placeholder="Ví dụ: Hộp / Túi / Chai..." value="<?php echo set_value('Unit'); ?>">
                                     <span class="text-danger"><?php echo form_error('Unit'); ?></span>
                                 </div>
                             </div>
@@ -73,7 +73,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="Selling_price">Giá bán<span class="text-danger">(*)</span></label>
-                                    <input name="Selling_price" type="number" class="form-control" placeholder="Nhập giá bán" value="<?php echo set_value('Selling_price'); ?>">
+                                    <input name="Selling_price" type="number" class="form-control" placeholder="Giá bán cao hơn giá gốc khoảng 30-50%" value="<?php echo set_value('Selling_price'); ?>">
                                     <span class="text-danger"><?php echo form_error('Selling_price'); ?></span>
                                 </div>
                             </div>

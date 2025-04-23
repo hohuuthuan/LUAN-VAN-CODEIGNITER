@@ -32,6 +32,14 @@ $sidebar_menu = [
             ['label' => 'Danh sách danh mục', 'url' => 'category/list', 'sub' => 'list'],
         ]
     ],
+    'supplier' => [
+        'label' => 'Quản lý nhà cung cấp',
+        'icon' => 'fas fa-truck-field',
+        'children' => [
+            ['label' => 'Thêm nhà cung cấp', 'url' => 'supplier/create', 'sub' => 'create'],
+            ['label' => 'DS nhà cung cấp', 'url' => 'supplier/list', 'sub' => 'list'],
+        ]
+    ],
     'product' => [
         'label' => 'Quản lý sản phẩm',
         'icon' => 'fa-box',
@@ -78,6 +86,15 @@ $sidebar_menu = [
         'icon' => 'fa-comments',
         'children' => [
             ['label' => 'Danh sách đánh giá', 'url' => 'review-list', 'current' => 'review-list'],
+        ]
+    ],
+    'discount-code' => [
+        'label' => 'Quản lý mã giảm giá',
+        'icon' => 'fa-solid fa-receipt',
+        'children' => [
+            ['label' => 'Thêm mã giảm giá', 'url' => 'discount-code/create', 'sub' => 'create'],
+            ['label' => 'Danh sách mã giảm giá', 'url' => 'discount-code/list', 'sub' => 'list'],
+       
         ]
     ],
 ];

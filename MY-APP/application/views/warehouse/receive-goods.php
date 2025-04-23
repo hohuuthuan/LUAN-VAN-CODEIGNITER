@@ -1,4 +1,7 @@
 ﻿<?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
+<a style="border-radius: 5px; margin-top: -73px;" href="<?php echo base_url('product/create') ?>" class="btn btn-danger mb0 btn-sm float-right mt10 mb10">
+    <i class="fa fa-plus mr5"></i>Thêm mới sản phẩm
+</a>
 <form action="<?php echo base_url('warehouse/receive-goods/enter-into-warehouse') ?>" method="POST" class="box"
     enctype="multipart/form-data">
     <div class="wrapper wrapper-content-receive-goods animated fadeInRight">
@@ -381,7 +384,7 @@
 
         <hr>
         <div class="text-right mb15">
-            <button type="submit" name="" value="" class="btn btn-primary">Tiến hành nhập kho và xuất file PDF</button>
+            <button type="submit" name="" value="" class="btn btn-primary">Tiến hành nhập kho</button>
         </div>
     </div>
 </form>

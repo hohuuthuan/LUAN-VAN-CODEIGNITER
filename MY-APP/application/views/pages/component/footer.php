@@ -1,5 +1,5 @@
 <footer id="footer"><!--Footer-->
-	<div class="footer-top">
+	<!-- <div class="footer-top">
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-2">
@@ -144,14 +144,16 @@
 
 			</div>
 		</div>
-	</div>
+	</div> -->
+
+
 
 	<div class="footer-bottom">
 		<div class="container">
 			<div class="row">
-				<p class="pull-left">Copyright © 2013 E-SHOPPER Inc. All rights reserved.</p>
-				<p class="pull-right">Designed by <span><a target="_blank"
-							href="http://www.themeum.com">Themeum</a></span></p>
+			<p class="pull-left">Cửa hàng thuốc bảo vệ thực vật</p>
+					<p class="pull-right">Người đứng tên: <span><a target="_blank"
+								href="https://www.facebook.com/nhan.thien.73594/">Hồ Hữu Thuận</a></span></p>
 			</div>
 		</div>
 	</div>

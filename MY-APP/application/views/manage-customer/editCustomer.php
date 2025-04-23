@@ -20,7 +20,7 @@
                         <div class="row mb15">
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <label for="Name">Tên người dùng</label>
+                                    <label for="Name">Tên người dùng<span class="text-danger">(*)</span></label>
                                     <input name="Name" value="<?php echo $customers->Name ?>" type="text"
                                         class="form-control" placeholder="Nhập tên người dùng">
                                     <?php echo '<span class="text-danger">' . form_error('title') . '</span>' ?>
@@ -29,7 +29,7 @@
                             </div>
                             <div class="col-lg-6">
                                 <div class="form-row">
-                                    <label for="Email">Email</label>
+                                    <label for="Email">Email<span class="text-danger">(*)</span></label>
                                     <input name="Email" value="<?php echo $customers->Email ?>" type="text"
                                         class="form-control" id="convert_slug" placeholder="Nhập email">
                                     <?php echo '<span class="text-danger">' . form_error('Email') . '</span>' ?>
@@ -43,7 +43,7 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="Address" class="form-label">Địa chỉ</label>
+                                        <label for="Address" class="form-label">Địa chỉ<span class="text-danger">(*)</span></label>
                                         <input name="Address" type="text" class="form-control" id="address"
                                             value="<?php echo $customers->Address ?>">
                                     </div>
@@ -52,7 +52,7 @@
                             <div class="col-lg-6">
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="Phone" class="form-label">Số điện thoại</label>
+                                        <label for="Phone" class="form-label">Số điện thoại<span class="text-danger">(*)</span></label>
                                         <input name="Phone" type="text" class="form-control" id="phone"
                                             value="<?php echo $customers->Phone ?>">
                                     </div>

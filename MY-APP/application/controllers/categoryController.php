@@ -103,7 +103,7 @@ class categoryController extends CI_Controller
 		$this->form_validation->set_rules('Name', 'Name', 'trim|required', ['required' => 'Bạn cần điền tên danh mục']);
 		$this->form_validation->set_rules('Description', 'Description', 'trim|required', ['required' => 'Bạn cần điền mô tả']);
 		$this->form_validation->set_rules('Slug', 'Slug', 'trim|required', ['required' => 'Bạn cần chọn %s']);
-		$this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
+		// $this->form_validation->set_rules('Image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
 
 		
 		if ($this->form_validation->run()) {
@@ -218,35 +218,60 @@ class categoryController extends CI_Controller
 		}
 	}
 
-	public function bulkUpdateCategory(){
+	// public function bulkUpdateCategory(){
+	// 	$category_ids = $this->input->post('category_ids');
+	// 	$new_status = (int) $this->input->post('new_status');
+
+	// 	$this->load->model('categoryModel');
+	// 	$this->categoryModel->bulkupdateCategory($category_ids, $new_status);
+
+	// }
+
+
+
+	public function bulkUpdateCategory()
+	{
 		$category_ids = $this->input->post('category_ids');
 		$new_status = (int) $this->input->post('new_status');
 
-		$this->load->model('categoryModel');
-		$this->categoryModel->bulkupdateCategory($category_ids, $new_status);
-
-	}
-
-	public function deleteCategory($CategoryID)
-	{
-		$this->load->model('categoryModel');
-		$this->load->model('productModel');
-
-		// Kiểm tra xem danh mục có sản phẩm liên kết hay không
-		$categoryUsedInProducts = $this->categoryModel->checkCategoryInProducts($CategoryID);
-
-		if ($categoryUsedInProducts) {
-			// Nếu có sản phẩm sử dụng danh mục này, không cho phép xóa
-			$this->session->set_flashdata('error', 'Không thể xóa danh mục vì có sản phẩm đang sử dụng.');
-		} else {
-			// Nếu không có sản phẩm nào liên kết, thực hiện xóa
-			if ($this->categoryModel->deleteCategory($CategoryID)) {
-				$this->session->set_flashdata('success', 'Đã xóa danh mục thành công');
-			} else {
-				$this->session->set_flashdata('error', 'Xóa danh mục thất bại');
-			}
+		if (empty($category_ids) || !is_array($category_ids)) {
+			$this->session->set_flashdata('error', 'Cần chọn ít nhất một danh mục');
+			redirect(base_url('category/list'));
+			return;
 		}
 
+		if (empty($new_status)) {
+			$this->session->set_flashdata('error', 'Cần chọn trạng thái');
+			redirect(base_url('category/list'));
+			return;
+		}
+
+		$this->load->model('supplierModel');
+		$this->categoryModel->bulkupdateCategory($category_ids, $new_status);
+		$this->session->set_flashdata('success', 'Cập nhật trạng thái thành công');
 		redirect(base_url('category/list'));
 	}
+
+	// public function deleteCategory($CategoryID)
+	// {
+	// 	$this->load->model('categoryModel');
+	// 	$this->load->model('productModel');
+
+	// 	// Kiểm tra xem danh mục có sản phẩm liên kết hay không
+	// 	$categoryUsedInProducts = $this->categoryModel->checkCategoryInProducts($CategoryID);
+
+	// 	if ($categoryUsedInProducts) {
+	// 		// Nếu có sản phẩm sử dụng danh mục này, không cho phép xóa
+	// 		$this->session->set_flashdata('error', 'Không thể xóa danh mục vì có sản phẩm đang sử dụng.');
+	// 	} else {
+	// 		// Nếu không có sản phẩm nào liên kết, thực hiện xóa
+	// 		if ($this->categoryModel->deleteCategory($CategoryID)) {
+	// 			$this->session->set_flashdata('success', 'Đã xóa danh mục thành công');
+	// 		} else {
+	// 			$this->session->set_flashdata('error', 'Xóa danh mục thất bại');
+	// 		}
+	// 	}
+
+	// 	redirect(base_url('category/list'));
+	// }
 }

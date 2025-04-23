@@ -37,7 +37,7 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="uk-search uk-flex uk-flex-middle mr20">
+                    <div class="uk-search uk-flex uk-flex-middle">
                         <div class="input-group">
                             <?php
                             $keyword = isset($_GET['keyword']) ? $_GET['keyword'] : '';
@@ -51,9 +51,7 @@
                             </span>
                         </div>
                     </div>
-                    <a style="border-radius: 5px;" href="<?php echo base_url('brand/create') ?>" class="btn btn-danger mb0 btn-sm">
-                        <i class="fa fa-plus mr5"></i>Thêm mới thương hiệu
-                    </a>
+                   
                 </div>
             </div>
         </div>
