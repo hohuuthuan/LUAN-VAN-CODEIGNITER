@@ -1,8 +1,9 @@
-<div class="container">
+<div style="min-height: 500px;" class="container">
     <div class="card">
         <h1 class="title">Danh sách đơn hàng</h1>
 
         <div class="card-body">
+        <?php if (!empty($order_items)): ?>
             <?php
             $orders_by_code = [];
             foreach ($order_items as $order_item) {
@@ -87,6 +88,11 @@
                     </div>
                 </div>
             <?php } ?>
+            <?php else: ?>
+        <div class="text-center py-5">
+            <h3 class="text-muted">Không có đơn hàng nào!</h3>
+        </div>
+    <?php endif; ?>
         </div>
     </div>
 </div>

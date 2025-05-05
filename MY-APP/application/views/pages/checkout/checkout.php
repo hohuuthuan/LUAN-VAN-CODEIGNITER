@@ -80,11 +80,7 @@
 								<div class="">
 									<button type="submit" class="btn btn-primary">Áp dụng</button>
 								</div>
-								<?php if ($this->session->flashdata('coupon_success')): ?>
-									<p class="text-success mt-2"><?php echo $this->session->flashdata('coupon_success'); ?></p>
-								<?php elseif ($this->session->flashdata('coupon_error')): ?>
-									<p class="text-danger mt-2"><?php echo $this->session->flashdata('coupon_error'); ?></p>
-								<?php endif; ?>
+								
 							</div>
 						</form>
 						<div>

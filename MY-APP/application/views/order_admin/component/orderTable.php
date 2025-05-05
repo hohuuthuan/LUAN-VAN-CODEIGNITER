@@ -11,7 +11,7 @@
         <button type="submit" class="btn btn-primary ml10">Cập nhật trạng thái</button>
     </div>
     <button type="submit" formaction="<?= base_url('order_admin/bulkPrint') ?>" class="btn btn-success float-right" formtarget="_blank">
-        In đơn hàng hàng loạt
+        In đơn hàng
     </button>
 
 

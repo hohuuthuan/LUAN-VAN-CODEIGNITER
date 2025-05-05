@@ -9,7 +9,7 @@
 
     </div>
     <div class="mb-2 update-multi-order-select mb20 mt20 float-right ">
-        <input style="width: 150px" type="number" name="promotion" value=""
+        <input style="width: 150px" type="number" name="promotion"
             placeholder="Giảm giá %" class="form-control ml20" min='0' max='100'>
         <button type="submit" name="action" value="update_promotion" class="btn btn-primary mr30 ml10">Giảm giá đồng loạt</button>
     </div>

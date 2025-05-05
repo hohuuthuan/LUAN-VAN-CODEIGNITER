@@ -200,20 +200,20 @@ class reviewController extends CI_Controller
         $this->load->model('productModel');
         $this->load->helper('pagination');
     
-        // Lấy filter từ query string
-        $is_active = $this->input->get('is_active', true); // lọc theo trạng thái
-        $rating = $this->input->get('rating', true);       // lọc theo số sao
+    
+        $is_active = $this->input->get('is_active', true); 
+        $rating = $this->input->get('rating', true);       
         $perpage = (int) $this->input->get('perpage');
         $perpage = $perpage > 0 ? $perpage : 10;
     
-        // Tổng số review thỏa điều kiện
+       
         $total = $this->reviewModel->countReviewByProduct($product_id, $is_active, $rating);
     
         $page = (int) $page;
         $page = $page > 0 ? $page : 1;
         $max_page = ceil($total / $perpage);
     
-        // Redirect nếu vượt quá số trang
+     
         if ($page > $max_page && $total > 0) {
             $query = http_build_query($this->input->get());
             redirect(base_url("review-list/detail/$product_id") . ($query ? '?' . $query : ''));
@@ -224,7 +224,11 @@ class reviewController extends CI_Controller
         // Dữ liệu
         $data['product'] = $this->productModel->selectProductById($product_id);
         $data['reviews'] = $this->reviewModel->getReviewByProduct($product_id, $perpage, $start, $is_active, $rating);
-    
+
+        // echo '<pre>';
+        // print_r($data['reviews']);
+        // echo '</pre>';
+        
         // Gán link phân trang kèm query string
         $base_url = base_url("review-list/detail/$product_id");
         $query_string = $this->input->get();
@@ -269,7 +273,6 @@ class reviewController extends CI_Controller
             'reply'   => $reply,
             'is_active' => $is_active
         ];
-
         // Gọi model xử lý
         $this->load->model('reviewModel');
         $updated = $this->reviewModel->updateReviewData($review_id, $data);

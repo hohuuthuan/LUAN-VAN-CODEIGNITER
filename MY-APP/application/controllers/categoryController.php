@@ -240,13 +240,13 @@ class categoryController extends CI_Controller
 			return;
 		}
 
-		if (empty($new_status)) {
+		if (!isset($new_status)) {
 			$this->session->set_flashdata('error', 'Cần chọn trạng thái');
 			redirect(base_url('category/list'));
 			return;
 		}
 
-		$this->load->model('supplierModel');
+		$this->load->model('categoryModel');
 		$this->categoryModel->bulkupdateCategory($category_ids, $new_status);
 		$this->session->set_flashdata('success', 'Cập nhật trạng thái thành công');
 		redirect(base_url('category/list'));

@@ -8,27 +8,6 @@ class brandModel extends CI_Model
 
 
 
-    // public function selectBrand($keyword = null, $status = null, $limit = 20)
-    // {
-    //     if (!empty($keyword)) {
-    //         $this->db->like('Name', $keyword);
-    //     }
-
-    //     if ($status !== null && $status !== '') {
-    //         $this->db->where('Status', (int)$status);
-    //     }
-
-    //     $this->db->order_by('Status', 'DESC');
-    //     $this->db->order_by('Name', 'ASC');
-
-    //     // Giới hạn số bản ghi hiển thị
-    //     $this->db->limit((int)$limit);
-
-    //     $query = $this->db->get('brand');
-    //     return $query->result();
-    // }
-
-
     public function countBrand($keyword = null, $status = null)
     {
         if (!empty($keyword)) {
@@ -74,15 +53,37 @@ class brandModel extends CI_Model
 
 
 
+    // public function bulkupdateBrand($brand_ids, $new_status)
+    // {
+    //     foreach ($brand_ids as $brand_id) {
+    //         $data = [
+    //             'Status' => $new_status,
+    //         ];
+    //         $this->db->update('brand', $data, ['BrandID' => $brand_id]);
+    //     }
+    //     $this->session->set_flashdata('success', 'Cập nhật thành công');
+    //     redirect(base_url('brand/list'));
+    // }
+
+
+
     public function bulkupdateBrand($brand_ids, $new_status)
     {
+        $this->db->trans_begin();
+
         foreach ($brand_ids as $brand_id) {
-            $data = [
-                'Status' => $new_status,
-            ];
+            $data = ['Status' => $new_status];
             $this->db->update('brand', $data, ['BrandID' => $brand_id]);
         }
-        $this->session->set_flashdata('success', 'Cập nhật thành công');
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error', 'Có lỗi xảy ra khi cập nhật');
+        } else {
+            $this->db->trans_commit();
+            $this->session->set_flashdata('success', 'Cập nhật thành công');
+        }
+
         redirect(base_url('brand/list'));
     }
 
@@ -93,8 +94,8 @@ class brandModel extends CI_Model
     }
 
 
-    public function deleteBrand($BrandID)
-    {
-        return $this->db->delete('brand', ['BrandID' => $BrandID]);
-    }
+    // public function deleteBrand($BrandID)
+    // {
+    //     return $this->db->delete('brand', ['BrandID' => $BrandID]);
+    // }
 }

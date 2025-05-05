@@ -299,9 +299,9 @@
                 }
             });
 
-            // console.log('Dữ liệu gửi đi:', JSON.stringify(product_qty_in_batch));
-            // console.log('Order Code:', orderCode);
-            // console.log('Order Status:', value);
+            console.log('Dữ liệu gửi đi:', JSON.stringify(product_qty_in_batch));
+            console.log('Order Code:', orderCode);
+            console.log('Order Status:', value);
 
             // $.ajax({
             //     url: '/order_admin/update-order-status',

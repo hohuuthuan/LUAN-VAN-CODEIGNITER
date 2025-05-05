@@ -1,4 +1,4 @@
-<section id="cart_items">
+<section  id="cart_items">
 	<div class="container">
 		<?php $this->load->view("pages/component/breadcrumb.php");?>
 		<div class="table-responsive cart_info">

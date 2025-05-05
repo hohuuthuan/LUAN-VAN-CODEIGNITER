@@ -180,9 +180,19 @@ class orderModel extends CI_Model
 
                     $batch_data = $this->get_qty_product_in_batches($product_id, $quantity);
 
+
+                    // echo '<pre>';
+                    // print_r($batch_data);
+                    // echo '</pre>';
+                    // die();
+
+
                     if (!empty($batch_data['batches'])) {
                         foreach ($batch_data['batches'] as $batch) {
                             $batch_id = $batch['Batch_ID'];
+
+                            // echo $batch_id; die();
+
                             $quantity_to_take = $batch['QuantityToTake'];
                             // Cập nhật số lượng cho batch
                             $this->deductBatchQuantity($batch_id, $quantity_to_take);
@@ -208,7 +218,7 @@ class orderModel extends CI_Model
                     $missing_batch_data[] = $order_code;
                 }
             } else {
-                // Các trạng thái khác
+
                 $this->updateOrder(['Order_Status' => $value], $order_code);
             }
         }
@@ -310,12 +320,14 @@ class orderModel extends CI_Model
             $this->db->where('orders.Date_Order <=', $filter['date_to'] . ' 23:59:59');
         }
 
-        // ⚠️ Ưu tiên sắp xếp theo tổng tiền nếu có chọn
+
+
         if (!empty($filter['sort_total_amount'])) {
             $direction = strtolower($filter['sort_total_amount']) === 'asc' ? 'asc' : 'desc';
             $this->db->order_by('orders.TotalAmount', $direction);
+        } elseif (!empty($filter['sort_order']) && in_array($filter['sort_order'], ['asc', 'desc'])) {
+            $this->db->order_by('orders.Date_Order', $filter['sort_order']);
         } else {
-            // Mặc định sắp theo trạng thái thông minh (nếu KHÔNG có sort theo tổng tiền)
             $this->db->order_by('(CASE 
             WHEN orders.Order_Status = -1 THEN 0
             WHEN orders.Order_Status = 1 THEN 1
@@ -326,7 +338,6 @@ class orderModel extends CI_Model
             ELSE 6
         END)', 'ASC');
 
-            // Sau đó sắp theo ngày tạo
             $this->db->order_by('orders.Date_Order', $filter['sort_order'] ?? 'desc');
         }
 
@@ -335,6 +346,14 @@ class orderModel extends CI_Model
 
         return $this->db->get()->result();
     }
+
+
+
+
+
+
+
+
 
 
 
@@ -373,16 +392,36 @@ class orderModel extends CI_Model
 
 
 
+
+
+    // public function getOrderByUserId($user_id)
+    // {
+    //     $query = $this->db->select('orders.*, order_detail.*, shipping.*')
+    //         ->from('orders')
+    //         ->join('order_detail', 'orders.Order_Code = order_detail.Order_Code', '')
+    //         ->join('shipping', 'orders.ShippingID = shipping.id')
+    //         ->where('shipping.user_id', $user_id)
+    //         ->order_by('orders.Date_Order', 'DESC')
+    //         ->get();
+    //     return $query->result();
+    // }
+
+
     public function getOrderByUserId($user_id)
     {
         $query = $this->db->select('orders.*, order_detail.*, shipping.*')
             ->from('orders')
-            ->join('order_detail', 'orders.Order_Code = order_detail.Order_Code', '')
+            ->join('order_detail', 'orders.Order_Code = order_detail.Order_Code')
             ->join('shipping', 'orders.ShippingID = shipping.id')
             ->where('shipping.user_id', $user_id)
+            ->order_by("FIELD(orders.Order_Status, -1, 1, 2, 3, 4, 5)")
+            ->order_by('orders.Date_Order', 'DESC')
             ->get();
+
         return $query->result();
     }
+
+
 
 
     public function selectOrderDetails($orderCode)
@@ -598,13 +637,13 @@ class orderModel extends CI_Model
     {
         return $this->db->insert('discount', $data);
     }
-    
+
     public function markCouponAsUsed($coupon_id)
     {
         $this->db->where('DiscountID', $coupon_id);
         return $this->db->update('discount', ['Status' => 0]);
     }
-    
+
 
 
     public function selectDiscountById($DiscountID)
@@ -646,8 +685,20 @@ class orderModel extends CI_Model
         redirect(base_url('discount-code/list'));
     }
 
+    public function cancelOrderByCode($Order_Code)
+    {
 
-    
+        $this->db->select('Order_Status');
+        $this->db->from('orders');
+        $this->db->where('Order_Code', $Order_Code);
+        $order = $this->db->get()->row();
 
+        if ($order && in_array($order->Order_Status, [-1, 1, 2])) {
 
+            $this->db->where('Order_Code', $Order_Code);
+            return $this->db->update('orders', ['Order_Status' => 5]);
+        }
+
+        return false;
+    }
 }

@@ -46,17 +46,36 @@ class categoryModel extends CI_Model
     }
 
 
+    // public function bulkupdateCategory($category_ids, $new_status)
+    // {
+    //     foreach ($category_ids as $category_id) {
+
+    //         $data = [
+    //             'Status' => $new_status,
+    //         ];
+    //         $result = $this->db->update('category', $data, ['CategoryID' => $category_id]);
+    //     }
+    //     $this->session->set_flashdata('success', 'Cập nhật thành công');
+    //     redirect(base_url('category/list'));
+    // }
+
+
     public function bulkupdateCategory($category_ids, $new_status)
     {
-        foreach ($category_ids as $category_id) {
+        $this->db->trans_begin();
 
-            $data = [
-                'Status' => $new_status,
-            ];
-            $result = $this->db->update('category', $data, ['CategoryID' => $category_id]);
+        foreach ($category_ids as $category_id) {
+            $data = ['Status' => $new_status];
+            $this->db->update('category', $data, ['CategoryID' => $category_id]);
         }
-        $this->session->set_flashdata('success', 'Cập nhật thành công');
-        redirect(base_url('category/list'));
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            return false;
+        } else {
+            $this->db->trans_commit();
+            return true;
+        }
     }
 
 
@@ -69,10 +88,10 @@ class categoryModel extends CI_Model
         $query = $this->db->get();
 
         if ($query->num_rows() > 0) {
-            // Nếu có sản phẩm sử dụng danh mục này
+
             return true;
         } else {
-            // Nếu không có sản phẩm nào liên kết
+
             return false;
         }
     }

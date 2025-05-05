@@ -60,6 +60,7 @@ class orderController extends CI_Controller
 		$perpage         = (int)$this->input->get('perpage');
 		$perpage         = ($perpage > 0) ? $perpage : 10;
 
+		
 		if (empty($sort_order)) {
 			$sort_order = 'desc';
 		}
@@ -125,10 +126,20 @@ class orderController extends CI_Controller
 		$this->load->model('orderModel');
 		$data['order_details'] = $this->orderModel->selectOrderDetails($order_code);
 
+		// echo '<pre>';
+		// print_r($data['order_details']);
+		// echo '</pre>';
+
 		if (!empty($data['order_details'])) {
 
 			foreach ($data['order_details'] as &$order_detail) {
+
+
 				$order_detail->product_qty_in_batches = $this->orderModel->get_qty_product_in_batches($order_detail->ProductID, $order_detail->qty);
+				// echo '<pre>';
+				// print_r($order_detail->product_qty_in_batches);
+				// echo '</pre>';
+
 			}
 
 			$data['title'] = "Chi tiết đơn hàng";
@@ -190,7 +201,7 @@ class orderController extends CI_Controller
 
 		$this->load->model('orderModel');
 
-		if ($value == 4) { // Đơn hàng đã thanh toán
+		if ($value == 4) {
 			$timenow = Carbon\Carbon::now('Asia/Ho_Chi_Minh')->toDateTimeString();
 			$data_order = array(
 				'Order_Status' => $value,
@@ -227,14 +238,14 @@ class orderController extends CI_Controller
 	public function update_order_status()
 	{
 		$value = (int)$this->input->post('value');
-		$order_codes = $this->input->post('Order_Code');
-		if (!is_array($order_codes)) {
-			$order_codes = [$order_codes];
+		$order_code = $this->input->post('Order_Code');
+		if (!is_array($order_code)) {
+			$order_code = [$order_code];
 		}
 		$product_qty_in_batch = $this->input->post('product_qty_in_batch');
 
 		$this->load->model('orderModel');
-		$result = $this->orderModel->process_order_status_update($value, $order_codes, $product_qty_in_batch);
+		$result = $this->orderModel->process_order_status_update($value, $order_code, $product_qty_in_batch);
 
 		echo json_encode($result);
 		return;
@@ -263,6 +274,27 @@ class orderController extends CI_Controller
 
 		redirect(base_url('order_admin/listOrder'));
 	}
+
+
+
+	public function customerCancelOrder($Order_Code)
+	{
+		$this->load->model('orderModel');
+	
+		$result = $this->orderModel->cancelOrderByCode($Order_Code);
+	
+		if ($result) {
+			$this->session->set_flashdata('success', 'Hủy đơn hàng thành công.');
+		} else {
+			$this->session->set_flashdata('error', 'Không thể hủy đơn hàng này.');
+		}
+	
+		redirect(base_url('order_customer/listOrder'));
+	}
+	
+
+
+
 
 
 	public function printOrder($order_code)

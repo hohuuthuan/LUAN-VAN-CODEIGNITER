@@ -11,7 +11,6 @@
             <div class="ibox-content">
                 <?php $this->load->view('review/component/filterReviewDetail'); ?>
                 <?php $this->load->view('review/component/listReviewOfProduct'); ?>
-                
             </div>
         </div>
     </div>

@@ -340,19 +340,25 @@ class productController extends CI_Controller
 			$this->session->set_flashdata('error', 'Vui lòng chọn ít nhất một sản phẩm.');
 			redirect(base_url('product/list'));
 		}
-		if (empty((int) $this->input->post('new_status'))) {
-			$this->session->set_flashdata('error', 'Cần chọn trạng thái');
-			redirect(base_url('product/list'));
-			return;
-		}
+		
 
 		$this->load->model('productModel');
 
 		if ($action === 'update_status') {
+			if (empty((int) $this->input->post('new_status'))) {
+				$this->session->set_flashdata('error', 'Cần chọn trạng thái');
+				redirect(base_url('product/list'));
+				return;
+			}
 			$new_status = (int) $this->input->post('new_status');
 			$this->productModel->bulkUpdateStatus($product_ids, $new_status);
 			$this->session->set_flashdata('success', 'Cập nhật trạng thái thành công');
 		} elseif ($action === 'update_promotion') {
+			if (empty((int) $this->input->post('promotion'))) {
+				$this->session->set_flashdata('error', 'Cần nhập % giảm giá');
+				redirect(base_url('product/list'));
+				return;
+			}
 			$promotion = (int) $this->input->post('promotion');
 			if ($promotion >= 0 && $promotion <= 100) {
 				$this->productModel->bulkUpdatePromotion($product_ids, $promotion);

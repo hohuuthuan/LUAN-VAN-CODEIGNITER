@@ -24,7 +24,7 @@
                         <td><?= ucfirst($summary->Discount_type) ?></td>
                         <td><?= $summary->total ?></td>
                         <td><?= $summary->active ?></td>
-                        <td><?= $summary->expired ?></td> <!-- Hiển thị số mã hết hiệu lực -->
+                        <td><?= $summary->expired ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

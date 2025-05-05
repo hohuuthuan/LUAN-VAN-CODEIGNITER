@@ -1,4 +1,4 @@
-<section id="slider"><!--slider-->
+<section id="slider">
 
     <div class="container">
     </div>
@@ -36,4 +36,4 @@
             </div>
         </div>
     </div>
-</section><!--/slider-->
+</section>

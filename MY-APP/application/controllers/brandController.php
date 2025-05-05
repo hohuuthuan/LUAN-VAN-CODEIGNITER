@@ -42,8 +42,6 @@ class brandController extends CI_Controller
 	}
 
 
-
-
 	public function index($page = 1)
 	{
 		$this->config->config['pageTitle'] = 'List Brand';
@@ -303,19 +301,26 @@ class brandController extends CI_Controller
 		$brand_ids = $this->input->post('brand_ids');
 		$new_status = (int) $this->input->post('new_status');
 
+		// echo '<pre>';
+		// print_r($brand_ids);
+		// echo '</pre>';
+
+		// echo $new_status; die();
+
+
 		if (empty($brand_ids) || !is_array($brand_ids)) {
 			$this->session->set_flashdata('error', 'Cần chọn ít nhất một nhà cung cấp');
 			redirect(base_url('brand/list'));
 			return;
 		}
 
-		if (empty($new_status)) {
+		if (!isset($new_status)) {
 			$this->session->set_flashdata('error', 'Cần chọn trạng thái');
 			redirect(base_url('brand/list'));
 			return;
 		}
 
-		$this->load->model('supplierModel');
+		$this->load->model('brandModel');
 		$this->brandModel->bulkupdateBrand($brand_ids, $new_status);
 		$this->session->set_flashdata('success', 'Cập nhật trạng thái thành công');
 		redirect(base_url('brand/list'));
@@ -331,23 +336,23 @@ class brandController extends CI_Controller
 		}
 		return true;
 	}
-	public function deleteBrand($BrandID)
-	{
-		$this->load->model('brandModel');
-		$this->load->model('productModel');
+	// public function deleteBrand($BrandID)
+	// {
+	// 	$this->load->model('brandModel');
+	// 	$this->load->model('productModel');
 
-		$brandUsedInProducts = $this->brandModel->checkBrandInProducts($BrandID);
+	// 	$brandUsedInProducts = $this->brandModel->checkBrandInProducts($BrandID);
 
-		if ($brandUsedInProducts) {
-			$this->session->set_flashdata('error', 'Không thể xóa thương hiệu vì có sản phẩm đang sử dụng.');
-		} else {
+	// 	if ($brandUsedInProducts) {
+	// 		$this->session->set_flashdata('error', 'Không thể xóa thương hiệu vì có sản phẩm đang sử dụng.');
+	// 	} else {
 
-			if ($this->brandModel->deleteBrand($BrandID)) {
-				$this->session->set_flashdata('success', 'Đã xóa thương hiệu thành công');
-			} else {
-				$this->session->set_flashdata('error', 'Xóa thương hiệu thất bại');
-			}
-		}
-		redirect(base_url('brand/list'));
-	}
+	// 		if ($this->brandModel->deleteBrand($BrandID)) {
+	// 			$this->session->set_flashdata('success', 'Đã xóa thương hiệu thành công');
+	// 		} else {
+	// 			$this->session->set_flashdata('error', 'Xóa thương hiệu thất bại');
+	// 		}
+	// 	}
+	// 	redirect(base_url('brand/list'));
+	// }
 }

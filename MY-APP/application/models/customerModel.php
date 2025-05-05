@@ -169,16 +169,26 @@ class customerModel extends CI_Model
 
 
 
+    // public function bulkupdateCustomer($customer_ids, $new_status){
+    //     foreach ($customer_ids as $customer_id) {
+    //         $data = [
+    //             'Status' => $new_status,
+    //         ];
+    //         $this->db->update('users', $data, ['UserID' => $customer_id]);
+    //     }
+    //     $this->session->set_flashdata('success', 'Cập nhật thành công');
+    //     redirect(base_url('manage-customer/list'));
+    // }
+
+
     public function bulkupdateCustomer($customer_ids, $new_status){
-        foreach ($customer_ids as $customer_id) {
-            $data = [
-                'Status' => $new_status,
-            ];
-            $this->db->update('users', $data, ['UserID' => $customer_id]);
-        }
+        $this->db->where_in('UserID', $customer_ids);
+        $this->db->update('users', ['Status' => $new_status]);
+    
         $this->session->set_flashdata('success', 'Cập nhật thành công');
         redirect(base_url('manage-customer/list'));
     }
+    
 
 
     public function getCustomerByEmailAndPhone($email, $phone)
@@ -211,7 +221,7 @@ class customerModel extends CI_Model
 
     public function updateCustomerChangePassword($email, $phone, $update_data)
     {
-        // Kiểm tra dữ liệu đầu vào
+   
         if (is_array($update_data)) {
             $this->db->where('email', $email);
             $this->db->or_where('phone', $phone);

@@ -14,6 +14,8 @@ class revenueModel extends CI_Model
         ";
         $query = $this->db->query($sql);
         return $query->row()->TotalRevenueToday ?? 0;
+
+        
     }
 
     // Tính tổng lợi nhuận của ngày hôm nay
@@ -21,7 +23,7 @@ class revenueModel extends CI_Model
     {
         $sql = "
             SELECT 
-                SUM(od.Quantity * od.Selling_price) AS Total_Revenue,
+                SUM(o.TotalAmount) AS Total_Revenue,
                 SUM(ob.quantity * b.Import_price) AS Total_Cost,
                 SUM(od.Quantity * od.Selling_price) - SUM(ob.quantity * b.Import_price) AS Total_Profit
             FROM orders o
@@ -34,6 +36,39 @@ class revenueModel extends CI_Model
         $query = $this->db->query($sql);
         return $query->row()->Total_Profit ?? 0;
     }
+
+    // public function getTodayProfit()
+    // {
+    //     $sql = "
+    //     SELECT 
+    //         order_summary.Total_Revenue,
+    //         cost_summary.Total_Cost,
+    //         order_summary.Total_Revenue - cost_summary.Total_Cost AS Total_Profit
+    //     FROM (
+    //         SELECT SUM(o.TotalAmount) AS Total_Revenue
+    //         FROM orders o
+    //         WHERE o.Payment_Status = 1
+    //           AND o.Order_Status = 4
+    //           AND DATE(o.Payment_date_successful) = CURDATE()
+    //     ) AS order_summary,
+    //     (
+    //         SELECT SUM(ob.quantity * b.Import_price) AS Total_Cost
+    //         FROM orders o
+    //         JOIN order_detail od ON o.Order_Code = od.Order_Code
+    //         JOIN order_batches ob ON od.id = ob.order_detail_id
+    //         JOIN batches b ON ob.batch_id = b.Batch_ID
+    //         WHERE o.Payment_Status = 1
+    //           AND o.Order_Status = 4
+    //           AND DATE(o.Payment_date_successful) = CURDATE()
+    //     ) AS cost_summary
+    // ";
+
+    //     $query = $this->db->query($sql);
+    //     return $query->row()->Total_Profit ?? 0;
+    // }
+
+
+
 
     // Tính tổng số đơn hàng mới của ngày hôm nay
     public function getTodayNewOrders()

@@ -9,61 +9,54 @@
 
 				</div>
 				<div class="col-sm-8">
-					<div class="shop-menu pull-right">
-						<ul class="nav navbar-nav">
-							<?php
-							if ($this->session->userdata('logged_in_customer')) {
-							?>
-								<li>
-									<a href="#">
-								<li class="nav-item dropdown">
-									<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-										data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										<i class="fa fa-user"></i>
-										<b>
-											<?php echo $this->session->userdata('logged_in_customer')['username'] ?>
-										</b>
-										<i class="fa-solid fa-caret-down"></i>
-
-
-									</a>
-									<div style=" text-align: center;" class="dropdown-menu" aria-labelledby="navbarDropdown">
-										<a class="dropdown-item"
-											href="<?php echo base_url('profile-user'); ?>">
-											<h5>Thông tin cá nhân</h5>
-										</a>
-									</div>
-								</li>
-								</a>
-								</li>
-								<!-- <li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li> -->
-								<li>
-									<a href="<?php echo base_url('checkout') ?>"><i class="fa fa-crosshairs"></i>
-										Thanh toán
-									</a>
-								</li>
-								<li>
-
-									<a href="<?php echo base_url('dang-xuat') ?>"><i class="fa fa-lock"></i> Đăng xuất</a>
-								</li>
-							<?php
-							} else {
-							?>
-								<li><a href="<?php echo base_url('dang-nhap') ?>"><i class="fa fa-lock"></i> Đăng nhập</a>
-								</li>
-							<?php } ?>
-							<li>
-								<a href="<?php echo base_url('gio-hang') ?>"><i class="fa fa-shopping-cart"></i>
-									Giỏ hàng</a>
-							</li>
-							<li>
-								<a href="<?php echo base_url('order_customer/listOrder') ?>"><i class="fa fa-list"></i> Lịch sử đặt hàng
-								</a>
-							</li>
-
-						</ul>
+	<div class="shop-menu pull-right">
+		<ul class="nav navbar-nav">
+			<?php if ($this->session->userdata('logged_in_customer') || $this->session->userdata('logged_in_admin')): ?>
+				<?php
+				$session_data = $this->session->userdata('logged_in_customer') ?? $this->session->userdata('logged_in_admin');
+				?>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+						data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-user"></i>
+						<b><?php echo $session_data['username'] ?></b>
+						<i class="fa-solid fa-caret-down"></i>
+					</a>
+					<div class="dropdown-menu" aria-labelledby="navbarDropdown" style="text-align: center;">
+						<a class="dropdown-item" href="<?php echo base_url('profile-user'); ?>">
+							<h5>Thông tin cá nhân</h5>
+						</a>
 					</div>
-				</div>
+				</li>
+
+				<?php if ($this->session->userdata('logged_in_admin')): ?>
+					<li>
+						<a href="<?php echo base_url('dashboard'); ?>"><i class="fa fa-cogs"></i>Trang quản lý</a>
+					</li>
+				<?php endif; ?>
+
+				<li>
+					<a href="<?php echo base_url('checkout') ?>"><i class="fa fa-crosshairs"></i> Thanh toán</a>
+				</li>
+				<li>
+					<a href="<?php echo base_url('dang-xuat') ?>"><i class="fa fa-lock"></i> Đăng xuất</a>
+				</li>
+			<?php else: ?>
+				<li>
+					<a href="<?php echo base_url('dang-nhap') ?>"><i class="fa fa-lock"></i> Đăng nhập</a>
+				</li>
+			<?php endif; ?>
+			<li>
+				<a href="<?php echo base_url('gio-hang') ?>"><i class="fa fa-shopping-cart"></i> Giỏ hàng</a>
+			</li>
+			<li>
+				<a href="<?php echo base_url('order_customer/listOrder') ?>"><i class="fa fa-list"></i> Lịch sử đặt hàng</a>
+			</li>
+		</ul>
+	</div>
+</div>
+
+
 			</div>
 		</div>
 	</div><!--/header-middle-->
@@ -112,7 +105,7 @@
 					<div class="search_box pull-right">
 						<form action="<?php echo base_url('search-product') ?>" method="GET">
 							<input type="text" name="keyword" placeholder="Tên sản phẩm..." id="searchKeyword" value="<?php echo $this->input->get('keyword'); ?>" />
-							<input type="submit" class="btn btn-default" value=	"Tìm kiếm" />
+							<input type="submit" class="btn btn-default" value="Tìm kiếm" />
 						</form>
 
 					</div>

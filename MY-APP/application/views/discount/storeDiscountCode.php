@@ -1,9 +1,5 @@
 <?php $this->load->view('admin-layout/component-admin/breadcrumb'); ?>
 
-
-<?php var_dump($errors) ?>
-
-
 <form action="<?php echo base_url('discount-code/storage') ?>" method="post" class="box">
     <div class="wrapper wrapper-content animated fadeInRight">
         <div class="row">

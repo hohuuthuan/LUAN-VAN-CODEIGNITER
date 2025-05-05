@@ -113,14 +113,12 @@ $sidebar_menu = [
                     </span>
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <span class="clear">
-                            <span class="block m-t-xs"><strong class="font-bold">Huu Thuan</strong></span>
-                            <span class="text-muted text-xs block">Art Director <b class="caret"></b></span>
+                            <span class="block m-t-xs"><strong class="font-bold">Hữu Thuận</strong></span>
+                            <span class="text-muted text-xs block">Thao tác<b class="caret"></b></span>
                         </span>
                     </a>
                     <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                        <li><a href="#">Profile</a></li>
-                        <li><a href="#">Contacts</a></li>
-                        <li><a href="#">Mailbox</a></li>
+                
                         <li class="divider"></li>
                         <li><a href="<?php echo base_url('logout_admin'); ?>">Logout</a></li>
                     </ul>
@@ -179,3 +177,88 @@ $sidebar_menu = [
         </ul>
     </div>
 </nav>
+
+
+
+<!-- <nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav metismenu" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element">
+
+                    <?php
+                    $avatar = (!empty($user->Avatar) && file_exists(FCPATH . 'uploads/user/' . $user->Avatar))
+                        ? base_url('uploads/user/' . $user->Avatar)
+                        : base_url('uploads/user/1743060974cabybara.jpg');
+                    ?>
+
+                    <span>
+                        <img width="50" height="50" class="img-circle" src="<?= $avatar ?>" />
+                    </span>
+
+                    <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                        <span class="clear">
+                            <span class="block m-t-xs"><strong class="font-bold"><?php echo $user->Name?></strong></span>
+                            <span class="text-muted text-xs block">Thao tác<b class="caret"></b></span>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight m-t-xs">
+                        <li><a href="<?php echo base_url('profile-user')?>">Thông tin cá nhân</a></li>
+            
+                        <li><a href="<?php echo base_url('logout_admin'); ?>">Đăng xuất</a></li>
+                    </ul>
+                </div>
+                <div class="logo-element">IN+</div>
+            </li>
+
+            <?php foreach ($sidebar_menu as $key => $menu): ?>
+                <?php
+                $is_active = false;
+                if (!empty($menu['children'])) {
+                    foreach ($menu['children'] as $child) {
+                        $child_segments = explode('/', $child['url']);
+                        $child_page = $child_segments[0] ?? '';
+                        $child_sub = $child_segments[1] ?? '';
+
+                        if ($current_page === $child_page && ($sub_page === $child_sub || empty($child_sub))) {
+                            $is_active = true;
+                            break;
+                        }
+                    }
+                } else {
+                    $is_active = $current_page === $key;
+                }
+
+                ?>
+
+                <li class="<?php echo $is_active ? 'active' : ''; ?>">
+                    <a href="<?php echo isset($menu['url']) ? base_url($menu['url']) : '#'; ?>">
+                        <i class="fa <?php echo $menu['icon']; ?>"></i>
+                        <span class="nav-label"><?php echo $menu['label']; ?></span>
+                        <?php if (!empty($menu['children'])): ?>
+                            <span class="fa arrow"></span>
+                        <?php endif; ?>
+                    </a>
+
+                    <?php if (!empty($menu['children'])): ?>
+                        <ul class="nav nav-second-level <?php echo $is_active ? 'in' : ''; ?>">
+                            <?php foreach ($menu['children'] as $child): ?>
+                                <?php
+                                $child_segments = explode('/', $child['url']);
+                                $child_page = $child_segments[0] ?? '';
+                                $child_sub = $child_segments[1] ?? '';
+
+                                $child_active = $current_page === $child_page && ($sub_page === $child_sub || empty($child_sub));
+                                ?>
+
+                                <li class="<?php echo $child_active ? 'active' : ''; ?>">
+                                    <a href="<?php echo base_url($child['url']); ?>"><?php echo $child['label']; ?></a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+</nav> -->

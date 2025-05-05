@@ -74,7 +74,7 @@ class sliderController extends CI_Controller
 	public function storeSlider()
 	{
 		$this->form_validation->set_rules('title', 'title', 'trim|required', ['required' => 'Bạn cần nhập tên banner']);
-		$this->form_validation->set_rules('image', 'Hình ảnh', 'required', ['required' => 'Bạn cần chọn %s']);
+	
 
 		if ($this->form_validation->run()) {
 
@@ -88,6 +88,7 @@ class sliderController extends CI_Controller
 			$this->load->library('upload', $config);
 
 			if (!$this->upload->do_upload('image')) {
+				$this->session->set_flashdata('error', 'Chưa có hình ảnh');
 				$data['error'] = $this->upload->display_errors();
 				$data['template'] = "slider/storeSlider";
 				$data['title'] = "Thêm mới Banner";
@@ -105,6 +106,7 @@ class sliderController extends CI_Controller
 				redirect(base_url('slider/list'));
 			}
 		} else {
+			$this->session->set_flashdata('error', 'Chưa nhập đủ trường dữ liệu');
 			$this->createSlider();
 		}
 	}

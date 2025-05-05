@@ -9,22 +9,25 @@ defined('BASEPATH') or exit('No direct script access allowed');
  * @property input $input
  * @property load $load
  * @property model $model
- * @property warehouseModel $warehouseModel
- * @property indexModel $indexModel
- * @property productModel $productModel
+ * @property WarehouseModel $WarehouseModel
+ * @property IndexModel $IndexModel
+ * @property ProductModel $ProductModel
  * @property pagination $pagination
  * @property uri $uri
  * @property pagination $pagination
- * @property brandModel $brandModel
- * @property categoryModel $categoryModel
+ * @property BrandModel $BrandModel
+ * @property CategoryModel $CategoryModel
  * @property upload $upload
- * @property revenueModel $revenueModel
- * @property orderModel $orderModel
+ * @property RevenueModel $RevenueModel
+ * @property OrderModel $OrderModel
+ * @property CustomerModel $CustomerModel
+ * 
  */
 
 
 class dashboardController extends CI_Controller
 {
+
     public function __construct()
     {
         parent::__construct();
@@ -58,23 +61,63 @@ class dashboardController extends CI_Controller
         }
     }
 
+    public function getUserOnSession()
+    {
+        $this->checkLogin();
+
+        if ($this->session->userdata('logged_in_admin')) {
+            return $this->session->userdata('logged_in_admin');
+        }
+
+        return null;
+    }
+
+
+    public function profile_user()
+    {
+
+        $this->config->config['pageTitle'] = 'Chỉnh sửa thông tin';
+        $user_id = $this->getUserOnSession();
+
+
+        if ($user_id) {
+            $this->load->model('CustomerModel');
+            $profile_user = $this->CustomerModel->selectCustomerById($user_id['id']);
+
+            if ($profile_user) {
+                // echo $profile_user->id;
+                $this->load->view('pages/customer/profile_Customer', ['profile_user' => $profile_user]);
+            } else {
+                echo 'Không tìm thấy thông tin người dùng';
+            }
+        } else {
+            echo 'Không tìm thấy ID người dùng trong session';
+        }
+    }
+
 
 
     public function index()
     {
+
         $this->config->config['pageTitle'] = 'Dashboard';
 
         // Load model
-        $this->load->model('revenueModel');
+        $this->load->model('RevenueModel');
         $currentYear = Carbon\Carbon::now()->year;
         $startMonth = Carbon\Carbon::create($currentYear, 1, 1)->format('Y-m');
         $endMonth = Carbon\Carbon::create($currentYear, 12, 1)->format('Y-m');
-        $data['profits'] = $this->revenueModel->getProfitByMonthRange($startMonth, $endMonth);
+        $data['profits'] = $this->RevenueModel->getProfitByMonthRange($startMonth, $endMonth);
         $data['timeType'] = 'month';
-        $data['todayRevenue'] = $this->revenueModel->getTodayRevenue();
-        $data['todayProfit'] = $this->revenueModel->getTodayProfit();
-        $data['todayNewOrders'] = $this->revenueModel->getTodayNewOrders();
-        $data['todayNewUsers'] = $this->revenueModel->getTodayNewUsers();
+        $data['todayRevenue'] = $this->RevenueModel->getTodayRevenue();
+        $data['todayProfit'] = $this->RevenueModel->getTodayProfit();
+        $data['todayNewOrders'] = $this->RevenueModel->getTodayNewOrders();
+        $data['todayNewUsers'] = $this->RevenueModel->getTodayNewUsers();
+
+        
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
 
 
         // Load view
@@ -85,7 +128,7 @@ class dashboardController extends CI_Controller
     public function discount_code_list($page = 1)
     {
         $this->config->config['pageTitle'] = 'List Discount';
-        $this->load->model('orderModel');
+        $this->load->model('OrderModel');
         $this->load->helper('pagination');
 
         $keyword  = $this->input->get('keyword', true);
@@ -110,7 +153,7 @@ class dashboardController extends CI_Controller
         ];
 
         // Tính tổng số bản ghi theo filter
-        $total = $this->orderModel->countDiscountCode($filter);
+        $total = $this->OrderModel->countDiscountCode($filter);
 
         $page = (int) $page;
         $page = $page > 0 ? $page : 1;
@@ -124,8 +167,8 @@ class dashboardController extends CI_Controller
         $start = ($page - 1) * $perpage;
 
         // Lấy danh sách mã giảm giá theo filter
-        $data['DiscountCodes'] = $this->orderModel->selectDiscountCode($filter, $perpage, $start);
-        $data['discountSummary'] = $this->orderModel->getDiscountSummaryByType();
+        $data['DiscountCodes'] = $this->OrderModel->selectDiscountCode($filter, $perpage, $start);
+        $data['discountSummary'] = $this->OrderModel->getDiscountSummaryByType();
 
 
 
@@ -152,7 +195,7 @@ class dashboardController extends CI_Controller
     // public function discount_code_list($page = 1)
     // {
     //     $this->config->config['pageTitle'] = 'List Discount';
-    //     $this->load->model('orderModel');
+    //     $this->load->model('OrderModel');
     //     $this->load->helper('pagination');
 
     //     $keyword  = $this->input->get('keyword', true);
@@ -163,7 +206,7 @@ class dashboardController extends CI_Controller
     //     $perpage  = (int) $this->input->get('perpage');
     //     $perpage  = $perpage > 0 ? $perpage : 5;
 
-    //     $total = $this->orderModel->countDiscountCode($keyword, $status);
+    //     $total = $this->OrderModel->countDiscountCode($keyword, $status);
 
     //     $page = (int) $page;
     //     $page = $page > 0 ? $page : 1;
@@ -176,8 +219,8 @@ class dashboardController extends CI_Controller
 
     //     $start = ($page - 1) * $perpage;
 
-    //     $data['DiscountCodes'] = $this->orderModel->selectDiscountCode($keyword, $status, $perpage, $start);
-    //     $data['discountSummary'] = $this->orderModel->getDiscountSummaryByType();
+    //     $data['DiscountCodes'] = $this->OrderModel->selectDiscountCode($keyword, $status, $perpage, $start);
+    //     $data['discountSummary'] = $this->OrderModel->getDiscountSummaryByType();
 
 
     //     $data['links'] = init_pagination(base_url('discount-code/list'), $total, $perpage, 3);
@@ -221,10 +264,10 @@ class dashboardController extends CI_Controller
     // public function createDiscountCode()
     // {
     //     $this->config->config['pageTitle'] = 'Create Discount';
-    //     // $this->load->model('orderModel');
+    //     // $this->load->model('OrderModel');
     //     $data['errors'] = $this->session->flashdata('errors');
     //     $data['input'] = $this->session->flashdata('input');
-    //     // $data['discount'] = $this->orderModel->selectDiscount();
+    //     // $data['discount'] = $this->OrderModel->selectDiscount();
     //     $data['title'] = "Thêm mới mã giảm giá";
     //     $data['breadcrumb'] = [
     //         ['label' => 'Dashboard', 'url' => 'dashboard'],
@@ -242,9 +285,9 @@ class dashboardController extends CI_Controller
         $data['errors'] = $this->session->flashdata('errors');
         $data['input'] = $this->session->flashdata('input');
 
-        echo '<pre>';
-        print_r($data['errors']);
-        echo '</pre>';
+        // echo '<pre>';
+        // print_r($data['errors']);
+        // echo '</pre>';
 
         // Cấu hình thông tin cho view
         $data['title'] = "Thêm mới mã giảm giá";
@@ -261,7 +304,7 @@ class dashboardController extends CI_Controller
 
     public function updateDiscountCodes($DiscountID)
     {
-        $this->load->model('orderModel');
+        $this->load->model('OrderModel');
 
         $this->form_validation->set_rules('Coupon_code', 'mã nhập', 'trim|required', ['required' => 'Bạn cần điền %s']);
         $this->form_validation->set_rules('Discount_type', 'Discount_type', 'trim|required', ['required' => 'Bạn cần chọn kiểu mã giảm giá']);
@@ -285,7 +328,7 @@ class dashboardController extends CI_Controller
         }
 
         // Nếu không có lỗi, tiếp tục xử lý như bình thường
-        $old_data = $this->orderModel->selectDiscountById($DiscountID);
+        $old_data = $this->OrderModel->selectDiscountById($DiscountID);
         $new_data = [
             'Coupon_code' => $this->input->post('Coupon_code'),
             'Discount_type' => $this->input->post('Discount_type'),
@@ -300,7 +343,7 @@ class dashboardController extends CI_Controller
             $this->session->set_flashdata('info', 'Không có thay đổi nào để lưu.');
             return $this->discount_code_edit($DiscountID);
         } else {
-            $result = $this->orderModel->updateDiscountCode($DiscountID, $new_data);
+            $result = $this->OrderModel->updateDiscountCode($DiscountID, $new_data);
             if ($result) {
                 $this->session->set_flashdata('success', 'Đã chỉnh sửa mã giảm giá thành công.');
             } else {
@@ -315,16 +358,16 @@ class dashboardController extends CI_Controller
     public function storageDiscountCode()
     {
 
-        $this->load->model('orderModel');
+        $this->load->model('OrderModel');
 
-       
+
         $this->form_validation->set_rules('Discount_type', 'Discount_type', 'trim|required', ['required' => 'Bạn cần chọn kiểu mã giảm giá']);
         $this->form_validation->set_rules('Discount_value', 'giá trị mã giảm giá', 'trim|required', ['required' => 'Bạn cần điền %s']);
         $this->form_validation->set_rules('Min_order_value', 'giá trị tối thiểu của đơn hàng', 'trim|required', ['required' => 'Bạn cần điền %s']);
         $this->form_validation->set_rules('Start_date', 'ngày bắt đầu hiệu lực', 'trim|required', ['required' => 'Bạn cần điền %s']);
         $this->form_validation->set_rules('End_date', 'ngày hết hạn của mã giảm giá', 'trim|required', ['required' => 'Bạn cần điền %s']);
         $this->form_validation->set_rules('Number_of_discount_codes', 'số lượng mã giảm giá', 'trim|required', ['required' => 'Bạn cần điền %s']);
-        
+
 
         if ($this->input->post('Discount_type') == 'Percentage') {
             $this->form_validation->set_rules('Discount_value', 'giá trị mã giảm giá', 'trim|required|numeric|greater_than_equal_to[0]|less_than_equal_to[100]', [
@@ -352,22 +395,22 @@ class dashboardController extends CI_Controller
             ];
 
             // Thực hiện tạo mã giảm giá
-            $this->load->model('orderModel');
+            $this->load->model('OrderModel');
             $created = 0;
             for ($i = 0; $i < $Number_of_discount_codes; $i++) {
                 do {
                     $code = $this->generate_discount_code();
-                    $exists = $this->orderModel->checkCouponCodeExists($code);
+                    $exists = $this->OrderModel->checkCouponCodeExists($code);
                 } while ($exists);
 
                 $data['Coupon_code'] = $code;
-                $this->orderModel->insertDiscountCode($data);
+                $this->OrderModel->insertDiscountCode($data);
                 $created++;
             }
 
             $this->session->set_flashdata('success', "Đã tạo thành công $created mã giảm giá.");
             redirect(base_url('discount-code/list'));
-        } 
+        }
     }
 
 
@@ -382,8 +425,8 @@ class dashboardController extends CI_Controller
     public function discount_code_edit($DiscountID)
     {
         $this->config->config['pageTitle'] = 'Edit Brand';
-        $this->load->model('orderModel');
-        $data['discount'] = $this->orderModel->selectDiscountById($DiscountID);
+        $this->load->model('OrderModel');
+        $data['discount'] = $this->OrderModel->selectDiscountById($DiscountID);
 
         $data['title'] = "Chỉnh sửa mã giảm giá";
         $data['breadcrumb'] = [
@@ -407,7 +450,7 @@ class dashboardController extends CI_Controller
 
     public function updateDiscountCode($DiscountID)
     {
-        $this->load->model('orderModel');
+        $this->load->model('OrderModel');
 
         $this->form_validation->set_rules('Coupon_code', 'mã nhập', 'trim|required', ['required' => 'Bạn cần điền %s']);
         $this->form_validation->set_rules('Discount_type', 'Discount_type', 'trim|required', ['required' => 'Bạn cần chọn kiểu mã giảm giá']);
@@ -431,7 +474,7 @@ class dashboardController extends CI_Controller
         }
 
         // Nếu không có lỗi, tiếp tục xử lý như bình thường
-        $old_data = $this->orderModel->selectDiscountById($DiscountID);
+        $old_data = $this->OrderModel->selectDiscountById($DiscountID);
         $new_data = [
             'Coupon_code' => $this->input->post('Coupon_code'),
             'Discount_type' => $this->input->post('Discount_type'),
@@ -446,7 +489,7 @@ class dashboardController extends CI_Controller
             $this->session->set_flashdata('info', 'Không có thay đổi nào để lưu.');
             return $this->discount_code_edit($DiscountID);
         } else {
-            $result = $this->orderModel->updateDiscountCode($DiscountID, $new_data);
+            $result = $this->OrderModel->updateDiscountCode($DiscountID, $new_data);
             if ($result) {
                 $this->session->set_flashdata('success', 'Đã chỉnh sửa mã giảm giá thành công.');
             } else {
@@ -464,8 +507,8 @@ class dashboardController extends CI_Controller
         $discount_code_ids = $this->input->post('discount_code_ids');
         $new_status = (int) $this->input->post('new_status');
 
-        $this->load->model('orderModel');
-        $this->orderModel->bulkupdateDiscount($discount_code_ids, $new_status);
+        $this->load->model('OrderModel');
+        $this->OrderModel->bulkupdateDiscount($discount_code_ids, $new_status);
     }
 
 
@@ -473,8 +516,8 @@ class dashboardController extends CI_Controller
 
     public function deleteDiscountCode($DiscountID)
     {
-        $this->load->model('orderModel');
-        $this->orderModel->deleteDiscountCode($DiscountID);
+        $this->load->model('OrderModel');
+        $this->OrderModel->deleteDiscountCode($DiscountID);
         $this->session->set_flashdata('success', 'Xoá mã giảm giá thành công');
         redirect(base_url('discount-code/list'));
     }
@@ -484,8 +527,8 @@ class dashboardController extends CI_Controller
     // public function list_comment()
     // {
     //     $this->config->config['pageTitle'] = 'List Comments';
-    //     $this->load->model('indexModel');
-    //     $data['comments'] = $this->indexModel->getAllComment();
+    //     $this->load->model('IndexModel');
+    //     $data['comments'] = $this->IndexModel->getAllComment();
     //     // echo '</pre>';
     //     // print_r($data['comments']);
     //     // echo '</pre>';
@@ -500,9 +543,9 @@ class dashboardController extends CI_Controller
 
     // public function deleteComment($cmt_id)
     // {
-    //     $this->load->model('indexModel');
+    //     $this->load->model('IndexModel');
 
-    //     $del_comment_details = $this->indexModel->deleteComment($cmt_id);
+    //     $del_comment_details = $this->IndexModel->deleteComment($cmt_id);
     //     if ($del_comment_details) {
     //         $this->session->set_flashdata('success', 'Xóa bình luận thành công');
     //         redirect(base_url('comment'));
@@ -515,8 +558,8 @@ class dashboardController extends CI_Controller
     // public function editComment($cmt_id)
     // {
     //     $this->config->config['pageTitle'] = 'Edit Customer';
-    //     $this->load->model('indexModel');
-    //     $data['comments'] = $this->indexModel->selectCommentById($cmt_id);
+    //     $this->load->model('IndexModel');
+    //     $data['comments'] = $this->IndexModel->selectCommentById($cmt_id);
     //     $data["title"] = "Chỉnh sửa bình luận";
     //     $data['breadcrumb'] = [
     // 		['label' => 'Dashboard', 'url' => 'dashboard'],
@@ -534,8 +577,8 @@ class dashboardController extends CI_Controller
     //         'comment' => $this->input->post('comment'),
     //         'status' => $this->input->post('status'),
     //     ];
-    //     $this->load->model('indexModel');
-    //     $this->indexModel->updateComment($cmt_id, $data);
+    //     $this->load->model('IndexModel');
+    //     $this->IndexModel->updateComment($cmt_id, $data);
     //     $this->session->set_flashdata('success', 'Đã chỉnh sửa bình luận thành công');
     //     redirect(base_url('comment'));
     // }

@@ -237,6 +237,38 @@ class indexModel extends CI_Model
         return $products;
     }
 
+
+
+    public function getBestSellingProducts($limit = 6)
+    {
+        $this->db->select('product.*, 
+                       category.Name as tendanhmuc, 
+                       brand.Name as tenthuonghieu,
+                       COALESCE(SUM(order_detail.Quantity), 0) as sold_quantity')
+            ->from('order_detail')
+            ->join('orders', 'orders.Order_Code = order_detail.Order_Code')
+            ->join('product', 'product.ProductID = order_detail.ProductID')
+            ->join('category', 'category.CategoryID = product.CategoryID')
+            ->join('brand', 'brand.BrandID = product.BrandID')
+            ->where('product.Status', 1)
+            ->where('orders.Order_Status', 4)
+            ->where('orders.Payment_Status', 1) 
+            ->group_by('product.ProductID')
+            ->order_by('sold_quantity', 'DESC')
+            ->limit($limit);
+
+        $query = $this->db->get();
+        $products = $query->result();
+
+        foreach ($products as $product) {
+            $product->batches = $this->get_batches_by_product($product->ProductID);
+        }
+
+        return $products;
+    }
+
+
+
     public function countSearchProduct($keyword)
     {
         $this->db->from('product');

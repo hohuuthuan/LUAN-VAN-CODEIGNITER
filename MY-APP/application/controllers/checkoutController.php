@@ -41,7 +41,10 @@ class CheckoutController extends CI_Controller
     }
     public function checkLogin()
     {
-        if (!$this->session->userdata('logged_in_customer')) {
+        if (
+            !$this->session->userdata('logged_in_customer') &&
+            !$this->session->userdata('logged_in_admin')
+        ) {
             $this->session->set_flashdata('error', 'Bạn cần đăng nhập để sử dụng chức năng này.');
             redirect(base_url('/dang-nhap'));
         }
@@ -50,9 +53,15 @@ class CheckoutController extends CI_Controller
     public function getUserOnSession()
     {
         $this->checkLogin();
-        // Lấy thông tin người dùng từ session
-        $user_data = $this->session->userdata('logged_in_customer');
-        return $user_data;
+
+
+        if ($this->session->userdata('logged_in_admin')) {
+            return $this->session->userdata('logged_in_admin');
+        } elseif ($this->session->userdata('logged_in_customer')) {
+            return $this->session->userdata('logged_in_customer');
+        }
+
+        return null;
     }
 
 
@@ -163,7 +172,7 @@ class CheckoutController extends CI_Controller
 
         $this->session->unset_userdata("shipping_data_{$order_code}");
 
-  
+
         $order_data = [
             'Order_code' => $order_code,
             'Order_Status' => -1,
@@ -238,7 +247,6 @@ class CheckoutController extends CI_Controller
                 'discount_amount' => $discount_allocated
             ];
             $detail_id = $this->orderModel->insert_order_detail($detail);
-
         }
 
         if ($coupon_id) {
@@ -314,24 +322,31 @@ class CheckoutController extends CI_Controller
     public function thank_you_for_order()
     {
         if (isset($_GET['vnp_Amount']) && $_GET['vnp_ResponseCode'] == 00) {
+
+
             $user_id = $this->getUserOnSession();
             $shipping_data_session = $this->session->userdata("shipping_data_{$_GET['vnp_TxnRef']}");
 
+
             $this->load->model('orderModel');
             $ShippingID = $this->orderModel->newShipping($shipping_data_session);
+
+
 
             if ($ShippingID) {
                 if (!empty($this->session->userdata("shipping_data_{$_GET['vnp_TxnRef']}"))) {
                     $this->session->unset_userdata("shipping_data_{$_GET['vnp_TxnRef']}");
                 }
 
-                // Tính tổng tiền
-                $subtotal = 0;
-                $total = 0;
-                foreach ($this->cart->contents() as $item) {
-                    $subtotal = $item['qty'] * $item['price'];
-                    $total += $subtotal;
-                }
+
+                // $subtotal = 0;
+                // $total = 0;
+                // foreach ($this->cart->contents() as $item) {
+                //     $subtotal = $item['qty'] * $item['price'];
+                //     $total += $subtotal;
+                // }
+
+
 
                 $total_amount = $_GET['vnp_Amount'] / 100;
 
@@ -359,10 +374,13 @@ class CheckoutController extends CI_Controller
                 // Lấy dữ liệu giỏ hàng
                 $cart_items = $this->cart->contents();
                 $subtotal = 0;
-
-                foreach ($cart_items as $item) {
-                    $subtotal += $item['subtotal'];
+                foreach ($this->cart->contents() as $item) {
+                    $subtotal += $item['qty'] * $item['price'];
                 }
+                $total = $subtotal;
+
+              
+
 
                 // Tính tổng chiết khấu sẽ áp dụng
                 $discount_applied = 0;
@@ -405,19 +423,8 @@ class CheckoutController extends CI_Controller
                         'discount_amount' => $discount_allocated
                     ];
                     $detail_id = $this->orderModel->insert_order_detail($detail);
-
-                    // Lưu thông tin batch (kho)
-                    $batches = $this->orderModel->get_qty_product_in_batches($item['id'], $item['qty']);
-                    if (!empty($batches['batches'])) {
-                        foreach ($batches['batches'] as $batch) {
-                            $this->orderModel->insert_order_batches([
-                                'order_detail_id' => $detail_id,
-                                'batch_id' => $batch['Batch_ID'],
-                                'quantity' => $batches['totalQuantity']
-                            ]);
-                        }
-                    }
                 }
+                
             }
             // Lưu thông tin thanh toán VNPAY
             $data_vnpay = [

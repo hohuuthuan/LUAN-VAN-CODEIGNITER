@@ -100,7 +100,7 @@
 					<div class="col-sm-12">
 						<ul class="nav nav-tabs">
 
-							<li class="active"><a href="#reviews" data-toggle="tab">Đánh giá (5)</a></li>
+							<li class="active"><a href="#reviews" data-toggle="tab">Đánh giá</a></li>
 						</ul>
 					</div>
 					<div class="tab-content">
@@ -131,7 +131,7 @@
 										</div>
 
 
-										<div class="review-box mb-4 p-3 border rounded shadow-sm bg-white">
+										<!-- <div class="review-box mb-4 p-3 border rounded shadow-sm bg-white">
 											<div class="review-header d-flex align-items-center justify-content-between mb-2">
 												<div class="d-flex align-items-center">
 													<i class="fa fa-user-circle fa-lg text-primary mr-2"></i>
@@ -157,7 +157,7 @@
 													<p class="mb-0"><?php echo nl2br(htmlspecialchars($review->reply)); ?></p>
 												</div>
 											<?php endif; ?>
-										</div>
+										</div> -->
 
 										
 

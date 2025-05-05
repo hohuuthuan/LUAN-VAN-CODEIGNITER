@@ -25,7 +25,7 @@
                         $price_after_discount = $ord_details->Selling_price * (1 - $ord_details->Promotion / 100);
                         $subtotal = $price_after_discount * $ord_details->qty;
                         $total_sub += $subtotal;
-                        ?>
+                    ?>
                         <tr style="border-bottom: 2px solid #FE980F;">
                             <th scope="row"><?php echo $key + 1 ?></th>
                             <td><?php echo $ord_details->Order_Code ?></td>
@@ -53,17 +53,19 @@
                                 }
                                 ?>
                             </td>
-    
-                            <?php if (($ord_details->order_status == -1) || ($ord_details->order_status == 1) || ($ord_details->order_status == 2) ) { ?>
+
+                            <?php if (in_array($ord_details->order_status, [-1, 1, 2])) { ?>
                                 <td>
                                     <a onclick="return confirm('Bạn chắc chẳn huỷ đơn hàng này chứ')"
-                                        href="<?php echo base_url('order_customer/deleteOrder/' . $ord_details->Order_Code) ?>"
+                                        href="<?php echo base_url('order_customer/customerCancelOrder/' . $ord_details->Order_Code) ?>"
                                         class="btn btn-danger">Huỷ đơn hàng</a>
                                 </td>
                             <?php } elseif ($ord_details->order_status == 3) { ?>
                                 <td style="color: #FE980F; width: 150px;">Đơn đang giao đến bạn, không thể hủy đơn</td>
-                            <?php } else { ?>
+                            <?php } elseif ($ord_details->order_status == 4) { ?>
                                 <td style="color: green; width: 150px;">Đơn hàng đã giao thành công</td>
+                            <?php } elseif ($ord_details->order_status == 5) { ?>
+                                <td style="color: r ed; width: 150px;">Bạn đã huỷ đơn hàng này</td>
                             <?php } ?>
                         </tr>
                     <?php } ?>

@@ -8,6 +8,7 @@
 <body class="body_web">
     <?php $this->load->view('pages/component/loader'); ?>
     <?php $this->load->view('pages/component/header'); ?>
+    
     <?php $this->load->view($template); ?>
     <?php $this->load->view('pages/component/footer'); ?>
 
