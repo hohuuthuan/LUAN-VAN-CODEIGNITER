@@ -115,9 +115,9 @@ class dashboardController extends CI_Controller
         $data['todayNewUsers'] = $this->RevenueModel->getTodayNewUsers();
 
         
-        echo '<pre>';
-        print_r($data);
-        echo '</pre>';
+        // echo '<pre>';
+        // print_r($data);
+        // echo '</pre>';
 
 
         // Load view
